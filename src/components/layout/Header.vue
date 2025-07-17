@@ -1,19 +1,24 @@
 <template>
   <header class="header">
-    <Logo />
-    <div class="header-right">
-      <NavMenu />
-      <!-- <NotificationIcon /> -->
-      <!-- <UserAvatar src="https://randomuser.me/api/portraits/women/44.jpg" /> -->
-    </div>
+    <Container>
+      <div class="header-content">
+        <Logo />
+        <div class="header-right">
+          <NavMenu />
+          <!-- <NotificationIcon /> -->
+          <!-- <UserAvatar src="https://randomuser.me/api/portraits/women/44.jpg" /> -->
+        </div>
+      </div>
+    </Container>
   </header>
 </template>
 
 <script setup lang="ts">
 import Logo from "../common/Logo.vue";
 import NavMenu from "../common/NavMenu.vue";
-// import NotificationIcon from '../common/NotificationIcon.vue'
-// import UserAvatar from '../common/UserAvatar.vue'
+import Container from "../common/Container.vue";
+// import NotificationIcon from "../common/NotificationIcon.vue";
+// import UserAvatar from "../common/UserAvatar.vue";
 </script>
 
 <style scoped lang="scss">
@@ -22,14 +27,18 @@ import NavMenu from "../common/NavMenu.vue";
   width: 100%;
   height: 64px;
   background: $white;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 2.5rem;
   border-bottom: 1px solid $gray-200;
   box-sizing: border-box;
   position: relative;
   z-index: 10;
+  display: flex;
+  align-items: center;
+}
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 .header-right {
   display: flex;
@@ -37,8 +46,11 @@ import NavMenu from "../common/NavMenu.vue";
   gap: 1.25rem;
 }
 @media (max-width: 700px) {
+  .header-content {
+    gap: 0.5rem;
+  }
   .header {
-    padding: 0 1rem;
+    height: auto;
   }
   .header-right {
     gap: 0.5rem;

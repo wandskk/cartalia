@@ -1,21 +1,31 @@
 <template>
   <div class="login-container">
-    <form class="login-form" @submit.prevent="onSubmit">
-      <h2 class="login-title">Bem-vindo de volta</h2>
-      <div class="form-group">
-        <label for="email">E-mail</label>
-        <input id="email" v-model="email" type="email" placeholder="Digite seu e-mail" class="input" />
-      </div>
-      <div class="form-group">
-        <label for="password">Senha</label>
-        <input id="password" v-model="password" type="password" placeholder="Digite sua senha" class="input" />
-      </div>
-      <button type="submit" :disabled="loading" class="login-btn">Entrar</button>
-      <span v-if="error" class="error-text login-error">{{ error }}</span>
-      <div class="register-link">
-        <a href="/register">Não tem uma conta? Cadastre-se</a>
-      </div>
-    </form>
+    <Card>
+      <form class="login-form" @submit.prevent="onSubmit">
+        <h2 class="login-title">Bem-vindo de volta</h2>
+        <BaseInput
+          id="email"
+          v-model="email"
+          label="E-mail"
+          placeholder="Digite seu e-mail"
+          type="email"
+          autocomplete="email"
+        />
+        <BaseInput
+          id="password"
+          v-model="password"
+          label="Senha"
+          placeholder="Digite sua senha"
+          type="password"
+          autocomplete="current-password"
+        />
+        <BaseButton type="submit" :loading="loading" color="primary">Entrar</BaseButton>
+        <span v-if="error" class="error-text login-error">{{ error }}</span>
+        <div class="register-link">
+          <a href="/register">Não tem uma conta? Cadastre-se</a>
+        </div>
+      </form>
+    </Card>
   </div>
 </template>
 
@@ -23,6 +33,9 @@
 import { ref } from 'vue'
 import { useAuthStore } from '../../../stores/auth'
 import { useLoadingStore } from '../../../stores/loading'
+import BaseInput from '../../common/BaseInput.vue'
+import BaseButton from '../../common/BaseButton.vue'
+import Card from '../../common/Card.vue'
 
 const email = ref('')
 const password = ref('')
@@ -50,6 +63,8 @@ async function onSubmit() {
 @use '../../../styles/_variables.scss' as *;
 
 .login-container {
+  width: 100%;
+  margin: 0 auto;
   min-height: calc(100vh - 64px);
   display: flex;
   align-items: center;
@@ -57,15 +72,9 @@ async function onSubmit() {
   background: $gray-100;
 }
 .login-form {
-  background: $white;
-  padding: 2.5rem 2rem 2rem 2rem;
-  border-radius: 12px;
-  box-shadow: none;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  min-width: 320px;
-  max-width: 400px;
   width: 100%;
   margin-top: 0;
 }
@@ -75,46 +84,6 @@ async function onSubmit() {
   font-size: 2rem;
   text-align: center;
   color: $gray-900;
-}
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-label {
-  font-size: 1rem;
-  color: $gray-800;
-  font-weight: 500;
-}
-.input {
-  padding: 0.9rem 1rem;
-  border: 1.5px solid $gray-300;
-  border-radius: 10px;
-  font-size: 1rem;
-  background: $white;
-  color: $gray-900;
-  outline: none;
-  transition: border-color 0.2s;
-}
-.input:focus {
-  border-color: $primary;
-}
-.login-btn {
-  width: 100%;
-  padding: 0.9rem 0;
-  border: none;
-  border-radius: 10px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  background: $primary;
-  color: $white;
-  margin-top: 0.5rem;
-  transition: background 0.2s;
-}
-.login-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
 }
 .login-error {
   text-align: center;

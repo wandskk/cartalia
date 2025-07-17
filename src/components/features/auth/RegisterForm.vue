@@ -1,60 +1,81 @@
 <template>
   <div class="register-container">
-    <form class="register-form" @submit.prevent="onSubmit">
-      <h2 class="register-title">Criar conta</h2>
-      <div class="form-group">
-        <label for="name">Nome</label>
-        <input id="name" v-model="name" type="text" placeholder="Digite seu nome" class="input" />
-      </div>
-      <div class="form-group">
-        <label for="email">E-mail</label>
-        <input id="email" v-model="email" type="email" placeholder="Digite seu e-mail" class="input" />
-      </div>
-      <div class="form-group">
-        <label for="password">Senha</label>
-        <input id="password" v-model="password" type="password" placeholder="Digite sua senha" class="input" />
-      </div>
-      <button type="submit" :disabled="loading" class="register-btn">Cadastrar</button>
-      <span v-if="error" class="error-text register-error">{{ error }}</span>
-      <div class="login-link">
-        <a href="/login">Já tem uma conta? Entrar</a>
-      </div>
-    </form>
+    <Card>
+      <form class="register-form" @submit.prevent="onSubmit">
+        <h2 class="register-title">Criar conta</h2>
+        <BaseInput
+          id="name"
+          v-model="name"
+          label="Nome"
+          placeholder="Digite seu nome"
+          type="text"
+          autocomplete="name"
+        />
+        <BaseInput
+          id="email"
+          v-model="email"
+          label="E-mail"
+          placeholder="Digite seu e-mail"
+          type="email"
+          autocomplete="email"
+        />
+        <BaseInput
+          id="password"
+          v-model="password"
+          label="Senha"
+          placeholder="Digite sua senha"
+          type="password"
+          autocomplete="new-password"
+        />
+        <BaseButton type="submit" :loading="loading" color="primary"
+          >Cadastrar</BaseButton
+        >
+        <span v-if="error" class="error-text register-error">{{ error }}</span>
+        <div class="login-link">
+          <a href="/login">Já tem uma conta? Entrar</a>
+        </div>
+      </form>
+    </Card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useAuthStore } from '../../../stores/auth'
-import { useLoadingStore } from '../../../stores/loading'
+import { ref } from "vue";
+import { useAuthStore } from "../../../stores/auth";
+import { useLoadingStore } from "../../../stores/loading";
+import BaseInput from "../../common/BaseInput.vue";
+import BaseButton from "../../common/BaseButton.vue";
+import Card from "../../common/Card.vue";
 
-const name = ref('')
-const email = ref('')
-const password = ref('')
-const loading = ref(false)
-const error = ref('')
-const auth = useAuthStore()
-const globalLoading = useLoadingStore()
+const name = ref("");
+const email = ref("");
+const password = ref("");
+const loading = ref(false);
+const error = ref("");
+const auth = useAuthStore();
+const globalLoading = useLoadingStore();
 
 async function onSubmit() {
-  error.value = ''
-  loading.value = true
-  globalLoading.startLoading()
+  error.value = "";
+  loading.value = true;
+  globalLoading.startLoading();
   try {
-    await auth.register(name.value, email.value, password.value)
+    await auth.register(name.value, email.value, password.value);
   } catch (e: any) {
-    error.value = e?.response?.data?.message || 'Erro ao registrar'
+    error.value = e?.response?.data?.message || "Erro ao registrar";
   } finally {
-    loading.value = false
-    globalLoading.stopLoading()
+    loading.value = false;
+    globalLoading.stopLoading();
   }
 }
 </script>
 
 <style scoped lang="scss">
-@use '../../../styles/_variables.scss' as *;
+@use "../../../styles/_variables.scss" as *;
 
 .register-container {
+  width: 100%;
+  margin: 0 auto;
   min-height: calc(100vh - 64px);
   display: flex;
   align-items: center;
@@ -62,15 +83,9 @@ async function onSubmit() {
   background: $gray-100;
 }
 .register-form {
-  background: $white;
-  padding: 2.5rem 2rem 2rem 2rem;
-  border-radius: 12px;
-  box-shadow: none;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  min-width: 320px;
-  max-width: 400px;
   width: 100%;
   margin-top: 0;
 }
@@ -80,46 +95,6 @@ async function onSubmit() {
   font-size: 2rem;
   text-align: center;
   color: $gray-900;
-}
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-label {
-  font-size: 1rem;
-  color: $gray-800;
-  font-weight: 500;
-}
-.input {
-  padding: 0.9rem 1rem;
-  border: 1.5px solid $gray-300;
-  border-radius: 10px;
-  font-size: 1rem;
-  background: $white;
-  color: $gray-900;
-  outline: none;
-  transition: border-color 0.2s;
-}
-.input:focus {
-  border-color: $primary;
-}
-.register-btn {
-  width: 100%;
-  padding: 0.9rem 0;
-  border: none;
-  border-radius: 10px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  background: $primary;
-  color: $white;
-  margin-top: 0.5rem;
-  transition: background 0.2s;
-}
-.register-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
 }
 .register-error {
   text-align: center;
@@ -145,4 +120,4 @@ label {
     padding: 1.5rem 0.5rem 1.5rem 0.5rem;
   }
 }
-</style> 
+</style>
