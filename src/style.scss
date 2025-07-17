@@ -1,0 +1,60 @@
+@use "./styles/_variables.scss" as *;
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background: $gray-100;
+  color: $gray-900;
+}
+
+.primary-bg {
+  background: $primary !important;
+  color: $white !important;
+}
+.secondary-bg {
+  background: $secondary !important;
+  color: $black !important;
+}
+.accent-bg {
+  background: $accent !important;
+  color: $white !important;
+}
+.success-bg {
+  background: $success !important;
+  color: $white !important;
+}
+.error-bg {
+  background: $error !important;
+  color: $white !important;
+}
+.warning-bg {
+  background: $warning !important;
+  color: $black !important;
+}
+.info-bg {
+  background: $info !important;
+  color: $white !important;
+}
+
+.primary-text {
+  color: $primary !important;
+}
+.secondary-text {
+  color: $secondary !important;
+}
+.accent-text {
+  color: $accent !important;
+}
+.success-text {
+  color: $success !important;
+}
+.error-text {
+  color: $error !important;
+}
+.warning-text {
+  color: $warning !important;
+}
+.info-text {
+  color: $info !important;
+}
