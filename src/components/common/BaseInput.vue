@@ -6,7 +6,12 @@
       :type="type"
       :placeholder="placeholder"
       v-model="modelValueProxy"
+      :value="value !== undefined ? value : modelValueProxy"
+      @input="onInput ? onInput($event) : emit('update:modelValue', ($event.target as HTMLInputElement)?.value)"
+      @change="onChange && onChange($event)"
+      @blur="onBlur && onBlur($event)"
       class="input"
+      :class="{ 'input-error': error }"
       :autocomplete="autocomplete"
       :disabled="disabled"
     />
@@ -14,19 +19,25 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, toRefs } from 'vue'
 const props = defineProps<{
-  modelValue: string
+  modelValue?: string
+  value?: string
   label?: string
   placeholder?: string
   type?: string
   id?: string
   autocomplete?: string
   disabled?: boolean
+  error?: boolean
+  onInput?: (e: Event) => void
+  onChange?: (e: Event) => void
+  onBlur?: (e: Event) => void
 }>()
 const emit = defineEmits(['update:modelValue'])
+const { modelValue, value } = toRefs(props)
 const modelValueProxy = computed({
-  get: () => props.modelValue,
+  get: () => value?.value !== undefined ? value.value : modelValue?.value ?? '',
   set: v => emit('update:modelValue', v)
 })
 </script>
@@ -59,5 +70,8 @@ label {
 .input:disabled {
   background: $gray-100;
   color: $gray-400;
+}
+.input-error {
+  border-color: $error !important;
 }
 </style> 

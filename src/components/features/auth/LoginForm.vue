@@ -1,66 +1,84 @@
 <template>
   <div class="login-container">
     <Card>
-      <form class="login-form" @submit.prevent="onSubmit">
+      <Form :validation-schema="schema" @submit="onSubmit" class="login-form">
         <h2 class="login-title">Bem-vindo de volta</h2>
-        <BaseInput
-          id="email"
-          v-model="email"
-          label="E-mail"
-          placeholder="Digite seu e-mail"
-          type="email"
-          autocomplete="email"
-        />
-        <BaseInput
-          id="password"
-          v-model="password"
-          label="Senha"
-          placeholder="Digite sua senha"
-          type="password"
-          autocomplete="current-password"
-        />
+        <Field
+          name="email"
+          v-slot="{ field, errorMessage, meta }"
+        >
+          <div class="field-group">
+            <BaseInput
+              v-bind="field"
+              label="E-mail"
+              placeholder="Digite seu e-mail"
+              type="email"
+              autocomplete="email"
+              :error="!!errorMessage && meta.touched"
+            />
+            <span v-if="errorMessage && meta.touched" class="field-error">{{ errorMessage }}</span>
+          </div>
+        </Field>
+        <Field
+          name="password"
+          v-slot="{ field, errorMessage, meta }"
+        >
+          <div class="field-group">
+            <BaseInput
+              v-bind="field"
+              label="Senha"
+              placeholder="Digite sua senha"
+              type="password"
+              autocomplete="current-password"
+              :error="!!errorMessage && meta.touched"
+            />
+            <span v-if="errorMessage && meta.touched" class="field-error">{{ errorMessage }}</span>
+          </div>
+        </Field>
         <BaseButton type="submit" :loading="loading" color="primary">Entrar</BaseButton>
         <span v-if="error" class="error-text login-error">{{ error }}</span>
         <div class="register-link">
           <a href="/register">Não tem uma conta? Cadastre-se</a>
         </div>
-      </form>
+      </Form>
     </Card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useAuthStore } from '../../../stores/auth'
-import { useLoadingStore } from '../../../stores/loading'
-import BaseInput from '../../common/BaseInput.vue'
-import BaseButton from '../../common/BaseButton.vue'
-import Card from '../../common/Card.vue'
+import { ref } from "vue";
+import { Form, Field } from "vee-validate";
+import { toFormValidator } from "@vee-validate/zod";
+import { useAuthStore } from "../../../stores/auth";
+import { useLoadingStore } from "../../../stores/loading";
+import BaseInput from "../../common/BaseInput.vue";
+import BaseButton from "../../common/BaseButton.vue";
+import Card from "../../common/Card.vue";
+import { loginSchema } from "../../../schemas/auth/login.schema";
 
-const email = ref('')
-const password = ref('')
-const loading = ref(false)
-const error = ref('')
-const auth = useAuthStore()
-const globalLoading = useLoadingStore()
+const schema = toFormValidator(loginSchema);
+const loading = ref(false);
+const error = ref("");
+const auth = useAuthStore();
+const globalLoading = useLoadingStore();
 
-async function onSubmit() {
-  error.value = ''
-  loading.value = true
-  globalLoading.startLoading()
+async function onSubmit(values: any) {
+  error.value = "";
+  loading.value = true;
+  globalLoading.startLoading();
   try {
-    await auth.login(email.value, password.value)
+    await auth.login(values.email, values.password);
   } catch (e: any) {
-    error.value = e?.response?.data?.message || 'Erro ao fazer login'
+    error.value = e?.response?.data?.message || "Erro ao fazer login";
   } finally {
-    loading.value = false
-    globalLoading.stopLoading()
+    loading.value = false;
+    globalLoading.stopLoading();
   }
 }
 </script>
 
 <style scoped lang="scss">
-@use '../../../styles/_variables.scss' as *;
+@use "../../../styles/_variables.scss" as *;
 
 .login-container {
   width: 100%;
@@ -74,7 +92,7 @@ async function onSubmit() {
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1rem;
   width: 100%;
   margin-top: 0;
 }
@@ -89,6 +107,21 @@ async function onSubmit() {
   text-align: center;
   font-size: 1rem;
   margin-top: -0.5rem;
+}
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.field-error {
+  color: $error;
+  font-size: 0.98rem;
+  margin-top: 0.1rem;
+  margin-bottom: 0.2rem;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  min-height: 1.2em;
 }
 .register-link {
   text-align: center;
