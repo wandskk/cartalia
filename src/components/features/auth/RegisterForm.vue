@@ -1,12 +1,13 @@
 <template>
   <div class="register-container">
     <Card>
-      <Form :validation-schema="schema" @submit="onSubmit" class="register-form">
+      <Form
+        :validation-schema="schema"
+        @submit="onSubmit"
+        class="register-form"
+      >
         <h2 class="register-title">Criar conta</h2>
-        <Field
-          name="name"
-          v-slot="{ field, errorMessage, meta }"
-        >
+        <Field name="name" v-slot="{ field, errorMessage, meta }">
           <div class="field-group">
             <BaseInput
               v-bind="field"
@@ -16,13 +17,12 @@
               autocomplete="name"
               :error="!!errorMessage && meta.touched"
             />
-            <span v-if="errorMessage && meta.touched" class="field-error">{{ errorMessage }}</span>
+            <span v-if="errorMessage && meta.touched" class="field-error">{{
+              errorMessage
+            }}</span>
           </div>
         </Field>
-        <Field
-          name="email"
-          v-slot="{ field, errorMessage, meta }"
-        >
+        <Field name="email" v-slot="{ field, errorMessage, meta }">
           <div class="field-group">
             <BaseInput
               v-bind="field"
@@ -32,13 +32,12 @@
               autocomplete="email"
               :error="!!errorMessage && meta.touched"
             />
-            <span v-if="errorMessage && meta.touched" class="field-error">{{ errorMessage }}</span>
+            <span v-if="errorMessage && meta.touched" class="field-error">{{
+              errorMessage
+            }}</span>
           </div>
         </Field>
-        <Field
-          name="password"
-          v-slot="{ field, errorMessage, meta }"
-        >
+        <Field name="password" v-slot="{ field, errorMessage, meta }">
           <div class="field-group">
             <BaseInput
               v-bind="field"
@@ -48,11 +47,14 @@
               autocomplete="new-password"
               :error="!!errorMessage && meta.touched"
             />
-            <span v-if="errorMessage && meta.touched" class="field-error">{{ errorMessage }}</span>
+            <span v-if="errorMessage && meta.touched" class="field-error">{{
+              errorMessage
+            }}</span>
           </div>
         </Field>
-        <BaseButton type="submit" :loading="loading" color="primary">Cadastrar</BaseButton>
-        <span v-if="error" class="error-text register-error">{{ error }}</span>
+        <BaseButton type="submit" :loading="loading" color="primary"
+          >Cadastrar</BaseButton
+        >
         <div class="login-link">
           <a href="/login">Já tem uma conta? Entrar</a>
         </div>
@@ -72,6 +74,7 @@ import BaseInput from "../../common/BaseInput.vue";
 import BaseButton from "../../common/BaseButton.vue";
 import Card from "../../common/Card.vue";
 import { registerSchema } from "../../../schemas/auth/register.schema";
+import { useNotificationStore } from "../../../stores/notification";
 
 const schema = toFormValidator(registerSchema);
 const loading = ref(false);
@@ -79,6 +82,7 @@ const error = ref("");
 const auth = useAuthStore();
 const globalLoading = useLoadingStore();
 const router = useRouter();
+const notification = useNotificationStore();
 
 async function onSubmit(values: any) {
   error.value = "";
@@ -86,9 +90,10 @@ async function onSubmit(values: any) {
   globalLoading.startLoading();
   try {
     await auth.register(values.name, values.email, values.password);
+    notification.show("Cadastro realizado com sucesso!", "success");
     router.push("/dashboard");
   } catch (e: any) {
-    error.value = e?.response?.data?.message || "Erro ao registrar";
+    notification.show("Usuário já cadastrado", "error");
   } finally {
     loading.value = false;
     globalLoading.stopLoading();

@@ -3,10 +3,7 @@
     <Card>
       <Form :validation-schema="schema" @submit="onSubmit" class="login-form">
         <h2 class="login-title">Bem-vindo de volta</h2>
-        <Field
-          name="email"
-          v-slot="{ field, errorMessage, meta }"
-        >
+        <Field name="email" v-slot="{ field, errorMessage, meta }">
           <div class="field-group">
             <BaseInput
               v-bind="field"
@@ -16,13 +13,12 @@
               autocomplete="email"
               :error="!!errorMessage && meta.touched"
             />
-            <span v-if="errorMessage && meta.touched" class="field-error">{{ errorMessage }}</span>
+            <span v-if="errorMessage && meta.touched" class="field-error">{{
+              errorMessage
+            }}</span>
           </div>
         </Field>
-        <Field
-          name="password"
-          v-slot="{ field, errorMessage, meta }"
-        >
+        <Field name="password" v-slot="{ field, errorMessage, meta }">
           <div class="field-group">
             <BaseInput
               v-bind="field"
@@ -32,11 +28,14 @@
               autocomplete="current-password"
               :error="!!errorMessage && meta.touched"
             />
-            <span v-if="errorMessage && meta.touched" class="field-error">{{ errorMessage }}</span>
+            <span v-if="errorMessage && meta.touched" class="field-error">{{
+              errorMessage
+            }}</span>
           </div>
         </Field>
-        <BaseButton type="submit" :loading="loading" color="primary">Entrar</BaseButton>
-        <span v-if="error" class="error-text login-error">{{ error }}</span>
+        <BaseButton type="submit" :loading="loading" color="primary"
+          >Entrar</BaseButton
+        >
         <div class="register-link">
           <a href="/register">Não tem uma conta? Cadastre-se</a>
         </div>
@@ -56,6 +55,7 @@ import BaseInput from "../../common/BaseInput.vue";
 import BaseButton from "../../common/BaseButton.vue";
 import Card from "../../common/Card.vue";
 import { loginSchema } from "../../../schemas/auth/login.schema";
+import { useNotificationStore } from "../../../stores/notification";
 
 const schema = toFormValidator(loginSchema);
 const loading = ref(false);
@@ -63,6 +63,7 @@ const error = ref("");
 const auth = useAuthStore();
 const globalLoading = useLoadingStore();
 const router = useRouter();
+const notification = useNotificationStore();
 
 async function onSubmit(values: any) {
   error.value = "";
@@ -70,9 +71,10 @@ async function onSubmit(values: any) {
   globalLoading.startLoading();
   try {
     await auth.login(values.email, values.password);
+    notification.show("Login realizado com sucesso!", "success");
     router.push("/dashboard");
   } catch (e: any) {
-    error.value = e?.response?.data?.message || "Erro ao fazer login";
+    notification.show("E-mail ou senha inválidos", "error");
   } finally {
     loading.value = false;
     globalLoading.stopLoading();
