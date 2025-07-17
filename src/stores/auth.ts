@@ -10,21 +10,29 @@ interface User {
 
 export const useAuthStore = defineStore("auth", () => {
   const user = ref<User | null>(null);
-  const token = ref<string | null>(localStorage.getItem("token"));
+  const token = ref<string | null>(localStorage.getItem("tokenCartalia"));
   const isAuthenticated = ref<boolean>(!!token.value);
+
+  // Carregar usuário do localStorage ao iniciar
+  const storedUser = localStorage.getItem("userCartalia");
+  if (storedUser) {
+    user.value = JSON.parse(storedUser);
+  }
 
   function setUser(data: User, authToken: string) {
     user.value = data;
     token.value = authToken;
     isAuthenticated.value = true;
-    localStorage.setItem("token", authToken);
+    localStorage.setItem("tokenCartalia", authToken);
+    localStorage.setItem("userCartalia", JSON.stringify(data));
   }
 
   function logout() {
     user.value = null;
     token.value = null;
     isAuthenticated.value = false;
-    localStorage.removeItem("token");
+    localStorage.removeItem("tokenCartalia");
+    localStorage.removeItem("userCartalia");
   }
 
   async function login(email: string, password: string) {
