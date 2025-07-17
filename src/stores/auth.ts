@@ -13,7 +13,6 @@ export const useAuthStore = defineStore("auth", () => {
   const token = ref<string | null>(localStorage.getItem("tokenCartalia"));
   const isAuthenticated = ref<boolean>(!!token.value);
 
-  // Carregar usuário do localStorage ao iniciar
   const storedUser = localStorage.getItem("userCartalia");
   if (storedUser) {
     user.value = JSON.parse(storedUser);
@@ -41,8 +40,8 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   async function register(name: string, email: string, password: string) {
-    const data = await AuthServices.register(name, email, password);
-    setUser({ id: data.userId, name, email }, "");
+    await AuthServices.register(name, email, password);
+    await login(email, password);
   }
 
   return { user, token, isAuthenticated, login, register, logout };
