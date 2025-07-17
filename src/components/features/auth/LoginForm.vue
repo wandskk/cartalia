@@ -8,28 +8,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useAuthStore } from '../../../stores/auth'
-import { useLoadingStore } from '../../../stores/loading'
+import { ref } from "vue";
+import { useAuthStore } from "../../../stores/auth";
+import { useLoadingStore } from "../../../stores/loading";
 
-const email = ref('')
-const password = ref('')
-const loading = ref(false)
-const error = ref('')
-const auth = useAuthStore()
-const globalLoading = useLoadingStore()
+const email = ref("");
+const password = ref("");
+const loading = ref(false);
+const error = ref("");
+const auth = useAuthStore();
+const globalLoading = useLoadingStore();
 
 async function onSubmit() {
-  error.value = ''
-  loading.value = true
-  globalLoading.startLoading()
+  error.value = "";
+  loading.value = true;
+  globalLoading.startLoading();
   try {
-    await auth.login(email.value, password.value)
+    await auth.login(email.value, password.value);
   } catch (e: any) {
-    error.value = e?.response?.data?.message || 'Erro ao fazer login'
+    error.value = e?.response?.data?.message || "Erro ao fazer login";
   } finally {
-    loading.value = false
-    globalLoading.stopLoading()
+    loading.value = false;
+    globalLoading.stopLoading();
   }
 }
-</script> 
+</script>
