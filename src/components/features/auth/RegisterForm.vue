@@ -67,6 +67,7 @@ import { Form, Field } from "vee-validate";
 import { toFormValidator } from "@vee-validate/zod";
 import { useAuthStore } from "../../../stores/auth";
 import { useLoadingStore } from "../../../stores/loading";
+import { useRouter } from "vue-router";
 import BaseInput from "../../common/BaseInput.vue";
 import BaseButton from "../../common/BaseButton.vue";
 import Card from "../../common/Card.vue";
@@ -77,6 +78,7 @@ const loading = ref(false);
 const error = ref("");
 const auth = useAuthStore();
 const globalLoading = useLoadingStore();
+const router = useRouter();
 
 async function onSubmit(values: any) {
   error.value = "";
@@ -84,6 +86,7 @@ async function onSubmit(values: any) {
   globalLoading.startLoading();
   try {
     await auth.register(values.name, values.email, values.password);
+    router.push("/dashboard");
   } catch (e: any) {
     error.value = e?.response?.data?.message || "Erro ao registrar";
   } finally {
