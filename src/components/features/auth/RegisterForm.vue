@@ -3,7 +3,8 @@
     <input v-model="name" type="text" placeholder="Nome" />
     <input v-model="email" type="email" placeholder="Email" />
     <input v-model="password" type="password" placeholder="Senha" />
-    <button type="submit">Registrar</button>
+    <button type="submit" :disabled="loading">Registrar</button>
+    <span v-if="error" style="color: red">{{ error }}</span>
   </form>
 </template>
 
@@ -14,9 +15,19 @@ import { useAuthStore } from '../../../stores/auth'
 const name = ref('')
 const email = ref('')
 const password = ref('')
+const loading = ref(false)
+const error = ref('')
 const auth = useAuthStore()
 
 async function onSubmit() {
-  await auth.register(name.value, email.value, password.value)
+  error.value = ''
+  loading.value = true
+  try {
+    await auth.register(name.value, email.value, password.value)
+  } catch (e: any) {
+    error.value = e?.response?.data?.message || 'Erro ao registrar'
+  } finally {
+    loading.value = false
+  }
 }
 </script> 
