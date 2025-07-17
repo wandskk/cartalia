@@ -55,6 +55,7 @@
         <BaseButton type="submit" :loading="loading" color="primary"
           >Cadastrar</BaseButton
         >
+        <span v-if="error" class="error-text register-error">{{ error }}</span>
         <div class="login-link">
           <a href="/login">Já tem uma conta? Entrar</a>
         </div>
@@ -64,41 +65,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
 import { Form, Field } from "vee-validate";
 import { toFormValidator } from "@vee-validate/zod";
-import { useAuthStore } from "../../../stores/auth";
-import { useLoadingStore } from "../../../stores/loading";
-import { useRouter } from "vue-router";
 import BaseInput from "../../common/BaseInput.vue";
 import BaseButton from "../../common/BaseButton.vue";
 import Card from "../../common/Card.vue";
 import { registerSchema } from "../../../schemas/auth/register.schema";
-import { useNotificationStore } from "../../../stores/notification";
+import { useAuthForm } from '../../../composables/useAuthForm';
 
 const schema = toFormValidator(registerSchema);
-const loading = ref(false);
-const error = ref("");
-const auth = useAuthStore();
-const globalLoading = useLoadingStore();
-const router = useRouter();
-const notification = useNotificationStore();
+const { onSubmit, loading, error } = useAuthForm('register');
 
-async function onSubmit(values: any) {
-  error.value = "";
-  loading.value = true;
-  globalLoading.startLoading();
-  try {
-    await auth.register(values.name, values.email, values.password);
-    notification.show("Cadastro realizado com sucesso!", "success");
-    router.push("/dashboard");
-  } catch (e: any) {
-    notification.show("Usuário já cadastrado", "error");
-  } finally {
-    loading.value = false;
-    globalLoading.stopLoading();
-  }
-}
 </script>
 
 <style scoped lang="scss">
