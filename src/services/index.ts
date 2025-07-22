@@ -1,4 +1,5 @@
 import axios from "axios";
+import { handleApiError } from "../utils/errorHandler";
 
 export const api = axios.create({
   baseURL: "https://cards-marketplace-api-2fjj.onrender.com",
@@ -12,3 +13,11 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    handleApiError(error, 'API Interceptor');
+    return Promise.reject(error);
+  }
+);
