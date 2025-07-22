@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import { useLoadingStore } from "./stores/loading";
-import { useErrorStore } from "./stores/error";
 
-const loadingStore = useLoadingStore();
-const errorStore = useErrorStore();
 </script>
 
 <template>
