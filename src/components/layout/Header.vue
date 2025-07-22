@@ -2,9 +2,19 @@
   <header class="header">
     <Container>
       <div class="header-content">
-        <Logo />
+        <div class="header-left">
+          <HamburgerButton 
+            :is-open="isMobileOpen" 
+            @toggle="toggleMobile" 
+          />
+          <Logo />
+        </div>
         <div class="header-right">
-          <BaseButton @click="handleButtonClick" color="primary">
+          <BaseButton 
+            v-if="!isAuthenticated" 
+            @click="handleButtonClick" 
+            color="primary"
+          >
             {{ buttonText }}
           </BaseButton>
         </div>
@@ -16,23 +26,19 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { useAuthStore } from "../../stores/auth";
+import { useSidebar } from "../../composables/useSidebar";
 import Logo from "../common/Logo.vue";
 import BaseButton from "../common/BaseButton.vue";
 import Container from "../common/Container.vue";
+import HamburgerButton from "../common/HamburgerButton.vue";
 
 const router = useRouter();
 const route = useRoute();
-const authStore = useAuthStore();
+const { isMobileOpen, toggleMobile, isAuthenticated } = useSidebar();
 
-const isAuthenticated = computed(() => authStore.isAuthenticated);
 const currentRoute = computed(() => route.path);
 
 const buttonText = computed(() => {
-  if (isAuthenticated.value) {
-    return "Sair";
-  }
-
   if (currentRoute.value === "/login") {
     return "Registrar";
   }
@@ -45,15 +51,10 @@ const buttonText = computed(() => {
 });
 
 const handleButtonClick = () => {
-  if (isAuthenticated.value) {
-    authStore.logout();
-    router.push("/login");
+  if (currentRoute.value === "/login") {
+    router.push("/register");
   } else {
-    if (currentRoute.value === "/login") {
-      router.push("/register");
-    } else {
-      router.push("/login");
-    }
+    router.push("/login");
   }
 };
 </script>
@@ -67,8 +68,10 @@ const handleButtonClick = () => {
   background: $white;
   border-bottom: 1px solid $gray-200;
   box-sizing: border-box;
-  position: relative;
-  z-index: 10;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 200;
   display: flex;
   align-items: center;
 }
@@ -78,6 +81,12 @@ const handleButtonClick = () => {
   align-items: center;
   justify-content: space-between;
   width: 100%;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .header-right {
@@ -94,6 +103,10 @@ const handleButtonClick = () => {
   .header {
     height: auto;
     padding: 0.5rem 0;
+  }
+
+  .header-left {
+    gap: 0.5rem;
   }
 
   .header-right {
