@@ -1,9 +1,8 @@
 <template>
   <Container>
     <div class="dashboard-view">
-      <DashboardHeader />
-
       <div class="dashboard-content">
+        <DashboardHeader />
         <DashboardStats
           :total-cards="totalCards"
           :total-trades="totalTrades"
@@ -31,11 +30,11 @@
 
 <script setup lang="ts">
 import Container from "../components/common/Container.vue";
-import DashboardHeader from "../components/features/dashboard/DashboardHeader.vue";
 import DashboardStats from "../components/features/dashboard/DashboardStats.vue";
 import QuickActions from "../components/features/dashboard/QuickActions.vue";
 import RecentActivity from "../components/features/dashboard/RecentActivity.vue";
 import { useDashboard } from "../composables/useDashboard";
+import DashboardHeader from "../components/features/dashboard/DashboardHeader.vue";
 
 const {
   loading,
@@ -48,7 +47,7 @@ const {
   userTrades,
   marketplaceTrades,
   uniqueCards,
-  fetchData,
+  fetchData
 } = useDashboard();
 </script>
 
@@ -57,6 +56,7 @@ const {
 
 .dashboard-view {
   min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   padding: 2rem 0;
   overflow-x: hidden;
 
