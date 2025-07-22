@@ -26,9 +26,17 @@
           </div>
           
           <div class="action-card">
+            <h3>Minhas Trocas</h3>
+            <p>Gerencie suas solicitações de troca</p>
+            <BaseButton @click="goToMyTrades" color="accent">
+              Ver Minhas Trocas
+            </BaseButton>
+          </div>
+          
+          <div class="action-card">
             <h3>Nova Troca</h3>
             <p>Crie uma nova solicitação de troca</p>
-            <BaseButton @click="goToCreateTrade" color="accent">
+            <BaseButton @click="goToCreateTrade" color="primary">
               Criar Troca
             </BaseButton>
           </div>
@@ -51,6 +59,10 @@ function goToCards() {
 
 function goToMarketplace() {
   router.push('/marketplace');
+}
+
+function goToMyTrades() {
+  router.push('/my-trades');
 }
 
 function goToCreateTrade() {

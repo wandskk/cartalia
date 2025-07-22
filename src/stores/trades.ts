@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { TradeServices } from '../services/modules/trades';
+import { useAuthStore } from './auth';
 import type { Trade, TradeListResponse } from '../types/trade';
 
 export const useTradesStore = defineStore('trades', () => {
@@ -15,6 +16,14 @@ export const useTradesStore = defineStore('trades', () => {
 
   const totalTrades = computed(() => allTrades.value.length);
   const hasTrades = computed(() => allTrades.value.length > 0);
+
+  const userTrades = computed(() => {
+    const authStore = useAuthStore();
+    if (!authStore.user?.id) return [];
+    return allTrades.value.filter(trade => trade.userId === authStore.user!.id);
+  });
+
+  const totalUserTrades = computed(() => userTrades.value.length);
 
   async function fetchAllTrades(page = 1, rpp = 10) {
     loading.value = true;
@@ -92,6 +101,8 @@ export const useTradesStore = defineStore('trades', () => {
     pagination,
     totalTrades,
     hasTrades,
+    userTrades,
+    totalUserTrades,
     fetchAllTrades,
     createTrade,
     deleteTrade,
