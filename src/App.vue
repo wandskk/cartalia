@@ -1,34 +1,53 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { useLoadingStore } from "./stores/loading"
+import { useErrorStore } from "./stores/error"
+import Header from "./components/layout/Header.vue"
+import Loading from "./components/common/Loading.vue"
+import Notification from "./components/common/Notification.vue"
+import ErrorModal from "./components/common/ErrorModal.vue"
 
 export default defineComponent({
-  name: 'App'
+  name: 'App',
+  components: {
+    Header,
+    Loading,
+    Notification,
+    ErrorModal
+  },
+  setup() {
+    const loadingStore = useLoadingStore()
+    const errorStore = useErrorStore()
+    
+    return {
+      loadingStore,
+      errorStore
+    }
+  }
 })
 </script>
 
 <template>
   <div id="app">
-    <h1>Cartalia</h1>
-    <p>Marketplace de Cartas</p>
-    <router-view />
+    <Header />
+    <Notification />
+    <Loading v-if="loadingStore.isLoading" />
+    <ErrorModal :is-open="errorStore.isErrorModalOpen" />
+    <main>
+      <router-view />
+    </main>
   </div>
 </template>
 
 <style scoped>
 #app {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
   padding: 2rem;
-  text-align: center;
-  font-family: Arial, sans-serif;
-}
-
-h1 {
-  color: #3F8CFF;
-  margin-bottom: 1rem;
-}
-
-p {
-  color: #666;
-  margin-bottom: 2rem;
 }
 </style>
