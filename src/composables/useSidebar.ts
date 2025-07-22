@@ -1,11 +1,12 @@
 import { computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import { useSidebarStore } from '../stores/sidebar';
 import { NAVIGATION_ITEMS, SIDEBAR_TEXTS } from '../constants';
 
 export function useSidebar() {
   const route = useRoute();
+  const router = useRouter();
   const authStore = useAuthStore();
   const sidebarStore = useSidebarStore();
 
@@ -66,15 +67,19 @@ export function useSidebar() {
   const handleLogout = () => {
     authStore.logout();
     closeMobile();
+    router.push('/login');
+  };
+
+  const handleLogin = () => {
+    router.push('/login');
+    closeMobile();
   };
 
   const collapseButtonTitle = computed(() => 
     isCollapsed.value ? SIDEBAR_TEXTS.EXPAND : SIDEBAR_TEXTS.COLLAPSE
   );
 
-  const collapseButtonIcon = computed(() => 
-    isCollapsed.value ? '→' : '←'
-  );
+  const collapseButtonIcon = computed(() => '←');
 
   const userDisplayName = computed(() => 
     user.value?.name || SIDEBAR_TEXTS.DEFAULT_USER
@@ -97,6 +102,7 @@ export function useSidebar() {
     toggleMobile,
     closeMobile,
     handleLogout,
+    handleLogin,
     collapseButtonTitle,
     collapseButtonIcon,
     userDisplayName,

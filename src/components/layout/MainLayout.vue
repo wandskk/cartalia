@@ -1,16 +1,15 @@
 <template>
   <div class="main-layout">
     <Header />
-    <Sidebar v-if="showSidebar" />
+    <Sidebar />
     <main
       class="main-content"
       :class="{
         'with-sidebar':
-          showSidebar &&
           !sidebarStore.isCollapsed &&
           !sidebarStore.isMobileOpen,
         'with-sidebar-collapsed':
-          showSidebar && sidebarStore.isCollapsed && !sidebarStore.isMobileOpen,
+          sidebarStore.isCollapsed && !sidebarStore.isMobileOpen,
       }"
     >
       <router-view />
@@ -19,19 +18,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { useRoute } from "vue-router";
 import { useSidebarStore } from "../../stores/sidebar";
 import Header from "./Header.vue";
 import Sidebar from "./Sidebar.vue";
 
-const route = useRoute();
 const sidebarStore = useSidebarStore();
-
-const showSidebar = computed(() => {
-  const publicRoutes = ["/login", "/register"];
-  return !publicRoutes.includes(route.path);
-});
 </script>
 
 <style scoped lang="scss">
@@ -45,7 +36,7 @@ const showSidebar = computed(() => {
 
 .main-content {
   flex: 1;
-  margin-top: 64px;
+  margin-top: 0;
   transition: margin-left 0.3s ease;
   padding: 0rem;
 
@@ -54,7 +45,7 @@ const showSidebar = computed(() => {
   }
 
   &.with-sidebar-collapsed {
-    margin-left: 60px;
+    margin-left: 80px;
   }
 }
 
@@ -62,6 +53,7 @@ const showSidebar = computed(() => {
   .main-content {
     margin-left: 0 !important;
     padding: 0rem;
+    margin-top: 60px;
   }
 }
 </style>

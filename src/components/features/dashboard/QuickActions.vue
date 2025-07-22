@@ -21,7 +21,7 @@
           <h4>Marketplace</h4>
           <p>Explore trocas disponíveis no marketplace</p>
           <div class="action-meta">
-            <span class="marketplace-count">{{ marketplaceTrades }} troca{{ marketplaceTrades !== 1 ? 's' : '' }} disponível{{ marketplaceTrades !== 1 ? 'eis' : '' }}</span>
+            <span class="marketplace-count">{{ marketplaceTrades }} troca{{ marketplaceTrades !== 1 ? 's' : '' }} disponíve{{ marketplaceTrades !== 1 ? 'is' : 'l' }}</span>
           </div>
         </div>
         <div class="action-arrow">→</div>
