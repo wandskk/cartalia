@@ -3,9 +3,9 @@ import { ref } from 'vue';
 
 export const useNotificationStore = defineStore('notification', () => {
   const message = ref<string | null>(null);
-  const type = ref<'success' | 'error' | null>(null);
+  const type = ref<'success' | 'error' | 'info' | null>(null);
 
-  function show(msg: string, msgType: 'success' | 'error' = 'success') {
+  function show(msg: string, msgType: 'success' | 'error' | 'info' = 'success') {
     message.value = msg;
     type.value = msgType;
     setTimeout(() => clear(), 3000);
