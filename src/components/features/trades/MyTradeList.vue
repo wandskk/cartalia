@@ -109,7 +109,7 @@ import { useNotificationStore } from '../../../stores/notification';
 import BaseInput from '../../common/BaseInput.vue';
 import BaseButton from '../../common/BaseButton.vue';
 import TradeActions from './TradeActions.vue';
-import type { Trade, TradeCard } from '../../../types/trade';
+import type { Trade, TradeCard } from '../../../types';
 
 interface Props {
   trades: Trade[];

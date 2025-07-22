@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { TradeServices } from '../services/modules/trades';
-import { useAuthStore } from './auth';
-import type { Trade, TradeListResponse } from '../types/trade';
+import type { Trade, TradeListResponse, CreateTradeForm } from '../types';
 
 export const useTradesStore = defineStore('trades', () => {
   const allTrades = ref<Trade[]>([]);
+  const userTrades = ref<Trade[]>([]);
   const loading = ref(false);
   const error = ref<string | null>(null);
   const pagination = ref({
@@ -15,14 +15,6 @@ export const useTradesStore = defineStore('trades', () => {
   });
 
   const totalTrades = computed(() => allTrades.value.length);
-  const hasTrades = computed(() => allTrades.value.length > 0);
-
-  const userTrades = computed(() => {
-    const authStore = useAuthStore();
-    if (!authStore.user?.id) return [];
-    return allTrades.value.filter(trade => trade.userId === authStore.user!.id);
-  });
-
   const totalUserTrades = computed(() => userTrades.value.length);
 
   async function fetchAllTrades(page = 1, rpp = 10) {
@@ -31,13 +23,7 @@ export const useTradesStore = defineStore('trades', () => {
     
     try {
       const response: TradeListResponse = await TradeServices.getAllTrades(page, rpp);
-      
-      if (page === 1) {
-        allTrades.value = response.list;
-      } else {
-        allTrades.value = [...allTrades.value, ...response.list];
-      }
-      
+      allTrades.value = response.list;
       pagination.value = {
         page: response.page,
         rpp: response.rpp,
@@ -50,17 +36,34 @@ export const useTradesStore = defineStore('trades', () => {
     }
   }
 
-  async function createTrade(tradeData: any) {
+  async function fetchUserTrades(page = 1, rpp = 10) {
     loading.value = true;
     error.value = null;
     
     try {
-      const response = await TradeServices.createTrade(tradeData);
-      await fetchAllTrades(1, pagination.value.rpp);
-      return response;
+      const response: TradeListResponse = await TradeServices.getUserTrades(page, rpp);
+      userTrades.value = response.list;
+      pagination.value = {
+        page: response.page,
+        rpp: response.rpp,
+        more: response.more
+      };
+    } catch (err: any) {
+      error.value = err.message || 'Erro ao carregar suas trocas';
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function createTrade(tradeData: CreateTradeForm) {
+    loading.value = true;
+    error.value = null;
+    
+    try {
+      await TradeServices.createTrade(tradeData);
+      await fetchUserTrades();
     } catch (err: any) {
       error.value = err.message || 'Erro ao criar troca';
-      throw err;
     } finally {
       loading.value = false;
     }
@@ -72,10 +75,9 @@ export const useTradesStore = defineStore('trades', () => {
     
     try {
       await TradeServices.deleteTrade(tradeId);
-      allTrades.value = allTrades.value.filter(trade => trade.id !== tradeId);
+      await fetchUserTrades();
     } catch (err: any) {
       error.value = err.message || 'Erro ao deletar troca';
-      throw err;
     } finally {
       loading.value = false;
     }
@@ -85,28 +87,18 @@ export const useTradesStore = defineStore('trades', () => {
     error.value = null;
   }
 
-  function clearTrades() {
-    allTrades.value = [];
-    pagination.value = {
-      page: 1,
-      rpp: 10,
-      more: false
-    };
-  }
-
   return {
     allTrades,
+    userTrades,
     loading,
     error,
     pagination,
     totalTrades,
-    hasTrades,
-    userTrades,
     totalUserTrades,
     fetchAllTrades,
+    fetchUserTrades,
     createTrade,
     deleteTrade,
-    clearError,
-    clearTrades
+    clearError
   };
 }); 

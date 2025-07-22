@@ -58,7 +58,7 @@ import { useAuthStore } from '../../../stores/auth';
 import { useNotificationStore } from '../../../stores/notification';
 import BaseButton from '../../common/BaseButton.vue';
 import TradeCard from './TradeCard.vue';
-import type { Trade } from '../../../types/trade';
+import type { Trade } from '../../../types';
 
 interface Props {
   trades: Trade[];

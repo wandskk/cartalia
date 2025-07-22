@@ -43,7 +43,7 @@
 
 import CardItem from './CardItem.vue';
 import BaseButton from '../../common/BaseButton.vue';
-import type { Card } from '../../../types/card';
+import type { Card } from '../../../types';
 
 interface Props {
   cards: Card[];

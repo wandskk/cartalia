@@ -50,8 +50,8 @@
 import { computed } from "vue";
 import { useRouter } from "vue-router";
 import BaseButton from "../../common/BaseButton.vue";
-import type { Trade } from "../../../types/trade";
-import type { Card } from "../../../types/card";
+import type { Trade } from '../../../types';
+import type { Card } from '../../../types';
 
 interface Activity {
   id: string;

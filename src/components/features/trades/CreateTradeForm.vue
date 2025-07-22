@@ -57,7 +57,7 @@ import { useTradesStore } from '../../../stores/trades';
 import { useNotificationStore } from '../../../stores/notification';
 import CardSelector from './CardSelector.vue';
 import TradePreview from './TradePreview.vue';
-import type { Card } from '../../../types/card';
+import type { Card } from '../../../types';
 
 const router = useRouter();
 const cardsStore = useCardsStore();

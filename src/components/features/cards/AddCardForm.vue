@@ -89,7 +89,7 @@ import Card from '../../common/Card.vue';
 import BaseInput from '../../common/BaseInput.vue';
 import BaseButton from '../../common/BaseButton.vue';
 import CardList from './CardList.vue';
-import type { Card as CardType } from '../../../types/card';
+import type { Card as CardType } from '../../../types';
 
 const cardsStore = useCardsStore();
 const notification = useNotificationStore();

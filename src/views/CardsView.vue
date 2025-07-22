@@ -69,7 +69,7 @@ import Container from '../components/common/Container.vue';
 import BaseButton from '../components/common/BaseButton.vue';
 import CardList from '../components/features/cards/CardList.vue';
 import AddCardForm from '../components/features/cards/AddCardForm.vue';
-import type { Card } from '../types/card';
+import type { Card } from '../types';
 
 const router = useRouter();
 const cardsStore = useCardsStore();
