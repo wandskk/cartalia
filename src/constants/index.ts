@@ -82,4 +82,56 @@ export const SUCCESS_MESSAGES = {
   TRADE_CREATED: 'Troca criada com sucesso!',
   TRADE_DELETED: 'Troca removida com sucesso!',
   CARDS_ADDED: 'Cartas adicionadas com sucesso!'
+} as const;
+
+// Configurações da sidebar
+export const SIDEBAR = {
+  EXPANDED_WIDTH: 280,
+  COLLAPSED_WIDTH: 60,
+  HEADER_HEIGHT: 64,
+  TRANSITION_DURATION: 300,
+  STORAGE_KEY: 'sidebar-collapsed'
+} as const;
+
+// Itens de navegação da sidebar
+export const NAVIGATION_ITEMS = [
+  {
+    path: '/dashboard',
+    label: 'Dashboard',
+    icon: '📊',
+    requiresAuth: true,
+  },
+  {
+    path: '/cards',
+    label: 'Minhas Cartas',
+    icon: '🃏',
+    requiresAuth: true,
+  },
+  {
+    path: '/create-trade',
+    label: 'Criar Troca',
+    icon: '➕',
+    requiresAuth: true,
+  },
+  {
+    path: '/my-trades',
+    label: 'Minhas Trocas',
+    icon: '🔄',
+    requiresAuth: true,
+  },
+  {
+    path: '/marketplace',
+    label: 'Marketplace',
+    icon: '🏪',
+    requiresAuth: false,
+  },
+] as const;
+
+// Textos da sidebar
+export const SIDEBAR_TEXTS = {
+  TITLE: 'Navegação',
+  EXPAND: 'Expandir',
+  COLLAPSE: 'Recolher',
+  DEFAULT_USER: 'Usuário',
+  DEFAULT_EMAIL: 'email@exemplo.com'
 } as const; 

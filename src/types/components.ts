@@ -128,4 +128,34 @@ export interface SelectOption<T> {
   value: T;
   label: string;
   disabled?: boolean;
+}
+
+// Props para componentes de sidebar
+export interface SidebarProps extends BaseComponentProps {
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
+}
+
+// Props para itens de navegação
+export interface NavigationItem {
+  path: string;
+  label: string;
+  icon: string;
+  requiresAuth: boolean;
+}
+
+// Props para componente de navegação
+export interface NavigationProps extends BaseComponentProps {
+  items: NavigationItem[];
+  activePath: string;
+  collapsed?: boolean;
+}
+
+// Props para componente de usuário
+export interface UserInfoProps extends BaseComponentProps {
+  user: {
+    name?: string;
+    email?: string;
+  } | null;
+  collapsed?: boolean;
 } 
