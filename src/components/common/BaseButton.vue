@@ -21,7 +21,7 @@ defineProps<{
 <style scoped>
 .base-btn {
   width: 100%;
-  padding: 0.9rem 0;
+  padding: 0.9rem 1.5rem;
   border: none;
   border-radius: 10px;
   font-size: 1.1rem;
