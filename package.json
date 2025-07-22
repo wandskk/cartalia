@@ -10,7 +10,11 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "deploy": "npm run build && vercel --prod",
+    "deploy:preview": "npm run build && vercel",
+    "analyze": "vite build --mode analyze",
+    "lighthouse": "lighthouse http://localhost:4173 --output html --output-path ./lighthouse-report.html"
   },
   "dependencies": {
     "@vee-validate/zod": "^4.15.1",

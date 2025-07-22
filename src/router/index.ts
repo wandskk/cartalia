@@ -1,14 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import LoginView from '../views/LoginView.vue'
-import RegisterView from '../views/RegisterView.vue'
-import DashboardView from '../views/DashboardView.vue';
-import CardsView from '../views/CardsView.vue';
-import CardDetailView from '../views/CardDetailView.vue';
-import MarketplaceView from '../views/MarketplaceView.vue';
-import CreateTradeView from '../views/CreateTradeView.vue';
-import MyTradesView from '../views/MyTradesView.vue';
-import ErrorView from '../views/ErrorView.vue';
 import { useAuthStore } from '../stores/auth';
+import { analytics } from '../utils/analytics';
+
+const LoginView = () => import('../views/LoginView.vue')
+const RegisterView = () => import('../views/RegisterView.vue')
+const DashboardView = () => import('../views/DashboardView.vue')
+const CardsView = () => import('../views/CardsView.vue')
+const CardDetailView = () => import('../views/CardDetailView.vue')
+const MarketplaceView = () => import('../views/MarketplaceView.vue')
+const CreateTradeView = () => import('../views/CreateTradeView.vue')
+const MyTradesView = () => import('../views/MyTradesView.vue')
+const ErrorView = () => import('../views/ErrorView.vue')
 
 const routes = [
   { path: '/', redirect: '/marketplace' },
@@ -29,7 +31,7 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   const auth = useAuthStore();
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     next('/login');
@@ -38,6 +40,10 @@ router.beforeEach((to, from, next) => {
   } else {
     next();
   }
+});
+
+router.afterEach((to) => {
+  analytics.trackPageView(to.path);
 });
 
 export default router 

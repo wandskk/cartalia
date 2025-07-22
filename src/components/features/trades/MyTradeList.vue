@@ -204,7 +204,7 @@ function goToCreateTrade() {
   router.push('/create-trade');
 }
 
-function handleEdit(trade: Trade) {
+function handleEdit(_trade: Trade) {
   notification.show('Funcionalidade de edição em desenvolvimento', 'info');
 }
 
