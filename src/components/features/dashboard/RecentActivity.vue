@@ -150,23 +150,57 @@ function retry() {
 @use "../../../styles/_variables.scss" as *;
 
 .recent-activity {
-  background: $white;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 100%;
+
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+    border-radius: 1.25rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 1.25rem;
+    border-radius: 1rem;
+  }
 
   .section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+
+    @media (max-width: 768px) {
+      margin-bottom: 1.25rem;
+      gap: 0.75rem;
+    }
+
+    @media (max-width: 480px) {
+      margin-bottom: 1rem;
+      gap: 0.5rem;
+      flex-direction: column;
+      align-items: flex-start;
+    }
 
     h3 {
-      width: 100%;
       margin: 0;
-      color: $black;
-      font-size: 20px;
-      font-weight: 600;
+      color: #1e293b;
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1.3;
+      width: 100%;
+
+      @media (max-width: 768px) {
+        font-size: 1.375rem;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 1.25rem;
+      }
     }
   }
 
@@ -175,17 +209,41 @@ function retry() {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 40px 20px;
-    color: $gray-600;
+    padding: 3rem 1.5rem;
+    color: #64748b;
+
+    @media (max-width: 768px) {
+      padding: 2.5rem 1.25rem;
+    }
+
+    @media (max-width: 480px) {
+      padding: 2rem 1rem;
+    }
 
     .loading-spinner {
-      width: 32px;
-      height: 32px;
-      border: 3px solid $gray-200;
-      border-top: 3px solid $primary;
+      width: 2.5rem;
+      height: 2.5rem;
+      border: 2px solid #e2e8f0;
+      border-top: 2px solid #3b82f6;
       border-radius: 50%;
       animation: spin 1s linear infinite;
-      margin-bottom: 12px;
+      margin-bottom: 1rem;
+
+      @media (max-width: 480px) {
+        width: 2rem;
+        height: 2rem;
+        margin-bottom: 0.75rem;
+      }
+    }
+
+    p {
+      font-size: 1rem;
+      margin: 0;
+      font-weight: 500;
+
+      @media (max-width: 480px) {
+        font-size: 0.9375rem;
+      }
     }
 
     @keyframes spin {
@@ -203,13 +261,28 @@ function retry() {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 40px 20px;
+    padding: 3rem 1.5rem;
     text-align: center;
 
+    @media (max-width: 768px) {
+      padding: 2.5rem 1.25rem;
+    }
+
+    @media (max-width: 480px) {
+      padding: 2rem 1rem;
+    }
+
     .error-message {
-      color: $error;
-      margin-bottom: 12px;
-      font-size: 14px;
+      color: #ef4444;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      line-height: 1.5;
+      font-weight: 500;
+
+      @media (max-width: 480px) {
+        font-size: 0.9375rem;
+        margin-bottom: 0.75rem;
+      }
     }
   }
 
@@ -217,33 +290,82 @@ function retry() {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 40px 20px;
-    color: $gray-500;
-    font-size: 14px;
+    padding: 3rem 1.5rem;
+    color: #94a3b8;
+    font-size: 1rem;
+    font-weight: 500;
+
+    @media (max-width: 768px) {
+      padding: 2.5rem 1.25rem;
+      font-size: 0.9375rem;
+    }
+
+    @media (max-width: 480px) {
+      padding: 2rem 1rem;
+      font-size: 0.875rem;
+    }
+
+    p {
+      margin: 0;
+    }
   }
 
   .activities-list {
     .activity-item {
       display: flex;
       align-items: flex-start;
-      gap: 12px;
-      padding: 12px 0;
-      border-bottom: 1px solid $gray-100;
+      gap: 1rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+      transition: all 0.2s ease;
+
+      @media (max-width: 768px) {
+        gap: 0.875rem;
+        padding: 0.875rem 0;
+      }
+
+      @media (max-width: 480px) {
+        gap: 0.75rem;
+        padding: 0.75rem 0;
+      }
 
       &:last-child {
         border-bottom: none;
       }
 
+      &:hover {
+        background: rgba(248, 250, 252, 0.5);
+        margin: 0 -1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        border-radius: 0.75rem;
+      }
+
       .activity-icon {
-        width: 36px;
-        height: 36px;
-        background: $gray-100;
-        border-radius: 8px;
+        width: 2.5rem;
+        height: 2.5rem;
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        border-radius: 0.75rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 18px;
+        font-size: 1.25rem;
         flex-shrink: 0;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+
+        @media (max-width: 768px) {
+          width: 2.25rem;
+          height: 2.25rem;
+          font-size: 1.125rem;
+          border-radius: 0.625rem;
+        }
+
+        @media (max-width: 480px) {
+          width: 2rem;
+          height: 2rem;
+          font-size: 1rem;
+          border-radius: 0.5rem;
+        }
       }
 
       .activity-content {
@@ -251,15 +373,32 @@ function retry() {
         min-width: 0;
 
         .activity-text {
-          margin: 0 0 4px 0;
-          color: $black;
-          font-size: 14px;
-          line-height: 1.4;
+          margin: 0 0 0.375rem 0;
+          color: #1e293b;
+          font-size: 1rem;
+          line-height: 1.5;
+          font-weight: 500;
+
+          @media (max-width: 768px) {
+            font-size: 0.9375rem;
+            margin-bottom: 0.25rem;
+          }
+
+          @media (max-width: 480px) {
+            font-size: 0.875rem;
+            margin-bottom: 0.125rem;
+          }
         }
 
         .activity-time {
-          font-size: 12px;
-          color: $gray-500;
+          font-size: 0.875rem;
+          color: #94a3b8;
+          line-height: 1.3;
+          font-weight: 400;
+
+          @media (max-width: 480px) {
+            font-size: 0.8125rem;
+          }
         }
       }
     }
