@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { CardServices } from '../services/modules/cards';
-import type { Card, CardListResponse } from '../types/card';
+import type { Card, CardListResponse } from '../types';
 
 export const useCardsStore = defineStore('cards', () => {
   const allCards = ref<Card[]>([]);

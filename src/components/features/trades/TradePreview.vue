@@ -91,7 +91,7 @@
 import { computed } from 'vue';
 import Card from '../../common/Card.vue';
 import BaseButton from '../../common/BaseButton.vue';
-import type { Card as CardType } from '../../../types/card';
+import type { Card as CardType } from '../../../types';
 
 interface Props {
   offeringCards: CardType[];

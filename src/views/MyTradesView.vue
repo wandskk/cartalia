@@ -47,7 +47,7 @@ import { useAuthStore } from '../stores/auth';
 import Container from '../components/common/Container.vue';
 import BaseButton from '../components/common/BaseButton.vue';
 import MyTradeList from '../components/features/trades/MyTradeList.vue';
-import type { Trade } from '../types/trade';
+import type { Trade } from '../types';
 
 const router = useRouter();
 const tradesStore = useTradesStore();

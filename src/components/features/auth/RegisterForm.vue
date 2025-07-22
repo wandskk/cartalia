@@ -70,7 +70,7 @@ import { toFormValidator } from "@vee-validate/zod";
 import BaseInput from "../../common/BaseInput.vue";
 import BaseButton from "../../common/BaseButton.vue";
 import Card from "../../common/Card.vue";
-import { registerSchema } from "../../../schemas/auth/register.schema";
+import { registerSchema } from "../../../schemas";
 import { useAuthForm } from '../../../composables/useAuthForm';
 
 const schema = toFormValidator(registerSchema);

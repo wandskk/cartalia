@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { Card } from '../../../types/card';
+import type { Card } from '../../../types';
 
 interface Props {
   card: Card;
