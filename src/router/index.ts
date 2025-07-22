@@ -7,6 +7,7 @@ import CardDetailView from '../views/CardDetailView.vue';
 import MarketplaceView from '../views/MarketplaceView.vue';
 import CreateTradeView from '../views/CreateTradeView.vue';
 import MyTradesView from '../views/MyTradesView.vue';
+import ErrorView from '../views/ErrorView.vue';
 import { useAuthStore } from '../stores/auth';
 
 const routes = [
@@ -18,7 +19,9 @@ const routes = [
   { path: '/my-trades', component: MyTradesView, meta: { requiresAuth: true } },
   { path: '/dashboard', component: DashboardView, meta: { requiresAuth: true } },
   { path: '/cards', component: CardsView, meta: { requiresAuth: true } },
-  { path: '/cards/:id', component: CardDetailView, meta: { requiresAuth: true } }
+  { path: '/cards/:id', component: CardDetailView, meta: { requiresAuth: true } },
+  { path: '/error/:code', component: ErrorView },
+  { path: '/:pathMatch(.*)*', redirect: '/error/404' }
 ]
 
 const router = createRouter({
