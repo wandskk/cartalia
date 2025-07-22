@@ -48,7 +48,7 @@ const {
   userTrades,
   marketplaceTrades,
   uniqueCards,
-  fetchData
+  fetchData,
 } = useDashboard();
 </script>
 
@@ -57,12 +57,31 @@ const {
 
 .dashboard-view {
   min-height: 100vh;
-  background: $gray-50;
-  padding: 24px 0;
+  padding: 2rem 0;
+  overflow-x: hidden;
+
+  @media (max-width: 768px) {
+    padding: 1.5rem 0;
+  }
+
+  @media (max-width: 480px) {
+    padding: 1rem 0;
+  }
 
   .dashboard-content {
-    display: grid;
-    gap: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    max-width: 100%;
+    width: 100%;
+
+    @media (max-width: 768px) {
+      gap: 2rem;
+    }
+
+    @media (max-width: 480px) {
+      gap: 1.5rem;
+    }
   }
 }
 </style>
