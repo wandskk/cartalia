@@ -101,7 +101,6 @@
 
 <script setup lang="ts">
 import { useSidebar } from "../../composables/useSidebar";
-import { SIDEBAR_TEXTS } from "../../constants";
 import BaseButton from "../common/BaseButton.vue";
 import Logo from "../common/Logo.vue";
 
@@ -116,7 +115,6 @@ const {
   handleLogout,
   handleLogin,
   collapseButtonTitle,
-  collapseButtonIcon,
   userInitials,
   userDisplayName,
   userDisplayEmail,
