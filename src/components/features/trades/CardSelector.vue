@@ -157,6 +157,7 @@ function retry() {
 
 <style scoped lang="scss">
 @use '../../../styles/_variables.scss' as *;
+@use 'sass:color';
 
 .card-selector {
   .selector-header {
@@ -372,7 +373,7 @@ function retry() {
           font-weight: bold;
 
           &:hover {
-            background: darken($error, 10%);
+            background: color.scale($error, $lightness: -10%);
           }
         }
       }

@@ -178,6 +178,7 @@ async function addSelectedCards() {
 
 <style scoped lang="scss">
 @use '../../../styles/_variables.scss' as *;
+@use 'sass:color';
 
 .add-card-form {
   max-width: 1200px;
@@ -299,7 +300,7 @@ async function addSelectedCards() {
             font-weight: bold;
 
             &:hover {
-              background: darken($error, 10%);
+              background: color.scale($error, $lightness: -10%);
             }
           }
         }
