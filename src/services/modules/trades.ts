@@ -1,5 +1,5 @@
 import { api } from '../index';
-import type { Trade, TradeListResponse, CreateTradeRequest, CreateTradeResponse } from '../../types/trade';
+import type { TradeListResponse, CreateTradeRequest, CreateTradeResponse } from '../../types/trade';
 
 export const TradeServices = {
   async getAllTrades(page = 1, rpp = 10): Promise<TradeListResponse> {

@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{
+defineProps<{
   type?: 'button' | 'submit' | 'reset'
   disabled?: boolean
   loading?: boolean

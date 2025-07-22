@@ -56,13 +56,13 @@ import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useErrorStore } from '../../stores/error';
 import BaseButton from './BaseButton.vue';
-import type { AppError } from '../../stores/error';
+
 
 interface Props {
   isOpen: boolean;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 
 const router = useRouter();
 const errorStore = useErrorStore();

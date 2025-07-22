@@ -78,7 +78,7 @@ interface Emits {
   (e: 'delete', tradeId: string): void;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   loading: false,
   error: null,
   showPagination: false,

@@ -88,7 +88,7 @@ export function handleValidationError(errors: any, component?: string): string {
   return message;
 }
 
-export function handleNetworkError(error: any, component?: string): string {
+export function handleNetworkError(_error: any, component?: string): string {
   const errorStore = useErrorStore();
   
   const message = 'Erro de conexão';

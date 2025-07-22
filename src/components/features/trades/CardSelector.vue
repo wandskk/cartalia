@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed } from 'vue';
 import BaseInput from '../../common/BaseInput.vue';
 import BaseButton from '../../common/BaseButton.vue';
 import type { Card } from '../../../types/card';

@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+
 import CardItem from './CardItem.vue';
 import BaseButton from '../../common/BaseButton.vue';
 import type { Card } from '../../../types/card';
