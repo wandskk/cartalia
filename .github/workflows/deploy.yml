@@ -1,4 +1,4 @@
-name: Deploy
+name: Build and Test
 
 on:
   push:
@@ -36,53 +36,9 @@ jobs:
       with:
         name: dist
         path: dist/
-
-  deploy-preview:
-    needs: build-and-test
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
     
-    steps:
-    - name: Download build artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: dist
-        path: dist/
-    
-    - name: Deploy to Vercel (Preview)
-      uses: amondnet/vercel-action@v25
-      with:
-        vercel-token: ${{ secrets.VERCEL_TOKEN }}
-        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-        working-directory: ./
-        alias-domains: |
-          preview.cartalia.vercel.app
-
-  deploy-production:
-    needs: build-and-test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Download build artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: dist
-        path: dist/
-    
-    - name: Deploy to Vercel (Production)
-      uses: amondnet/vercel-action@v25
-      with:
-        vercel-token: ${{ secrets.VERCEL_TOKEN }}
-        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-        working-directory: ./
-        vercel-args: '--prod'
-        alias-domains: |
-          cartalia.vercel.app
-    
-    - name: Notify deployment
+    - name: Build Status
       run: |
-        echo "🚀 Deploy completed successfully!"
-        echo "URL: https://cartalia.vercel.app" 
+        echo "✅ Build completed successfully!"
+        echo "📦 Artifacts uploaded"
+        echo "🚀 Ready for manual deploy to Vercel" 
