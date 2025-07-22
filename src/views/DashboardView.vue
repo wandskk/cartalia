@@ -1,77 +1,90 @@
 <template>
-  <div class="dashboard-view">
-    <Container>
+  <Container>
+    <div class="dashboard-view">
       <div class="header">
-        <h1>Bem-vindo ao Cartalia!</h1>
-        <p>Gerencie suas cartas e faça trocas no marketplace.</p>
-      </div>
-
-      <div class="quick-actions">
-        <h2>Ações Rápidas</h2>
-        <div class="actions-grid">
-          <div class="action-card">
-            <h3>Minhas Cartas</h3>
-            <p>Visualize e gerencie sua coleção de cartas</p>
-            <BaseButton @click="goToCards" color="primary">
-              Ver Minhas Cartas
-            </BaseButton>
-          </div>
-          
-          <div class="action-card">
-            <h3>Marketplace</h3>
-            <p>Explore trocas disponíveis no marketplace</p>
-            <BaseButton @click="goToMarketplace" color="secondary">
-              Ver Marketplace
-            </BaseButton>
-          </div>
-          
-          <div class="action-card">
-            <h3>Minhas Trocas</h3>
-            <p>Gerencie suas solicitações de troca</p>
-            <BaseButton @click="goToMyTrades" color="accent">
-              Ver Minhas Trocas
-            </BaseButton>
-          </div>
-          
-          <div class="action-card">
-            <h3>Nova Troca</h3>
-            <p>Crie uma nova solicitação de troca</p>
-            <BaseButton @click="goToCreateTrade" color="primary">
-              Criar Troca
-            </BaseButton>
-          </div>
+        <div class="header-content">
+          <h1>Bem-vindo ao Cartalia!</h1>
+          <p>Gerencie suas cartas e faça trocas no marketplace.</p>
         </div>
       </div>
-    </Container>
-  </div>
+
+      <div class="dashboard-content">
+        <DashboardStats
+          :total-cards="totalCards"
+          :total-trades="totalTrades"
+          :active-trades="activeTrades"
+          :unique-cards="uniqueCards"
+        />
+
+        <QuickActions
+          :total-cards="totalCards"
+          :user-trades="userTrades"
+          :marketplace-trades="marketplaceTrades"
+        />
+
+        <RecentActivity
+          :trades="userTradesList"
+          :cards="userCards"
+          :loading="loading"
+          :error="error"
+          @retry="fetchData"
+        />
+      </div>
+    </div>
+  </Container>
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
+import { computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "../stores/auth";
+import { useCardsStore } from "../stores/cards";
+import { useTradesStore } from "../stores/trades";
 import Container from "../components/common/Container.vue";
-import BaseButton from "../components/common/BaseButton.vue";
+import DashboardStats from "../components/features/dashboard/DashboardStats.vue";
+import QuickActions from "../components/features/dashboard/QuickActions.vue";
+import RecentActivity from "../components/features/dashboard/RecentActivity.vue";
 
 const router = useRouter();
+const authStore = useAuthStore();
+const cardsStore = useCardsStore();
+const tradesStore = useTradesStore();
 
-function goToCards() {
-  router.push('/cards');
-}
+const loading = computed(() => cardsStore.loading || tradesStore.loading);
+const error = computed(() => cardsStore.error || tradesStore.error);
 
-function goToMarketplace() {
-  router.push('/marketplace');
-}
+const userCards = computed(() => cardsStore.userCards);
+const userTradesList = computed(() => tradesStore.userTrades);
 
-function goToMyTrades() {
-  router.push('/my-trades');
-}
+const totalCards = computed(() => cardsStore.totalUserCards);
+const totalTrades = computed(() => tradesStore.totalUserTrades);
+const activeTrades = computed(() => tradesStore.totalUserTrades);
+const userTrades = computed(() => tradesStore.totalUserTrades);
+const marketplaceTrades = computed(() => tradesStore.totalTrades);
 
-function goToCreateTrade() {
-  router.push('/create-trade');
+const uniqueCards = computed(() => {
+  const uniqueNames = new Set(userCards.value.map((card) => card.name));
+  return uniqueNames.size;
+});
+
+onMounted(() => {
+  if (authStore.isAuthenticated) {
+    fetchData();
+  } else {
+    router.push("/login");
+  }
+});
+
+async function fetchData() {
+  await Promise.all([
+    cardsStore.fetchUserCards(),
+    tradesStore.fetchAllTrades(),
+  ]);
 }
 </script>
 
 <style scoped lang="scss">
-@use '../styles/_variables.scss' as *;
+@use "../styles/_variables.scss" as *;
 
 .dashboard-view {
   min-height: 100vh;
@@ -79,66 +92,46 @@ function goToCreateTrade() {
   padding: 24px 0;
 
   .header {
-    text-align: center;
-    margin-bottom: 48px;
+    margin-bottom: 32px;
 
-    h1 {
-      margin: 0 0 16px 0;
-      color: $black;
-      font-size: 36px;
-      font-weight: 700;
+    .header-content {
+      h1 {
+        margin: 0 0 16px 0;
+        color: $black;
+        font-size: 36px;
+        font-weight: 700;
+      }
+
+      p {
+        margin: 0;
+        color: $gray-600;
+        font-size: 18px;
+        line-height: 1.5;
+      }
     }
 
-    p {
-      margin: 0;
-      color: $gray-600;
-      font-size: 18px;
-    }
-  }
-
-  .quick-actions {
-    h2 {
-      margin: 0 0 24px 0;
-      color: $black;
-      font-size: 24px;
-      font-weight: 600;
-      text-align: center;
-    }
-
-    .actions-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 24px;
-      max-width: 900px;
-      margin: 0 auto;
-
-      .action-card {
-        background: $white;
-        border-radius: 12px;
-        padding: 32px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        text-align: center;
-        transition: transform 0.3s ease;
-
-        &:hover {
-          transform: translateY(-4px);
-        }
-
-        h3 {
-          margin: 0 0 12px 0;
-          color: $black;
-          font-size: 20px;
-          font-weight: 600;
+    @media (max-width: 768px) {
+      .header-content {
+        h1 {
+          font-size: 28px;
         }
 
         p {
-          margin: 0 0 24px 0;
-          color: $gray-600;
           font-size: 16px;
-          line-height: 1.5;
         }
       }
     }
   }
+
+  .dashboard-content {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    gap: 32px;
+
+    @media (max-width: 768px) {
+      gap: 24px;
+    }
+  }
 }
-</style> 
+</style>
