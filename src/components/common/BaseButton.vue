@@ -18,8 +18,7 @@ defineProps<{
 }>()
 </script>
 
-<style scoped lang="scss">
-@use '../../styles/_variables.scss' as *;
+<style scoped>
 .base-btn {
   width: 100%;
   padding: 0.9rem 0;
@@ -34,23 +33,57 @@ defineProps<{
   justify-content: center;
   gap: 0.5rem;
 }
+
 .base-btn.primary {
-  background: $primary;
-  color: $white;
+  background: #3F8CFF;
+  color: #FFFFFF;
 }
+
+.base-btn.secondary {
+  background: #FFB800;
+  color: #000000;
+}
+
+.base-btn.accent {
+  background: #FF5C5C;
+  color: #FFFFFF;
+}
+
+.base-btn.success {
+  background: #22C55E;
+  color: #FFFFFF;
+}
+
+.base-btn.error {
+  background: #EF4444;
+  color: #FFFFFF;
+}
+
+.base-btn.warning {
+  background: #FACC15;
+  color: #000000;
+}
+
+.base-btn.info {
+  background: #3B82F6;
+  color: #FFFFFF;
+}
+
 .base-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }
+
 .btn-spinner {
   width: 1.2em;
   height: 1.2em;
-  border: 2.5px solid $white;
-  border-top: 2.5px solid $primary;
+  border: 2.5px solid #FFFFFF;
+  border-top: 2.5px solid #3F8CFF;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   display: inline-block;
 }
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
