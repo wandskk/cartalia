@@ -4,11 +4,14 @@ import RegisterView from '../views/RegisterView.vue'
 import DashboardView from '../views/DashboardView.vue';
 import CardsView from '../views/CardsView.vue';
 import CardDetailView from '../views/CardDetailView.vue';
+import MarketplaceView from '../views/MarketplaceView.vue';
 import { useAuthStore } from '../stores/auth';
 
 const routes = [
+  { path: '/', redirect: '/marketplace' },
   { path: '/login', component: LoginView },
   { path: '/register', component: RegisterView },
+  { path: '/marketplace', component: MarketplaceView },
   { path: '/dashboard', component: DashboardView, meta: { requiresAuth: true } },
   { path: '/cards', component: CardsView, meta: { requiresAuth: true } },
   { path: '/cards/:id', component: CardDetailView, meta: { requiresAuth: true } }

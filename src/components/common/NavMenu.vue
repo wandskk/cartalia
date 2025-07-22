@@ -1,13 +1,19 @@
 <template>
   <nav class="header-nav">
-    <a href="#" class="nav-link">Home</a>
-    <a href="#" class="nav-link">Browse</a>
-    <a href="#" class="nav-link">Sell</a>
-    <a href="#" class="nav-link nav-help">Help</a>
+    <router-link to="/marketplace" class="nav-link">Marketplace</router-link>
+    <router-link v-if="isAuthenticated" to="/cards" class="nav-link">Minhas Cartas</router-link>
+    <router-link v-if="isAuthenticated" to="/dashboard" class="nav-link">Dashboard</router-link>
+    <router-link v-if="!isAuthenticated" to="/login" class="nav-link">Login</router-link>
+    <router-link v-if="!isAuthenticated" to="/register" class="nav-link nav-help">Cadastrar</router-link>
   </nav>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
+import { useAuthStore } from '../../stores/auth';
+
+const authStore = useAuthStore();
+const isAuthenticated = computed(() => authStore.isAuthenticated);
 </script>
 
 <style scoped lang="scss">
