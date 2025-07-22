@@ -10,25 +10,31 @@
       }
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/sw.js",
-      "headers": {
-        "cache-control": "s-maxage=0"
-      }
-    },
-    {
-      "src": "/manifest.json",
-      "headers": {
-        "cache-control": "s-maxage=0"
-      }
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
   "headers": [
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/manifest.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
     {
       "source": "/assets/(.*)",
       "headers": [
