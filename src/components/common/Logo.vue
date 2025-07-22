@@ -1,8 +1,8 @@
 <template>
-  <div class="logo">
+  <router-link to="/marketplace" class="logo">
     <span class="logo-icon">🃏</span>
-    <span class="logo-text">CardCollect</span>
-  </div>
+    <span class="logo-text">Cartalia</span>
+  </router-link>
 </template>
 
 <script setup lang="ts">
@@ -14,6 +14,13 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+  }
 }
 .logo-icon {
   font-size: 1.6rem;
