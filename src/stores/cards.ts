@@ -11,24 +11,52 @@ export const useCardsStore = defineStore('cards', () => {
   const error = ref<string | null>(null);
   const pagination = ref({
     page: 1,
-    rpp: 10,
-    more: false
+    rpp: 12,
+    more: false,
+    total: 0
+  });
+
+  const totalCards = ref(0);
+
+  const userCardsPagination = ref({
+    page: 1,
+    rpp: 12,
+    more: false,
+    total: 0
   });
 
   const hasUserCards = computed(() => userCards.value.length > 0);
   const totalUserCards = computed(() => userCards.value.length);
 
-  async function fetchAllCards(page = 1, rpp = 10) {
+  async function fetchTotalCards() {
+    try {
+      const response: CardListResponse = await CardServices.getAllCards(1, 1000);
+      totalCards.value = response.list.length;
+    } catch (err: any) {
+      totalCards.value = 0;
+    }
+  }
+
+  async function fetchAllCards(page = 1, rpp = 12, search?: string) {
     loading.value = true;
     error.value = null;
     
     try {
-      const response: CardListResponse = await CardServices.getAllCards(page, rpp);
+      const response: CardListResponse = await CardServices.getAllCards(page, rpp, search);
       allCards.value = response.list;
+      
+      let calculatedTotal = 0;
+      if (response.more) {
+        calculatedTotal = page * rpp + rpp;
+      } else {
+        calculatedTotal = page * rpp;
+      }
+      
       pagination.value = {
         page: response.page,
         rpp: response.rpp,
-        more: response.more
+        more: response.more,
+        total: calculatedTotal
       };
     } catch (err: any) {
       error.value = err.message || 'Erro ao carregar cartas';
@@ -43,6 +71,7 @@ export const useCardsStore = defineStore('cards', () => {
     
     try {
       userCards.value = await CardServices.getUserCards();
+      userCardsPagination.value.total = userCards.value.length;
     } catch (err: any) {
       error.value = err.message || 'Erro ao carregar suas cartas';
     } finally {
@@ -92,9 +121,12 @@ export const useCardsStore = defineStore('cards', () => {
     loading,
     error,
     pagination,
+    userCardsPagination,
+    totalCards,
     hasUserCards,
     totalUserCards,
     fetchAllCards,
+    fetchTotalCards,
     fetchUserCards,
     fetchCardById,
     addCardsToUser,
