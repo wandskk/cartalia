@@ -132,7 +132,6 @@ function goToRegister() {
 
   .stats-section {
     display: flex;
-    justify-content: center;
   }
 
   .trades-section {

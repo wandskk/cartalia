@@ -1,13 +1,17 @@
 <template>
-  <button
+  <v-btn
     :type="type"
     :disabled="disabled || loading"
-    :class="['base-btn', color]"
+    :color="color"
+    :variant="variant"
+    :size="size"
+    :block="block"
+    :loading="loading"
     @click="$emit('click')"
+    class="base-btn"
   >
-    <span v-if="loading" class="btn-spinner"></span>
     <slot />
-  </button>
+  </v-btn>
 </template>
 
 <script setup lang="ts">
@@ -16,6 +20,9 @@ defineProps<{
   disabled?: boolean
   loading?: boolean
   color?: 'primary' | 'secondary' | 'accent' | 'success' | 'error' | 'warning' | 'info'
+  variant?: 'text' | 'flat' | 'elevated' | 'tonal' | 'outlined' | 'plain'
+  size?: 'x-small' | 'small' | 'default' | 'large' | 'x-large'
+  block?: boolean
 }>()
 
 defineEmits<{
@@ -25,71 +32,9 @@ defineEmits<{
 
 <style scoped>
 .base-btn {
-  width: 100%;
-  padding: 0.9rem 1.5rem;
-  border: none;
   border-radius: 10px;
-  font-size: 1.1rem;
   font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.base-btn.primary {
-  background: #3F8CFF;
-  color: #FFFFFF;
-}
-
-.base-btn.secondary {
-  background: #FFB800;
-  color: #000000;
-}
-
-.base-btn.accent {
-  background: #FF5C5C;
-  color: #FFFFFF;
-}
-
-.base-btn.success {
-  background: #22C55E;
-  color: #FFFFFF;
-}
-
-.base-btn.error {
-  background: #EF4444;
-  color: #FFFFFF;
-}
-
-.base-btn.warning {
-  background: #FACC15;
-  color: #000000;
-}
-
-.base-btn.info {
-  background: #3B82F6;
-  color: #FFFFFF;
-}
-
-.base-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.btn-spinner {
-  width: 1.2em;
-  height: 1.2em;
-  border: 2.5px solid #FFFFFF;
-  border-top: 2.5px solid #3F8CFF;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  display: inline-block;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
+  text-transform: none;
+  letter-spacing: normal;
 }
 </style> 

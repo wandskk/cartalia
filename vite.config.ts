@@ -10,6 +10,13 @@ export default defineConfig({
       '@': resolve(__dirname, 'src')
     }
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `@use "sass:math"; @use "@/styles/_variables.scss" as *;`
+      }
+    }
+  },
   build: {
     target: 'es2015',
     outDir: 'dist',
@@ -19,7 +26,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['vue', 'vue-router', 'pinia']
+          vendor: ['vue', 'vue-router', 'pinia', 'vuetify']
         }
       }
     }
