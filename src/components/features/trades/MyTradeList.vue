@@ -24,10 +24,8 @@
     </div>
 
     <div v-else class="trades-content">
-      <div class="trades-stats">
-        <span class="stat">
-          {{ trades.length }} troca{{ trades.length !== 1 ? "s" : "" }}
-        </span>
+      <div class="trades-header">
+        <h3>{{ trades.length }} troca{{ trades.length !== 1 ? 's' : '' }} encontrada{{ trades.length !== 1 ? 's' : '' }}</h3>
       </div>
 
       <div :class="['trades-grid', `view-${viewMode}`]">
@@ -183,12 +181,15 @@ function handleDelete(trade: Trade) {
   }
 
   .trades-content {
-    .trades-stats {
-      margin-bottom: 20px;
+    .trades-header {
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid $gray-200;
 
-      .stat {
-        font-size: 14px;
-        color: $gray-600;
+      h3 {
+        margin: 0;
+        color: $gray-700;
+        font-size: 18px;
         font-weight: 500;
       }
     }
@@ -207,6 +208,43 @@ function handleDelete(trade: Trade) {
 
       &.view-list {
         grid-template-columns: 1fr;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .my-trade-list {
+    .trades-content {
+      .trades-header {
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+
+        h3 {
+          font-size: 16px;
+        }
+      }
+
+      .trades-grid {
+        gap: 16px;
+      }
+    }
+
+    .empty-state {
+      padding: 60px 16px;
+
+      .empty-content {
+        .empty-icon {
+          font-size: 48px;
+        }
+
+        h3 {
+          font-size: 20px;
+        }
+
+        p {
+          font-size: 14px;
+        }
       }
     }
   }

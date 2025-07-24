@@ -12,6 +12,7 @@
 
     <div v-else-if="trades.length === 0" class="empty-state">
       <div class="empty-content">
+        <div class="empty-icon">🃏</div>
         <h3>Nenhuma troca disponível</h3>
         <p>Seja o primeiro a criar uma troca no marketplace!</p>
         <BaseButton v-if="isAuthenticated" @click="goToCreateTrade" color="primary">
@@ -24,6 +25,10 @@
     </div>
 
     <div v-else class="trades-content">
+      <div class="trades-header">
+        <h3>{{ trades.length }} troca{{ trades.length !== 1 ? 's' : '' }} encontrada{{ trades.length !== 1 ? 's' : '' }}</h3>
+      </div>
+
       <div class="trades-grid">
         <TradeItem
           v-for="trade in trades"
@@ -184,6 +189,12 @@ async function handleDeleteTrade(trade: Trade) {
       text-align: center;
       max-width: 400px;
 
+      .empty-icon {
+        font-size: 64px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+      }
+
       h3 {
         margin: 0 0 16px 0;
         color: $black;
@@ -201,6 +212,19 @@ async function handleDeleteTrade(trade: Trade) {
   }
 
   .trades-content {
+    .trades-header {
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid $gray-200;
+
+      h3 {
+        margin: 0;
+        color: $gray-700;
+        font-size: 18px;
+        font-weight: 500;
+      }
+    }
+
     .trades-grid {
       display: grid;
       gap: 24px;
@@ -209,12 +233,23 @@ async function handleDeleteTrade(trade: Trade) {
       @media (min-width: 768px) {
         grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
       }
+
+      @media (min-width: 1200px) {
+        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+      }
+
+      @media (max-width: 767px) {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
     }
 
     .pagination {
       display: flex;
       justify-content: center;
       margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid $gray-200;
     }
   }
 
@@ -234,6 +269,43 @@ async function handleDeleteTrade(trade: Trade) {
       border-radius: 50%;
       animation: spin 1s linear infinite;
       margin-bottom: 12px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .trade-list {
+    .trades-content {
+      .trades-header {
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+
+        h3 {
+          font-size: 16px;
+        }
+      }
+
+      .trades-grid {
+        gap: 12px;
+      }
+    }
+
+    .empty-state {
+      padding: 60px 16px;
+
+      .empty-content {
+        .empty-icon {
+          font-size: 48px;
+        }
+
+        h3 {
+          font-size: 20px;
+        }
+
+        p {
+          font-size: 14px;
+        }
+      }
     }
   }
 }
