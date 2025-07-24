@@ -18,13 +18,37 @@ export interface CardListResponse {
   rpp: number;
   page: number;
   more: boolean;
+  total?: number;
 }
 
 // Tipos de estado
+export interface Filter {
+  value: string;
+  label: string;
+}
+
+export interface ViewMode {
+  value: 'grid' | 'list';
+  icon: string;
+  title: string;
+}
+
+export interface CardStats {
+  totalCards: number;
+  recentCards: number;
+}
+
 export interface CardFilters {
-  search?: string;
-  page: number;
-  rpp: number;
+  searchQuery: string;
+  currentFilter: string;
+  viewMode: 'grid' | 'list';
+}
+
+export interface CardStates {
+  isLoading: boolean;
+  hasError: boolean;
+  isEmpty: boolean;
+  hasCards: boolean;
 }
 
 export interface CardSelection {

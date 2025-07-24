@@ -1,8 +1,7 @@
 <template>
   <div class="card-list">
     <div v-if="loading" class="loading-state">
-      <div class="loading-spinner"></div>
-      <p>Carregando cartas...</p>
+      <LoadingSpinner text="Carregando cartas..." />
     </div>
 
     <div v-else-if="error" class="error-state">
@@ -14,17 +13,27 @@
       <p>Nenhuma carta encontrada.</p>
     </div>
 
-    <div v-else class="cards-grid">
-      <CardItem
+    <div v-else class="cards-container" :class="viewModeClass">
+      <Card
         v-for="card in cards"
         :key="card.id"
         :card="card"
         :selectable="selectable"
         :selected="isCardSelected(card)"
         :clickable="clickable"
+        :size="viewMode === 'list' ? 'sm' : 'md'"
+        :variant="viewMode === 'list' ? 'compact' : 'default'"
+        :show-description="viewMode === 'list'"
+        :max-description-length="viewMode === 'list' ? 150 : 100"
         @click="handleCardClick"
         @select="handleCardSelect"
-      />
+      >
+        <template v-if="viewMode === 'list'" #actions>
+          <BaseButton size="sm" @click.stop="handleCardClick(card)">
+            Ver detalhes
+          </BaseButton>
+        </template>
+      </Card>
     </div>
 
     <div v-if="showPagination && pagination.more" class="pagination">
@@ -40,29 +49,31 @@
 </template>
 
 <script setup lang="ts">
-
-import CardItem from './CardItem.vue';
+import { computed } from 'vue';
+import Card from '../../common/Card.vue';
 import BaseButton from '../../common/BaseButton.vue';
-import type { Card } from '../../../types';
+import LoadingSpinner from '../../common/LoadingSpinner.vue';
+import type { Card as CardType } from '../../../types';
 
 interface Props {
-  cards: Card[];
+  cards: CardType[];
   loading?: boolean;
   error?: string | null;
   selectable?: boolean;
   clickable?: boolean;
-  selectedCards?: Card[];
+  selectedCards?: CardType[];
   showPagination?: boolean;
   pagination?: {
     page: number;
     rpp: number;
     more: boolean;
   };
+  viewMode?: 'grid' | 'list';
 }
 
 interface Emits {
-  (e: 'card-click', card: Card): void;
-  (e: 'card-select', card: Card, selected: boolean): void;
+  (e: 'card-click', card: CardType): void;
+  (e: 'card-select', card: CardType, selected: boolean): void;
   (e: 'retry'): void;
   (e: 'load-more'): void;
 }
@@ -78,20 +89,23 @@ const props = withDefaults(defineProps<Props>(), {
     page: 1,
     rpp: 10,
     more: false
-  })
+  }),
+  viewMode: 'grid'
 });
 
 const emit = defineEmits<Emits>();
 
-function isCardSelected(card: Card): boolean {
+const viewModeClass = computed(() => `cards-${props.viewMode}`);
+
+function isCardSelected(card: CardType): boolean {
   return props.selectedCards.some(selectedCard => selectedCard.id === card.id);
 }
 
-function handleCardClick(card: Card) {
+function handleCardClick(card: CardType) {
   emit('card-click', card);
 }
 
-function handleCardSelect(card: Card, selected: boolean) {
+function handleCardSelect(card: CardType, selected: boolean) {
   emit('card-select', card, selected);
 }
 
@@ -117,21 +131,6 @@ function loadMore() {
     justify-content: center;
     padding: 40px;
     color: $gray-600;
-
-    .loading-spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid $gray-200;
-      border-top: 4px solid $primary;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 16px;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
   }
 
   .error-state {
@@ -158,20 +157,38 @@ function loadMore() {
     font-size: 16px;
   }
 
-  .cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 24px;
-    margin-bottom: 32px;
+  .cards-container {
+    &.cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
 
-    @media (max-width: 768px) {
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 16px;
+      @media (max-width: 1200px) {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 20px;
+      }
+
+      @media (max-width: 768px) {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 16px;
+      }
+
+      @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
     }
 
-    @media (max-width: 480px) {
-      grid-template-columns: 1fr;
+    &.cards-list {
+      display: flex;
+      flex-direction: column;
       gap: 16px;
+      margin-bottom: 32px;
+
+      @media (max-width: 768px) {
+        gap: 12px;
+      }
     }
   }
 

@@ -8,7 +8,9 @@
 
       <div v-else-if="error" class="error-state">
         <p class="error-message">{{ error }}</p>
-        <BaseButton @click="fetchCard" color="primary">Tentar novamente</BaseButton>
+        <BaseButton @click="fetchCard" color="primary"
+          >Tentar novamente</BaseButton
+        >
       </div>
 
       <div v-else-if="!selectedCard" class="not-found-state">
@@ -19,16 +21,14 @@
 
       <div v-else class="card-detail-content">
         <div class="header">
-          <BaseButton @click="goBack" color="secondary">
-            ← Voltar
-          </BaseButton>
+          <BaseButton @click="goBack" color="secondary"> ← Voltar </BaseButton>
         </div>
 
         <div class="card-detail">
           <div class="card-image-section">
             <div class="card-image">
-              <img 
-                :src="selectedCard.imageUrl" 
+              <img
+                :src="selectedCard.imageUrl"
                 :alt="selectedCard.name"
                 @error="handleImageError"
               />
@@ -38,11 +38,6 @@
           <div class="card-info-section">
             <div class="card-header">
               <h1 class="card-name">{{ selectedCard.name }}</h1>
-              <div class="card-meta">
-                <span class="card-date">
-                  Adicionada em {{ formattedDate }}
-                </span>
-              </div>
             </div>
 
             <div class="card-description">
@@ -51,20 +46,16 @@
             </div>
 
             <div class="card-actions">
-              <BaseButton 
-                v-if="isUserCard"
-                @click="addToTrade"
-                color="primary"
-              >
+              <BaseButton v-if="isUserCard" @click="addToTrade" color="primary">
                 Usar em Troca
               </BaseButton>
-              
-              <BaseButton 
+
+              <BaseButton
                 @click="addToCollection"
                 color="secondary"
                 :disabled="isUserCard"
               >
-                {{ isUserCard ? 'Já na sua coleção' : 'Adicionar à Coleção' }}
+                {{ isUserCard ? "Já na sua coleção" : "Adicionar à Coleção" }}
               </BaseButton>
             </div>
           </div>
@@ -75,13 +66,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useCardsStore } from '../stores/cards';
-import { useAuthStore } from '../stores/auth';
-import { useNotificationStore } from '../stores/notification';
-import Container from '../components/common/Container.vue';
-import BaseButton from '../components/common/BaseButton.vue';
+import { computed, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useCardsStore } from "../stores/cards";
+import { useAuthStore } from "../stores/auth";
+import { useNotificationStore } from "../stores/notification";
+import Container from "../components/common/Container.vue";
+import BaseButton from "../components/common/BaseButton.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -97,24 +88,15 @@ const userCards = computed(() => cardsStore.userCards);
 
 const isUserCard = computed(() => {
   if (!selectedCard.value) return false;
-  return userCards.value.some(card => card.id === selectedCard.value?.id);
-});
-
-const formattedDate = computed(() => {
-  if (!selectedCard.value) return '';
-  return new Date(selectedCard.value.createdAt).toLocaleDateString('pt-BR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
+  return userCards.value.some((card) => card.id === selectedCard.value?.id);
 });
 
 onMounted(() => {
   if (!authStore.isAuthenticated) {
-    router.push('/login');
+    router.push("/login");
     return;
   }
-  
+
   if (cardId.value) {
     fetchCard();
   }
@@ -128,7 +110,7 @@ async function fetchCard() {
 
 function handleImageError(event: Event) {
   const target = event.target as HTMLImageElement;
-  target.src = '/placeholder-card.jpg';
+  target.src = "/placeholder-card.jpg";
 }
 
 function goBack() {
@@ -136,27 +118,26 @@ function goBack() {
 }
 
 function addToTrade() {
-  // Implementação futura: adicionar à troca atual
-  notification.show('Funcionalidade em desenvolvimento', 'info');
+  notification.show("Funcionalidade em desenvolvimento", "info");
 }
 
 async function addToCollection() {
   if (!selectedCard.value || isUserCard.value) return;
-  
+
   try {
     await cardsStore.addCardsToUser([selectedCard.value.id]);
-    notification.show('Carta adicionada à sua coleção!', 'success');
+    notification.show("Carta adicionada à sua coleção!", "success");
   } catch (err: any) {
     notification.show(
-      err.message || 'Erro ao adicionar carta à coleção',
-      'error'
+      err.message || "Erro ao adicionar carta à coleção",
+      "error"
     );
   }
 }
 </script>
 
 <style scoped lang="scss">
-@use '../styles/_variables.scss' as *;
+@use "../styles/_variables.scss" as *;
 
 .card-detail-view {
   min-height: 100vh;
@@ -182,8 +163,12 @@ async function addToCollection() {
     }
 
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
     }
   }
 
@@ -315,4 +300,4 @@ async function addToCollection() {
     }
   }
 }
-</style> 
+</style>

@@ -1,243 +1,192 @@
 <template>
   <div class="cards-view">
     <Container>
-      <div class="header">
-        <h1>Minhas Cartas</h1>
-        <BaseButton @click="showAddForm = true" color="primary">
-          Adicionar Cartas
-        </BaseButton>
-      </div>
+      <CardsHeader @add-cards="showAddForm = true" />
 
-      <div class="stats">
-        <div class="stat-card">
-          <span class="stat-number">{{ totalUserCards }}</span>
-          <span class="stat-label">Total de Cartas</span>
-        </div>
-      </div>
+      <CardStats 
+        :total-cards="totalUserCards" 
+        :recent-cards="recentCards" 
+      />
 
       <div v-if="!showAddForm" class="user-cards-section">
-        <div v-if="loading" class="loading-state">
-          <div class="loading-spinner"></div>
-          <p>Carregando suas cartas...</p>
-        </div>
+        <CardsFilters
+          :search-query="searchQuery"
+          :current-filter="currentFilter"
+          :view-mode="viewMode"
+          @update:search-query="setSearchQuery"
+          @update:current-filter="setFilter"
+          @update:view-mode="setViewMode"
+        />
 
-        <div v-else-if="error" class="error-state">
-          <p class="error-message">{{ error }}</p>
-          <BaseButton @click="fetchUserCards" color="primary">Tentar novamente</BaseButton>
-        </div>
 
-        <div v-else-if="!hasUserCards" class="empty-state">
-          <div class="empty-content">
-            <h3>Você ainda não tem cartas</h3>
-            <p>Adicione cartas à sua coleção para começar a fazer trocas!</p>
-            <BaseButton @click="showAddForm = true" color="primary">
-              Adicionar Primeira Carta
-            </BaseButton>
-          </div>
-        </div>
 
-        <div v-else class="cards-content">
+        <CardsErrorState 
+          v-if="hasError" 
+          :error="error || ''" 
+          @retry="fetchUserCards" 
+        />
+
+        <CardsEmptyState 
+          v-else-if="isEmpty" 
+          @add-cards="showAddForm = true" 
+        />
+
+        <div v-else-if="!loading" class="cards-content">
+          <CardsNoResults v-if="filteredCards.length === 0" />
+          
           <CardList
-            :cards="userCards"
+            v-else
+            :cards="paginatedCards"
             :loading="loading"
             :error="error"
             :clickable="true"
+            :view-mode="viewMode"
             @card-click="handleCardClick"
             @retry="fetchUserCards"
+          />
+
+          <Pagination
+            v-if="filteredCards.length > 0"
+            :total-items="filteredCards.length"
+            :items-per-page="itemsPerPage"
+            :current-page="currentPage"
+            @page-change="handlePageChange"
           />
         </div>
       </div>
 
-      <div v-else class="add-form-section">
-        <div class="form-header">
-          <BaseButton @click="showAddForm = false" color="secondary">
-            ← Voltar para Minhas Cartas
-          </BaseButton>
-        </div>
-        <AddCardForm />
-      </div>
+      <AddCardModal 
+        v-model="showAddForm" 
+        @cards-added="fetchUserCards"
+      />
+      
+      <CardDetailModal 
+        v-model="showCardDetail" 
+        :card-id="selectedCardId"
+      />
     </Container>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { useCardsStore } from '../stores/cards';
-import { useAuthStore } from '../stores/auth';
-import Container from '../components/common/Container.vue';
-import BaseButton from '../components/common/BaseButton.vue';
-import CardList from '../components/features/cards/CardList.vue';
-import AddCardForm from '../components/features/cards/AddCardForm.vue';
-import type { Card } from '../types';
+import { ref, computed, onMounted, watch } from "vue";
+import { useRouter } from "vue-router";
+import { useCardsStore } from "../stores/cards";
+import { useAuthStore } from "../stores/auth";
+import { useLoadingStore } from "../stores/loading";
+import { useCardFilters } from "../composables/useCardFilters";
+import { useCardStates } from "../composables/useCardStates";
+import Container from "../components/common/Container.vue";
+import BaseButton from "../components/common/BaseButton.vue";
+import Pagination from "../components/common/Pagination.vue";
+import CardsHeader from "../components/features/cards/CardsHeader.vue";
+import CardStats from "../components/features/cards/CardStats.vue";
+import CardsFilters from "../components/features/cards/CardsFilters.vue";
+
+import CardsErrorState from "../components/features/cards/CardsErrorState.vue";
+import CardsEmptyState from "../components/features/cards/CardsEmptyState.vue";
+import CardsNoResults from "../components/features/cards/CardsNoResults.vue";
+import CardList from "../components/features/cards/CardList.vue";
+import AddCardModal from "../components/features/cards/AddCardModal.vue";
+import CardDetailModal from "../components/features/cards/CardDetailModal.vue";
+import type { Card } from "../types";
 
 const router = useRouter();
 const cardsStore = useCardsStore();
 const authStore = useAuthStore();
+const loadingStore = useLoadingStore();
 
 const showAddForm = ref(false);
+const showCardDetail = ref(false);
+const selectedCardId = ref<string>('');
+const currentPage = ref(1);
+const itemsPerPage = ref(12);
 
 const loading = computed(() => cardsStore.loading);
 const error = computed(() => cardsStore.error);
 const userCards = computed(() => cardsStore.userCards);
-const hasUserCards = computed(() => cardsStore.hasUserCards);
 const totalUserCards = computed(() => cardsStore.totalUserCards);
 
-onMounted(() => {
+const {
+  searchQuery,
+  currentFilter,
+  viewMode,
+  recentCards,
+  filteredCards,
+  setFilter,
+  setSearchQuery,
+  setViewMode
+} = useCardFilters(userCards);
+
+const paginatedCards = computed(() => {
+  const startIndex = (currentPage.value - 1) * itemsPerPage.value;
+  const endIndex = startIndex + itemsPerPage.value;
+  return filteredCards.value.slice(startIndex, endIndex);
+});
+
+const totalPages = computed(() => {
+  return Math.ceil(filteredCards.value.length / itemsPerPage.value);
+});
+
+const { hasError, isEmpty } = useCardStates(loading, error, userCards);
+
+onMounted(async () => {
   if (authStore.isAuthenticated) {
-    fetchUserCards();
+    loadingStore.startLoading();
+    try {
+      await fetchUserCards();
+    } finally {
+      loadingStore.stopLoading();
+    }
   } else {
-    router.push('/login');
+    router.push("/login");
   }
 });
 
+watch([searchQuery, currentFilter], () => {
+  currentPage.value = 1;
+});
+
 async function fetchUserCards() {
-  await cardsStore.fetchUserCards();
+  loadingStore.startLoading();
+  try {
+    await cardsStore.fetchUserCards();
+  } finally {
+    loadingStore.stopLoading();
+  }
 }
 
 function handleCardClick(card: Card) {
-  router.push(`/cards/${card.id}`);
+  selectedCardId.value = card.id;
+  showCardDetail.value = true;
+}
+
+function handlePageChange(page: number) {
+  currentPage.value = page;
 }
 </script>
 
 <style scoped lang="scss">
-@use '../styles/_variables.scss' as *;
+@use "../styles/_variables.scss" as *;
 
 .cards-view {
   min-height: 100vh;
-  background: $gray-50;
+  background: linear-gradient(135deg, $gray-50 0%, $white 100%);
   padding: 24px 0;
 
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-    gap: 16px;
-
-    h1 {
-      margin: 0;
-      color: $black;
-      font-size: 32px;
-      font-weight: 700;
-    }
-
-    @media (max-width: 768px) {
-      flex-direction: column;
-      align-items: stretch;
-      text-align: center;
-
-      h1 {
-        font-size: 24px;
-      }
-    }
-  }
-
-  .stats {
-    margin-bottom: 32px;
-
-    .stat-card {
+  .user-cards-section {
+    .cards-content {
       background: $white;
-      border-radius: 12px;
+      border-radius: 16px;
       padding: 24px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      max-width: 200px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.05);
 
-      .stat-number {
-        display: block;
-        font-size: 36px;
-        font-weight: 700;
-        color: $primary;
-        margin-bottom: 8px;
+      @media (max-width: 768px) {
+        padding: 16px;
+        border-radius: 12px;
       }
-
-      .stat-label {
-        font-size: 14px;
-        color: $gray-600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-    }
-  }
-
-  .loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 80px 20px;
-    color: $gray-600;
-
-    .loading-spinner {
-      width: 48px;
-      height: 48px;
-      border: 4px solid $gray-200;
-      border-top: 4px solid $primary;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 16px;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  }
-
-  .error-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 80px 20px;
-    text-align: center;
-
-    .error-message {
-      color: $error;
-      margin-bottom: 16px;
-      font-size: 16px;
-    }
-  }
-
-  .empty-state {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 80px 20px;
-
-    .empty-content {
-      text-align: center;
-      max-width: 400px;
-
-      h3 {
-        margin: 0 0 16px 0;
-        color: $black;
-        font-size: 24px;
-        font-weight: 600;
-      }
-
-      p {
-        margin: 0 0 24px 0;
-        color: $gray-600;
-        font-size: 16px;
-        line-height: 1.5;
-      }
-    }
-  }
-
-  .cards-content {
-    background: $white;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  .add-form-section {
-    .form-header {
-      margin-bottom: 24px;
     }
   }
 }
-</style> 
+</style>
