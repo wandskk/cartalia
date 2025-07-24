@@ -80,7 +80,7 @@ function goToMyTrades() {
 }
 
 function goToCreateTrade() {
-  router.push('/create-trade');
+  router.push('/my-trades');
 }
 </script>
 

@@ -5,3 +5,4 @@ export { useSidebar } from './useSidebar';
 export { useTradeCreation } from './useTradeCreation';
 export { useCardFilters } from './useCardFilters';
 export { useCardStates } from './useCardStates'; 
+export { useTradeFilters } from './useTradeFilters'; 

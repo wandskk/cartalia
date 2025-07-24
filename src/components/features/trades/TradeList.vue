@@ -25,10 +25,13 @@
 
     <div v-else class="trades-content">
       <div class="trades-grid">
-        <TradeCard
+        <TradeItem
           v-for="trade in trades"
           :key="trade.id"
           :trade="trade"
+          :show-actions="false"
+          :show-status="true"
+          status="active"
           @delete="handleDeleteTrade"
         />
       </div>
@@ -58,6 +61,7 @@ import { useAuthStore } from '../../../stores/auth';
 import { useNotificationStore } from '../../../stores/notification';
 import BaseButton from '../../common/BaseButton.vue';
 import TradeCard from './TradeCard.vue';
+import TradeItem from './TradeItem.vue';
 import type { Trade } from '../../../types';
 
 interface Props {
@@ -106,16 +110,16 @@ function loadMore() {
 }
 
 function goToCreateTrade() {
-  router.push('/create-trade');
+  router.push('/my-trades');
 }
 
 function goToLogin() {
   router.push('/login');
 }
 
-async function handleDeleteTrade(tradeId: string) {
+async function handleDeleteTrade(trade: Trade) {
   try {
-    emit('delete', tradeId);
+    emit('delete', trade.id);
     notification.show('Troca deletada com sucesso!', 'success');
   } catch (err: any) {
     notification.show(

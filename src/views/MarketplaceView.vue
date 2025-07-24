@@ -1,19 +1,18 @@
 <template>
   <div class="marketplace-view">
     <Container>
-      <div class="header">
-        <div class="header-content">
-          <h1>Marketplace de Cartas</h1>
-          <p>Explore as trocas disponíveis e encontre as cartas que você procura</p>
-        </div>
-        
-        <div v-if="isAuthenticated" class="header-actions">
+      <PageHeader 
+        title="Marketplace de Cartas"
+        subtitle="Explore as trocas disponíveis e encontre as cartas que você procura"
+      >
+        <template #actions>
+          <div v-if="isAuthenticated">
           <BaseButton @click="goToCreateTrade" color="primary">
             Criar Nova Troca
           </BaseButton>
         </div>
         
-        <div v-else class="header-actions">
+          <div v-else>
           <BaseButton @click="goToLogin" color="primary">
             Fazer Login
           </BaseButton>
@@ -21,13 +20,14 @@
             Cadastrar
           </BaseButton>
         </div>
-      </div>
+        </template>
+      </PageHeader>
 
       <div class="stats">
-        <div class="stat-card">
-          <span class="stat-number">{{ totalTrades }}</span>
-          <span class="stat-label">Trocas Disponíveis</span>
-        </div>
+        <StatCard
+          :number="totalTrades"
+          label="Trocas Disponíveis"
+        />
       </div>
 
       <div class="trades-section">
@@ -53,7 +53,9 @@ import { useTradesStore } from '../stores/trades';
 import { useAuthStore } from '../stores/auth';
 import Container from '../components/common/Container.vue';
 import BaseButton from '../components/common/BaseButton.vue';
+import PageHeader from '../components/common/PageHeader.vue';
 import TradeList from '../components/features/trades/TradeList.vue';
+import StatCard from '../components/common/StatCard.vue';
 
 const router = useRouter();
 const tradesStore = useTradesStore();
@@ -84,7 +86,8 @@ async function handleDeleteTrade(tradeId: string) {
 }
 
 function goToCreateTrade() {
-  router.push('/create-trade');
+  // Funcionalidade movida para modal na tela de minhas trocas
+  router.push('/my-trades');
 }
 
 function goToLogin() {
@@ -160,30 +163,6 @@ function goToRegister() {
 
   .stats {
     margin-bottom: 32px;
-
-    .stat-card {
-      background: $white;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      max-width: 200px;
-
-      .stat-number {
-        display: block;
-        font-size: 36px;
-        font-weight: 700;
-        color: $primary;
-        margin-bottom: 8px;
-      }
-
-      .stat-label {
-        font-size: 14px;
-        color: $gray-600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-    }
   }
 
   .trades-section {
