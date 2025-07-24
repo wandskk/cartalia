@@ -184,16 +184,8 @@ const userCards = computed(() => cardsStore.userCards);
 
 const userCardIds = computed(() => userCards.value.map((card) => card.id));
 
-const availableCardsCount = computed(() => {
-  return filteredCards.value.filter((card) => !isCardOwned(card.id)).length;
-});
-
 const paginatedCards = computed(() => {
   return filteredCards.value;
-});
-
-const totalPages = computed(() => {
-  return Math.ceil((cardsStore.pagination.total || 0) / itemsPerPage.value);
 });
 
 const filteredCards = computed(() => {

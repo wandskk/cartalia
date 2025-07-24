@@ -1,5 +1,5 @@
 <template>
-  <Card class="trade-preview">
+  <div class="trade-preview">
     <div class="preview-header">
       <h3>Preview da Troca</h3>
       <span class="trade-status" :class="statusClass">{{ statusText }}</span>
@@ -84,12 +84,11 @@
         Limpar Seleção
       </BaseButton>
     </div>
-  </Card>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import Card from '../../common/Card.vue';
 import BaseButton from '../../common/BaseButton.vue';
 import type { Card as CardType } from '../../../types';
 

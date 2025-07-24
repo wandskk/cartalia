@@ -16,7 +16,7 @@ withDefaults(defineProps<Props>(), {
 </script>
 
 <style scoped lang="scss">
-@import '../../styles/_variables.scss';
+@use '../../styles/_variables.scss' as *;
 
 .loading-spinner-container {
   display: flex;

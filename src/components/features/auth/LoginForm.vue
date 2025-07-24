@@ -1,6 +1,6 @@
 <template>
   <div class="login-container">
-    <Card>
+    <div class="login-card">
       <Form :validation-schema="schema" @submit="onSubmit" class="login-form">
         <h2 class="login-title">Bem-vindo de volta</h2>
         <Field name="email" v-slot="{ field, errorMessage, meta }">
@@ -41,7 +41,7 @@
           <a href="/register">Não tem uma conta? Cadastre-se</a>
         </div>
       </Form>
-    </Card>
+    </div>
   </div>
 </template>
 
@@ -50,7 +50,6 @@ import { Form, Field } from "vee-validate";
 import { toFormValidator } from "@vee-validate/zod";
 import BaseInput from "../../common/BaseInput.vue";
 import BaseButton from "../../common/BaseButton.vue";
-import Card from "../../common/Card.vue";
 import { loginSchema } from "../../../schemas/login.schema";
 import { useAuthForm } from '../../../composables/useAuthForm';
 
@@ -70,6 +69,15 @@ const { onSubmit, loading, error } = useAuthForm('login');
   align-items: center;
   justify-content: center;
   background: $gray-100;
+}
+
+.login-card {
+  background: $white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
 }
 .login-form {
   display: flex;

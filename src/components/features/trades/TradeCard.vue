@@ -1,5 +1,5 @@
 <template>
-  <Card class="trade-card">
+  <div class="trade-card">
     <div class="trade-header">
       <div class="user-info">
         <div class="user-avatar">
@@ -57,13 +57,12 @@
         </div>
       </div>
     </div>
-  </Card>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useAuthStore } from '../../../stores/auth';
-import Card from '../../common/Card.vue';
 import BaseButton from '../../common/BaseButton.vue';
 import type { Trade } from '../../../types';
 

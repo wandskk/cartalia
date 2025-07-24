@@ -98,10 +98,10 @@ function handlePageChange(page: number) {
 </script>
 
 <style scoped lang="scss">
-@import '../../styles/_variables.scss';
+@use '../../styles/_variables.scss' as *;
 
 .pagination {
-  display: flex;
+  display: flex;  
   align-items: center;
   justify-content: center;
   gap: 8px;

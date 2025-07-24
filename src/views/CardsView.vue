@@ -77,7 +77,7 @@ import { useLoadingStore } from "../stores/loading";
 import { useCardFilters } from "../composables/useCardFilters";
 import { useCardStates } from "../composables/useCardStates";
 import Container from "../components/common/Container.vue";
-import BaseButton from "../components/common/BaseButton.vue";
+
 import Pagination from "../components/common/Pagination.vue";
 import CardsHeader from "../components/features/cards/CardsHeader.vue";
 import CardStats from "../components/features/cards/CardStats.vue";
@@ -124,9 +124,7 @@ const paginatedCards = computed(() => {
   return filteredCards.value.slice(startIndex, endIndex);
 });
 
-const totalPages = computed(() => {
-  return Math.ceil(filteredCards.value.length / itemsPerPage.value);
-});
+
 
 const { hasError, isEmpty } = useCardStates(loading, error, userCards);
 
