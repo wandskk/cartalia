@@ -8,7 +8,8 @@
         'card-selectable': selectable,
         'card-selected': selected,
         'card-clickable': clickable,
-        'card-loading': loading
+        'card-loading': loading,
+        'card-disabled': disabled
       }
     ]"
     @click="handleClick"
@@ -65,6 +66,7 @@ interface Props {
   selected?: boolean;
   clickable?: boolean;
   loading?: boolean;
+  disabled?: boolean;
   showDescription?: boolean;
   showActions?: boolean;
   maxDescriptionLength?: number;
@@ -82,6 +84,7 @@ const props = withDefaults(defineProps<Props>(), {
   selected: false,
   clickable: false,
   loading: false,
+  disabled: false,
   showDescription: true,
   showActions: false,
   maxDescriptionLength: 100
@@ -102,7 +105,7 @@ const truncatedDescription = computed(() => {
 });
 
 function handleClick() {
-  if (props.clickable && !props.loading) {
+  if (props.clickable && !props.loading && !props.disabled) {
     emit('click', props.card);
   }
 }
@@ -159,6 +162,26 @@ function handleImageError(event: Event) {
   &.card-loading {
     pointer-events: none;
     opacity: 0.7;
+  }
+
+  &.card-disabled {
+    pointer-events: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+    
+    &:hover {
+      transform: none;
+      box-shadow: none;
+      border-color: $gray-200;
+    }
+    
+    .card-image img {
+      filter: grayscale(100%);
+    }
+    
+    .card-content {
+      opacity: 0.7;
+    }
   }
 
   .card-image {

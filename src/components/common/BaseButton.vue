@@ -3,6 +3,7 @@
     :type="type"
     :disabled="disabled || loading"
     :class="['base-btn', color]"
+    @click="$emit('click')"
   >
     <span v-if="loading" class="btn-spinner"></span>
     <slot />
@@ -15,6 +16,10 @@ defineProps<{
   disabled?: boolean
   loading?: boolean
   color?: 'primary' | 'secondary' | 'accent' | 'success' | 'error' | 'warning' | 'info'
+}>()
+
+defineEmits<{
+  click: []
 }>()
 </script>
 

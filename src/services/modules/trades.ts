@@ -7,11 +7,6 @@ export const TradeServices = {
     return response.data;
   },
 
-  async getUserTrades(page = 1, rpp = 10): Promise<TradeListResponse> {
-    const response = await api.get(`/me/trades?page=${page}&rpp=${rpp}`);
-    return response.data;
-  },
-
   async createTrade(tradeData: CreateTradeForm): Promise<CreateTradeResponse> {
     const response = await api.post('/trades', tradeData);
     return response.data;

@@ -8,7 +8,7 @@ const DashboardView = () => import('../views/DashboardView.vue')
 const CardsView = () => import('../views/CardsView.vue')
 const CardDetailView = () => import('../views/CardDetailView.vue')
 const MarketplaceView = () => import('../views/MarketplaceView.vue')
-const CreateTradeView = () => import('../views/CreateTradeView.vue')
+
 const MyTradesView = () => import('../views/MyTradesView.vue')
 const ErrorView = () => import('../views/ErrorView.vue')
 
@@ -17,7 +17,7 @@ const routes = [
   { path: '/login', component: LoginView },
   { path: '/register', component: RegisterView },
   { path: '/marketplace', component: MarketplaceView },
-  { path: '/create-trade', component: CreateTradeView },
+
   { path: '/my-trades', component: MyTradesView, meta: { requiresAuth: true } },
   { path: '/dashboard', component: DashboardView, meta: { requiresAuth: true } },
   { path: '/cards', component: CardsView, meta: { requiresAuth: true } },

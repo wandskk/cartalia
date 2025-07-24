@@ -8,14 +8,11 @@
     <div class="add-card-modal">
       <div class="search-section">
         <div class="search-box">
-          <input
+          <SearchInput
             v-model="searchQuery"
-            type="text"
             placeholder="Buscar cartas..."
-            class="search-input"
             :disabled="initialLoading"
           />
-          <span class="search-icon">🔍</span>
         </div>
       </div>
 
@@ -148,6 +145,7 @@ import Card from "../../common/Card.vue";
 import SimplePagination from "../../common/SimplePagination.vue";
 import LoadingSpinner from "../../common/LoadingSpinner.vue";
 import type { Card as CardType } from "../../../types";
+import SearchInput from "../../common/SearchInput.vue";
 
 interface Props {
   modelValue: boolean;
@@ -335,42 +333,6 @@ async function handleAddCards() {
 
     .search-box {
       position: relative;
-
-      .search-input {
-        width: 100%;
-        padding: 12px 16px 12px 44px;
-        border: 2px solid $gray-200;
-        border-radius: 12px;
-        font-size: 14px;
-        background: $white;
-        transition: all 0.3s ease;
-
-        &:focus {
-          outline: none;
-          border-color: $primary;
-          box-shadow: 0 0 0 3px rgba($primary, 0.1);
-        }
-
-        &::placeholder {
-          color: $gray-500;
-        }
-
-        &:disabled {
-          background: $gray-100;
-          color: $gray-500;
-          cursor: not-allowed;
-          opacity: 0.7;
-        }
-      }
-
-      .search-icon {
-        position: absolute;
-        left: 16px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: $gray-500;
-        font-size: 16px;
-      }
     }
   }
 

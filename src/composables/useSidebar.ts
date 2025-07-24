@@ -40,9 +40,7 @@ export function useSidebar() {
     if (path === '/my-trades') {
       return activePath.value === '/my-trades';
     }
-    if (path === '/create-trade') {
-      return activePath.value === '/create-trade';
-    }
+
     if (path === '/marketplace') {
       return activePath.value === '/marketplace';
     }

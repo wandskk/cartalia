@@ -60,7 +60,7 @@ export const ROUTES = {
   DASHBOARD: '/dashboard',
   CARDS: '/cards',
   MARKETPLACE: '/marketplace',
-  CREATE_TRADE: '/create-trade',
+
   MY_TRADES: '/my-trades',
   CARD_DETAIL: '/card/:id'
 } as const;
@@ -107,12 +107,7 @@ export const NAVIGATION_ITEMS = [
     icon: '🃏',
     requiresAuth: true,
   },
-  {
-    path: '/create-trade',
-    label: 'Criar Troca',
-    icon: '➕',
-    requiresAuth: true,
-  },
+
   {
     path: '/my-trades',
     label: 'Minhas Trocas',
