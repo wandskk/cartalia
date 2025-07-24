@@ -66,12 +66,11 @@ import StatCard from '../components/common/StatCard.vue';
 const router = useRouter();
 const tradesStore = useTradesStore();
 const authStore = useAuthStore();
-const { filters, filteredTrades, updateFilters } = useMarketplaceFilters();
+const { filteredTrades, updateFilters } = useMarketplaceFilters();
 
 const loading = computed(() => tradesStore.loading);
 const error = computed(() => tradesStore.error);
 const trades = computed(() => tradesStore.allTrades);
-const totalTrades = computed(() => tradesStore.totalTrades);
 const pagination = computed(() => tradesStore.pagination);
 const isAuthenticated = computed(() => authStore.isAuthenticated);
 
