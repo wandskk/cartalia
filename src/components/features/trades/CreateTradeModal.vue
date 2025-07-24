@@ -861,7 +861,7 @@ async function createTrade() {
               transition: all 0.2s ease;
 
               &:hover {
-                background: darken($error, 10%);
+                background: color-mix(in srgb, $error 90%, black);
                 transform: scale(1.1);
               }
             }

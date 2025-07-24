@@ -39,7 +39,7 @@ defineProps<Props>();
       color: $black;
       font-size: 36px;
       font-weight: 700;
-      background: linear-gradient(135deg, $primary 0%, darken($primary, 10%) 100%);
+      background: linear-gradient(135deg, $primary 0%, color-mix(in srgb, $primary 90%, black) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;

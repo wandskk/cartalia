@@ -85,7 +85,7 @@ withDefaults(defineProps<Props>(), {
     width: 48px;
     height: 48px;
     border-radius: 12px;
-    background: linear-gradient(135deg, $primary 0%, lighten($primary, 15%) 100%);
+    background: linear-gradient(135deg, $primary 0%, color-mix(in srgb, $primary 85%, white) 100%);
     display: flex;
     align-items: center;
     justify-content: center;

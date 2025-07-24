@@ -30,12 +30,10 @@ interface Emits {
   (e: 'update:modelValue', value: 'grid' | 'list'): void;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  viewModes: () => [
-    { value: 'grid', icon: '⊞', title: 'Visualização em grade' },
-    { value: 'list', icon: '☰', title: 'Visualização em lista' }
-  ]
-});
+const { modelValue, viewModes = [
+  { value: 'grid', icon: '⊞', title: 'Visualização em grade' },
+  { value: 'list', icon: '☰', title: 'Visualização em lista' }
+] } = defineProps<Props>();
 
 const emit = defineEmits<Emits>();
 

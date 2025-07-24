@@ -60,7 +60,6 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../../stores/auth';
 import { useNotificationStore } from '../../../stores/notification';
 import BaseButton from '../../common/BaseButton.vue';
-import TradeCard from './TradeCard.vue';
 import TradeItem from './TradeItem.vue';
 import type { Trade } from '../../../types';
 
