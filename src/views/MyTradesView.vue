@@ -174,12 +174,17 @@ function handleTradeCreated() {
     border: 1px solid rgba($primary, 0.1);
 
     .section-header {
+      width: 100%;
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      margin-bottom: 24px;
       flex-wrap: wrap;
       gap: 16px;
+
+
+      & .trade-filters {
+        width: 100%;
+      }
     }
   }
 }

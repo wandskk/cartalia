@@ -60,6 +60,9 @@
             >
               <div class="card-image">
                 <img :src="tradeCard.card.imageUrl" :alt="tradeCard.card.name" />
+                <div class="card-overlay">
+                  <span class="card-name">{{ tradeCard.card.name }}</span>
+                </div>
               </div>
               <div class="card-info">
                 <span class="card-name">{{ tradeCard.card.name }}</span>
@@ -88,6 +91,9 @@
             >
               <div class="card-image">
                 <img :src="tradeCard.card.imageUrl" :alt="tradeCard.card.name" />
+                <div class="card-overlay">
+                  <span class="card-name">{{ tradeCard.card.name }}</span>
+                </div>
               </div>
               <div class="card-info">
                 <span class="card-name">{{ tradeCard.card.name }}</span>
@@ -110,7 +116,7 @@
           {{ trade.user.name }}
         </span>
       </div>
-      <div class="trade-status">
+      <div v-if="showStatus" class="trade-status">
         <span :class="['status-badge', statusClass]">{{ statusText }}</span>
       </div>
     </div>
@@ -340,7 +346,7 @@ if (typeof window !== 'undefined') {
       display: grid;
       grid-template-columns: 1fr auto 1fr;
       gap: 24px;
-      align-items: center;
+      align-items: start;
 
       @media (max-width: 768px) {
         grid-template-columns: 1fr;
@@ -377,10 +383,15 @@ if (typeof window !== 'undefined') {
             border-radius: 12px;
             border: 2px solid $gray-200;
             transition: all 0.2s ease;
+            position: relative;
 
             &:hover {
               border-color: $primary;
               background: rgba($primary, 0.05);
+
+              .card-overlay {
+                opacity: 1;
+              }
             }
 
             .card-image {
@@ -389,11 +400,35 @@ if (typeof window !== 'undefined') {
               border-radius: 8px;
               overflow: hidden;
               flex-shrink: 0;
+              position: relative;
 
               img {
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
+              }
+
+              .card-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                transition: opacity 0.2s ease;
+
+                .card-name {
+                  color: $white;
+                  font-size: 10px;
+                  font-weight: 600;
+                  text-align: center;
+                  padding: 4px;
+                  line-height: 1.2;
+                }
               }
             }
 
@@ -428,6 +463,7 @@ if (typeof window !== 'undefined') {
         display: flex;
         align-items: center;
         justify-content: center;
+        padding: 16px 0;
 
         .arrow-container {
           width: 48px;
@@ -558,10 +594,47 @@ if (typeof window !== 'undefined') {
 
       .trade-stats {
         justify-content: center;
+        flex-wrap: wrap;
       }
 
       .trade-status {
         text-align: center;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .trade-item {
+    padding: 12px;
+
+    .trade-content {
+      .cards-section {
+        .offering-section,
+        .receiving-section {
+          .cards-preview {
+            .card-preview {
+              flex-direction: column;
+              text-align: center;
+              gap: 8px;
+
+              .card-image {
+                width: 60px;
+                height: 84px;
+              }
+
+              .card-info {
+                .card-name {
+                  font-size: 14px;
+                }
+
+                .card-description {
+                  font-size: 12px;
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
