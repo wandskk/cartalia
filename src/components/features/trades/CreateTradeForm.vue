@@ -7,7 +7,7 @@
             <span class="section-icon">📤</span>
             Cartas que você oferece
           </h3>
-          <BaseButton @click="showCardSelector = 'offering'" color="primary" size="sm">
+          <BaseButton @click="showCardSelector = 'offering'" color="primary" size="small">
             <span class="btn-icon">+</span>
             Adicionar Carta
           </BaseButton>
@@ -41,7 +41,7 @@
             <span class="section-icon">📥</span>
             Cartas que você quer receber
           </h3>
-          <BaseButton @click="showCardSelector = 'receiving'" color="primary" size="sm">
+          <BaseButton @click="showCardSelector = 'receiving'" color="primary" size="small">
             <span class="btn-icon">+</span>
             Adicionar Carta
           </BaseButton>
@@ -71,7 +71,7 @@
     </div>
 
     <div class="form-actions">
-      <BaseButton @click="cancel" color="secondary" variant="outline">
+      <BaseButton @click="cancel" color="secondary" variant="outlined">
         Cancelar
       </BaseButton>
       <BaseButton 
@@ -111,7 +111,7 @@
         </div>
         
         <div class="modal-actions">
-          <BaseButton @click="showCardSelector = false" color="secondary" variant="outline">
+          <BaseButton @click="showCardSelector = false" color="secondary" variant="outlined">
             Fechar
           </BaseButton>
         </div>

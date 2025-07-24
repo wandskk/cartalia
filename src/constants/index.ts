@@ -98,26 +98,25 @@ export const NAVIGATION_ITEMS = [
   {
     path: '/dashboard',
     label: 'Dashboard',
-    icon: '📊',
+    icon: 'mdi-view-dashboard',
     requiresAuth: true,
   },
   {
     path: '/cards',
     label: 'Minhas Cartas',
-    icon: '🃏',
+    icon: 'mdi-cards',
     requiresAuth: true,
   },
-
   {
     path: '/my-trades',
     label: 'Minhas Trocas',
-    icon: '🔄',
+    icon: 'mdi-swap-horizontal',
     requiresAuth: true,
   },
   {
     path: '/marketplace',
     label: 'Marketplace',
-    icon: '🏪',
+    icon: 'mdi-store',
     requiresAuth: false,
   },
 ] as const;

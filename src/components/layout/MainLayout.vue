@@ -1,20 +1,17 @@
 <template>
-  <div class="main-layout">
+  <v-app>
     <Header />
     <Sidebar />
-    <main
-      class="main-content"
+    <v-main
       :class="{
-        'with-sidebar':
-          !sidebarStore.isCollapsed &&
-          !sidebarStore.isMobileOpen,
-        'with-sidebar-collapsed':
-          sidebarStore.isCollapsed && !sidebarStore.isMobileOpen,
+        'with-sidebar': !sidebarStore.isCollapsed && !sidebarStore.isMobileOpen,
+        'with-sidebar-collapsed': sidebarStore.isCollapsed && !sidebarStore.isMobileOpen,
       }"
+      class="main-content"
     >
       <router-view />
-    </main>
-  </div>
+    </v-main>
+  </v-app>
 </template>
 
 <script setup lang="ts">
@@ -26,19 +23,14 @@ const sidebarStore = useSidebarStore();
 </script>
 
 <style scoped lang="scss">
-@use "../../styles/_variables.scss" as *;
-
-.main-layout {
+.main-content {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
 }
 
-.main-content {
-  flex: 1;
-  margin-top: 0;
+.v-main {
   transition: margin-left 0.3s ease;
-  padding: 0rem;
+  padding: 0;
 
   &.with-sidebar {
     margin-left: 280px;
@@ -50,10 +42,8 @@ const sidebarStore = useSidebarStore();
 }
 
 @media (max-width: 768px) {
-  .main-content {
+  .v-main {
     margin-left: 0 !important;
-    padding: 0rem;
-    margin-top: 60px;
   }
 }
 </style>

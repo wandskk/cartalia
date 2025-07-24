@@ -1,221 +1,111 @@
 <template>
-  <div v-if="isOpen" class="error-modal-overlay" @click="handleOverlayClick">
-    <div class="error-modal" @click.stop>
-      <div class="modal-header">
-        <div class="error-icon">
-          <span v-if="error?.type === 'api'">⚠️</span>
-          <span v-else-if="error?.type === 'network'">🌐</span>
-          <span v-else-if="error?.type === 'auth'">🔒</span>
-          <span v-else-if="error?.type === 'validation'">📝</span>
-          <span v-else>❌</span>
-        </div>
-        <h3 class="modal-title">{{ error?.message || 'Erro' }}</h3>
-        <button @click="closeModal" class="close-button" type="button">
-          ×
-        </button>
+  <BaseModal
+    v-model="isOpen"
+    title="Erro"
+    size="md"
+    :show-close-button="true"
+    :persistent="true"
+  >
+    <div class="error-content">
+      <div class="error-icon">
+        <v-icon size="48" color="error">mdi-alert-circle</v-icon>
       </div>
-
-      <div class="modal-content">
-        <p v-if="error?.details" class="error-details">
-          {{ error.details }}
+      <div class="error-message">
+        <h3 class="error-title">{{ errorStore.currentError?.message || 'Ocorreu um erro' }}</h3>
+        <p class="error-description">
+          {{ errorStore.currentError?.details || 'Algo deu errado. Tente novamente.' }}
         </p>
-
-        <div v-if="error?.component" class="error-meta">
-          <span class="meta-label">Componente:</span>
-          <span class="meta-value">{{ error.component }}</span>
-        </div>
-
-        <div class="error-actions">
-          <BaseButton @click="closeModal" color="secondary">
-            Fechar
-          </BaseButton>
-          
-          <BaseButton 
-            v-if="error?.type === 'auth'" 
-            @click="goToLogin" 
-            color="primary"
-          >
-            Fazer Login
-          </BaseButton>
-          
-          <BaseButton 
-            v-else-if="error?.type === 'network'" 
-            @click="retry" 
-            color="primary"
-          >
-            Tentar Novamente
-          </BaseButton>
-        </div>
       </div>
     </div>
-  </div>
+
+    <template #footer>
+      <div class="error-actions">
+        <v-btn
+          @click="handleRetry"
+          color="primary"
+          variant="elevated"
+          :loading="loading"
+        >
+          Tentar Novamente
+        </v-btn>
+        <v-btn
+          @click="handleClose"
+          variant="outlined"
+        >
+          Fechar
+        </v-btn>
+      </div>
+    </template>
+  </BaseModal>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, ref } from 'vue';
 import { useErrorStore } from '../../stores/error';
-import BaseButton from './BaseButton.vue';
+import BaseModal from './BaseModal.vue';
 
-
-interface Props {
-  isOpen: boolean;
-}
-
-defineProps<Props>();
-
-const router = useRouter();
 const errorStore = useErrorStore();
+const loading = ref(false);
 
-const error = computed(() => errorStore.currentError);
+const isOpen = computed({
+  get: () => errorStore.isErrorModalOpen,
+  set: (value) => {
+    if (!value) {
+      errorStore.closeErrorModal();
+    }
+  }
+});
 
-function closeModal() {
+const handleRetry = async () => {
+  loading.value = true;
+  try {
+    window.location.reload();
+  } catch (error) {
+    console.error('Retry failed:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const handleClose = () => {
   errorStore.closeErrorModal();
-}
-
-function handleOverlayClick() {
-  closeModal();
-}
-
-function goToLogin() {
-  closeModal();
-  router.push('/login');
-}
-
-function retry() {
-  closeModal();
-  window.location.reload();
-}
+};
 </script>
 
 <style scoped lang="scss">
-@use '../../styles/_variables.scss' as *;
-
-.error-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+.error-content {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  padding: 20px;
+  text-align: center;
+  padding: 1rem 0;
 }
 
-.error-modal {
-  background: $white;
-  border-radius: 12px;
-  max-width: 500px;
+.error-icon {
+  margin-bottom: 1rem;
+}
+
+.error-message {
+  max-width: 400px;
+}
+
+.error-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: $gray-900;
+  margin-bottom: 0.5rem;
+}
+
+.error-description {
+  font-size: 1rem;
+  color: $gray-600;
+  line-height: 1.5;
+}
+
+.error-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
   width: 100%;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  animation: modalSlideIn 0.3s ease;
-
-  @keyframes modalSlideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-20px) scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-
-  .modal-header {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 24px 24px 0 24px;
-    position: relative;
-
-    .error-icon {
-      font-size: 32px;
-      width: 48px;
-      height: 48px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba($error, 0.1);
-      border-radius: 12px;
-      flex-shrink: 0;
-    }
-
-    .modal-title {
-      margin: 0;
-      color: $black;
-      font-size: 20px;
-      font-weight: 600;
-      flex: 1;
-      line-height: 1.3;
-    }
-
-    .close-button {
-      background: none;
-      border: none;
-      font-size: 24px;
-      color: $gray-500;
-      cursor: pointer;
-      padding: 4px;
-      border-radius: 4px;
-      transition: all 0.2s;
-
-      &:hover {
-        background: $gray-100;
-        color: $black;
-      }
-    }
-  }
-
-  .modal-content {
-    padding: 20px 24px 24px 24px;
-
-    .error-details {
-      margin: 0 0 16px 0;
-      color: $gray-700;
-      font-size: 15px;
-      line-height: 1.5;
-      background: $gray-50;
-      padding: 12px;
-      border-radius: 8px;
-      border-left: 4px solid $error;
-    }
-
-    .error-meta {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 20px;
-      padding: 8px 12px;
-      background: $gray-100;
-      border-radius: 6px;
-
-      .meta-label {
-        font-size: 12px;
-        color: $gray-600;
-        font-weight: 500;
-        text-transform: uppercase;
-      }
-
-      .meta-value {
-        font-size: 12px;
-        color: $black;
-        font-family: monospace;
-      }
-    }
-
-    .error-actions {
-      display: flex;
-      gap: 12px;
-      justify-content: flex-end;
-      flex-wrap: wrap;
-
-      @media (max-width: 480px) {
-        flex-direction: column;
-      }
-    }
-  }
 }
 </style> 

@@ -6,7 +6,7 @@
       <p>Tem certeza que deseja excluir esta troca? Esta ação não pode ser desfeita.</p>
       
       <div class="confirmation-actions">
-        <BaseButton @click="handleCancel" color="secondary" variant="outline">
+        <BaseButton @click="handleCancel" color="secondary" variant="outlined">
           Cancelar
         </BaseButton>
         <BaseButton @click="handleConfirm" color="error" :loading="loading">

@@ -28,18 +28,16 @@ export default defineComponent({
 </script>
 
 <template>
-  <div id="app">
+  <v-app>
     <Notification />
     <Loading v-if="loadingStore.isLoading" />
     <ErrorModal :is-open="errorStore.isErrorModalOpen" />
     <MainLayout />
-  </div>
+  </v-app>
 </template>
 
 <style scoped>
-#app {
+.v-application {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
 }
 </style>

@@ -29,7 +29,7 @@
         @select="handleCardSelect"
       >
         <template v-if="viewMode === 'list'" #actions>
-          <BaseButton size="sm" @click.stop="handleCardClick(card)">
+          <BaseButton size="small" @click.stop="handleCardClick(card)">
             Ver detalhes
           </BaseButton>
         </template>

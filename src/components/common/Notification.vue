@@ -1,37 +1,96 @@
 <template>
-  <div v-if="message" :class="['notification', type]">
-    {{ message }}
-  </div>
+  <v-snackbar
+    v-model="isVisible"
+    :color="notificationStore.type || 'info'"
+    :timeout="3000"
+    location="top right"
+    class="notification"
+  >
+    <div class="notification-content">
+      <v-icon 
+        :icon="getIcon(notificationStore.type || 'info')"
+        class="notification-icon"
+      />
+      <div class="notification-text">
+        <div class="notification-message">
+          {{ notificationStore.message || '' }}
+        </div>
+      </div>
+    </div>
+
+    <template v-slot:actions>
+      <v-btn
+        icon
+        variant="text"
+        @click="closeNotification"
+        size="small"
+      >
+        <v-icon>mdi-close</v-icon>
+      </v-btn>
+    </template>
+  </v-snackbar>
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from 'pinia';
+import { computed } from 'vue';
 import { useNotificationStore } from '../../stores/notification';
-const { message, type } = storeToRefs(useNotificationStore());
+
+const notificationStore = useNotificationStore();
+
+const isVisible = computed({
+  get: () => !!notificationStore.message,
+  set: (value) => {
+    if (!value) {
+      notificationStore.clear();
+    }
+  }
+});
+
+const getIcon = (type: string | null) => {
+  switch (type) {
+    case 'success':
+      return 'mdi-check-circle';
+    case 'error':
+      return 'mdi-alert-circle';
+    case 'warning':
+      return 'mdi-alert';
+    case 'info':
+    default:
+      return 'mdi-information';
+  }
+};
+
+const closeNotification = () => {
+  notificationStore.clear();
+};
 </script>
 
 <style scoped lang="scss">
 .notification {
-  position: fixed;
-  top: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  min-width: 220px;
-  max-width: 90vw;
-  padding: 1rem 2rem;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  z-index: 9999;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-  color: #fff;
-  opacity: 0.97;
-  transition: all 0.3s;
+  z-index: 10000;
 }
-.notification.success {
-  background: #22c55e;
+
+.notification-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  flex: 1;
 }
-.notification.error {
-  background: #ef4444;
+
+.notification-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.notification-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-message {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: inherit;
+  font-weight: 500;
 }
 </style> 
