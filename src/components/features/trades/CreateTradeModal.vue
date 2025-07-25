@@ -120,7 +120,7 @@
             </v-btn>
             
             <v-btn
-              v-if="steps.canGoNext"
+              v-if="steps.canGoNext && steps.currentStep.value < 2"
               @click="nextStep"
               color="primary"
               :disabled="!canProceedToNextStep"
@@ -130,7 +130,7 @@
             </v-btn>
             
             <v-btn
-              v-else
+              v-if="steps.currentStep.value === 2"
               @click="createTrade"
               color="success"
               :loading="loadingStore.isLoading"
