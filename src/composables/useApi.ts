@@ -22,7 +22,7 @@ export function useApi<T = any>() {
       data.value = result as T;
       return result;
     } catch (err: any) {
-      const errorMsg = err.message || errorMessage;
+      const errorMsg = errorMessage;
       error.value = errorMsg;
       errorStore.addApiError(errorMsg);
       return null;

@@ -4,7 +4,18 @@ import { SIDEBAR } from '../constants'
 
 export const useSidebarStore = defineStore('sidebar', () => {
   const stored = localStorage.getItem(SIDEBAR.STORAGE_KEY)
-  const isCollapsed = ref(stored ? JSON.parse(stored) : false)
+  let isCollapsedValue = false
+  
+  if (stored) {
+    try {
+      isCollapsedValue = JSON.parse(stored)
+    } catch (error) {
+      console.warn('Invalid sidebar state in localStorage, using default value')
+      isCollapsedValue = false
+    }
+  }
+  
+  const isCollapsed = ref(isCollapsedValue)
   const isMobileOpen = ref(false)
 
   const toggleCollapse = () => {

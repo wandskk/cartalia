@@ -123,14 +123,11 @@ describe('useCardFilters', () => {
     it('should update filtered cards when source cards change', () => {
       const newCards: Card[] = [
         {
-          id: 4,
+          id: '4',
           name: 'New Card',
           description: 'New card description',
           imageUrl: 'image4.jpg',
-          rarity: 'COMMON',
-          type: 'MONSTER',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          createdAt: new Date().toISOString()
         }
       ];
       
@@ -144,24 +141,18 @@ describe('useCardFilters', () => {
       
       const newCards: Card[] = [
         {
-          id: 4,
+          id: '4',
           name: 'Card 4',
           description: 'Fourth card description',
           imageUrl: 'image4.jpg',
-          rarity: 'COMMON',
-          type: 'MONSTER',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          createdAt: new Date().toISOString()
         },
         {
-          id: 5,
+          id: '5',
           name: 'Other Item',
           description: 'Other description',
           imageUrl: 'image5.jpg',
-          rarity: 'COMMON',
-          type: 'MONSTER',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          createdAt: new Date().toISOString()
         }
       ];
       

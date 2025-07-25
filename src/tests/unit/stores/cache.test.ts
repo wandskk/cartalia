@@ -76,16 +76,18 @@ describe('Cache Store', () => {
     expect(cacheStore.has('test-key')).toBe(true);
   });
 
-  it('should check if key is expired', async () => {
+  it('should check if key is expired', () => {
+    vi.useFakeTimers();
     const cacheStore = useCacheStore();
     
     cacheStore.set('test-key', { data: 1 }, 1); // 1ms TTL
     expect(cacheStore.has('test-key')).toBe(true);
     
-    // Wait for expiration
-    await new Promise(resolve => setTimeout(resolve, 10));
+    // Advance time by 10ms to trigger expiration
+    vi.advanceTimersByTime(10);
     
     expect(cacheStore.has('test-key')).toBe(false);
+    vi.useRealTimers();
   });
 
   it('should get cache size', () => {

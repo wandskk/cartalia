@@ -96,12 +96,15 @@ describe('useTradeFilters', () => {
       const tradeWithMultipleCards: Trade = {
         id: '3',
         userId: 'user3',
-        status: 'ACTIVE',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        user: {
+          name: 'User 3'
+        },
         tradeCards: [
           {
             id: '3',
+            cardId: 'card3',
+            tradeId: '3',
             card: {
               id: 'card3',
               name: 'Card 3',
@@ -113,6 +116,8 @@ describe('useTradeFilters', () => {
           },
           {
             id: '4',
+            cardId: 'card4',
+            tradeId: '3',
             card: {
               id: 'card4',
               name: 'Another Card',
@@ -164,12 +169,15 @@ describe('useTradeFilters', () => {
         {
           id: '3',
           userId: 'user3',
-          status: 'ACTIVE',
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+          user: {
+            name: 'User 3'
+          },
           tradeCards: [
             {
               id: '3',
+              cardId: 'card3',
+              tradeId: '3',
               card: {
                 id: 'card3',
                 name: 'New Card',
@@ -195,12 +203,15 @@ describe('useTradeFilters', () => {
         {
           id: '3',
           userId: 'user3',
-          status: 'ACTIVE',
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+          user: {
+            name: 'User 3'
+          },
           tradeCards: [
             {
               id: '3',
+              cardId: 'card3',
+              tradeId: '3',
               card: {
                 id: 'card3',
                 name: 'Card 3',
@@ -215,12 +226,15 @@ describe('useTradeFilters', () => {
         {
           id: '4',
           userId: 'user4',
-          status: 'ACTIVE',
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+          user: {
+            name: 'User 4'
+          },
           tradeCards: [
             {
               id: '4',
+              cardId: 'card4',
+              tradeId: '4',
               card: {
                 id: 'card4',
                 name: 'Other Item',

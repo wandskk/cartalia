@@ -45,8 +45,7 @@ export function useAsyncState<T = any>(initialData: T | null = null) {
   }
 
   async function execute<TResult = T>(
-    operation: () => Promise<TResult>,
-    loadingMessage?: string
+    operation: () => Promise<TResult>
   ): Promise<TResult> {
     setLoading(true);
     

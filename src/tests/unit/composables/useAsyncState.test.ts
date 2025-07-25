@@ -139,11 +139,10 @@ describe('useAsyncState', () => {
       expect(asyncState.isLoading.value).toBe(false);
     });
 
-    it('should execute with custom loading message', async () => {
-      const loadingMessage = 'Custom loading message';
+    it('should execute operation successfully', async () => {
       const operation = vi.fn().mockResolvedValue({ id: 1 });
       
-      await asyncState.execute(operation, loadingMessage);
+      await asyncState.execute(operation);
       
       expect(operation).toHaveBeenCalledOnce();
     });

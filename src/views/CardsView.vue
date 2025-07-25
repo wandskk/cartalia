@@ -3,7 +3,7 @@
     <Container>
       <CardsHeader @add-cards="showAddForm = true" />
 
-      <CardStats :total-cards="totalUserCards" :recent-cards="recentCards" />
+      <CardStats :total-cards="totalUserCards" :recent-cards="recentCards.length" />
 
       <div v-if="!showAddForm" class="user-cards-section">
         <CardsFilters
