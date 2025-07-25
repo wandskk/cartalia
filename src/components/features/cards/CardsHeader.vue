@@ -4,16 +4,15 @@
     :subtitle="subtitle"
   >
     <template #actions>
-      <BaseButton @click="$emit('add-cards')" color="primary" class="add-button">
-        <span class="button-icon">+</span>
+      <v-btn @click="$emit('add-cards')" color="primary" variant="elevated" class="d-flex align-center ga-2">
+        <v-icon>mdi-plus</v-icon>
         {{ buttonText }}
-      </BaseButton>
+      </v-btn>
     </template>
   </PageHeader>
 </template>
 
 <script setup lang="ts">
-import BaseButton from '../../common/BaseButton.vue';
 import PageHeader from '../../common/PageHeader.vue';
 
 interface Props {

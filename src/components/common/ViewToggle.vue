@@ -1,16 +1,18 @@
 <template>
-  <div class="view-toggle">
-    <button 
+  <div class="d-flex ga-1 bg-grey-lighten-4 rounded-lg pa-1">
+    <v-btn
       v-for="view in viewModes"
       :key="view.value"
-      @click="handleViewChange(view.value)" 
-      :class="['view-btn', { active: modelValue === view.value }]"
+      @click="handleViewChange(view.value)"
+      :variant="modelValue === view.value ? 'elevated' : 'text'"
+      :color="modelValue === view.value ? 'primary' : 'grey'"
+      size="small"
       :title="view.title"
-      type="button"
       :aria-label="view.title"
+      class="text-none"
     >
       {{ view.icon }}
-    </button>
+    </v-btn>
   </div>
 </template>
 

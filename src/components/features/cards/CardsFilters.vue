@@ -1,22 +1,24 @@
 <template>
-  <div class="cards-filters">
-    <div class="search-filters">
-      <div class="search-box">
+  <div class="d-flex justify-space-between align-center mb-6 flex-wrap ga-4">
+    <div class="d-flex align-center ga-4 flex-grow-1 min-width-0">
+      <div class="flex-grow-1" style="max-width: 300px;">
         <SearchInput
           :model-value="searchQuery"
           placeholder="Buscar cartas..."
           @update:model-value="$emit('update:searchQuery', $event)"
         />
       </div>
-      <div class="filter-buttons">
-        <button 
+      <div class="d-flex ga-2">
+        <v-btn
           v-for="filter in filters"
           :key="filter.value"
-          @click="$emit('update:currentFilter', filter.value)" 
-          :class="['filter-btn', { active: currentFilter === filter.value }]"
+          @click="$emit('update:currentFilter', filter.value)"
+          :variant="currentFilter === filter.value ? 'elevated' : 'outlined'"
+          :color="currentFilter === filter.value ? 'primary' : 'grey'"
+          size="small"
         >
           {{ filter.label }}
-        </button>
+        </v-btn>
       </div>
     </div>
     <ViewToggle 
@@ -70,79 +72,24 @@ withDefaults(defineProps<Props>(), {
 defineEmits<Emits>();
 </script>
 
-<style scoped lang="scss">
-@use '../../../styles/_variables.scss' as *;
-
-.cards-filters {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-  gap: 16px;
-
-  .search-filters {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex: 1;
-    min-width: 0;
-
-    .search-box {
-      position: relative;
-      flex: 1;
-      max-width: 300px;
-    }
-
-    .filter-buttons {
-      display: flex;
-      gap: 8px;
-
-      .filter-btn {
-        padding: 8px 16px;
-        border: 2px solid $gray-200;
-        border-radius: 8px;
-        background: $white;
-        color: $gray-700;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s ease;
-
-        &:hover {
-          border-color: $primary;
-          color: $primary;
-        }
-
-        &.active {
-          background: $primary;
-          border-color: $primary;
-          color: $white;
-        }
-      }
-    }
-  }
-
-
-
-  @media (max-width: 768px) {
+<style scoped>
+@media (max-width: 768px) {
+  .d-flex {
     flex-direction: column;
     align-items: stretch;
-
-    .search-filters {
-      flex-direction: column;
-      align-items: stretch;
-
-      .search-box {
-        max-width: none;
-      }
-
-      .filter-buttons {
-        justify-content: center;
-      }
-    }
-
-
+  }
+  
+  .d-flex .d-flex {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .d-flex .d-flex .flex-grow-1 {
+    max-width: none !important;
+  }
+  
+  .d-flex .d-flex .d-flex {
+    justify-content: center;
   }
 }
 </style> 
