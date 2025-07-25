@@ -6,49 +6,44 @@
     @update:model-value="$emit('update:modelValue', $event)"
   >
     <div v-if="card" class="card-detail-modal">
-      <div class="card-image-section">
-        <div class="card-image-container">
-          <img 
-            :src="card.imageUrl" 
-            :alt="card.name" 
+      <div class="d-flex flex-column flex-md-row align-center mb-6">
+        <div class="d-flex justify-center mb-4 mb-md-0 mr-md-6">
+          <v-img
+            :src="card.imageUrl"
+            :alt="card.name"
+            width="250"
+            height="350"
+            class="rounded-lg elevation-3"
             @error="handleImageError"
-            class="card-image"
+            cover
           />
         </div>
-      </div>
-
-      <div class="card-info-section">
-        <div class="card-header">
-          <h3 class="card-name">{{ card.name }}</h3>
-        </div>
-
-        <div class="card-description">
-          <h4>Descrição</h4>
-          <p>{{ card.description }}</p>
-        </div>
-
-        <div class="card-metadata">
-          <div class="metadata-item">
-            <span class="metadata-label">ID:</span>
-            <span class="metadata-value">{{ card.id }}</span>
+        <div class="flex-grow-1">
+          <h3 class="text-h5 font-weight-bold mb-2">{{ card.name }}</h3>
+          <div class="mb-4">
+            <h4 class="text-subtitle-1 font-weight-medium mb-1">Descrição</h4>
+            <p class="text-body-2 mb-0">{{ card.description }}</p>
           </div>
-
+          <v-sheet color="grey-lighten-4" rounded="lg" class="pa-3">
+            <div class="d-flex align-center justify-space-between mb-2">
+              <span class="text-caption font-weight-medium text-grey">ID:</span>
+              <span class="text-caption font-mono bg-white px-2 py-1 rounded border">{{ card.id }}</span>
+            </div>
+          </v-sheet>
         </div>
       </div>
     </div>
 
-    <div v-else-if="loading" class="loading-state">
-      <div class="loading-spinner"></div>
+    <div v-else-if="loading" class="d-flex flex-column align-center justify-center py-10 text-grey">
+      <v-progress-circular indeterminate color="primary" size="32" class="mb-4" />
       <p>Carregando detalhes da carta...</p>
     </div>
 
-    <div v-else class="error-state">
-      <div class="error-icon">⚠️</div>
-      <h3>Carta não encontrada</h3>
-      <p>A carta solicitada não foi encontrada ou não existe.</p>
+    <div v-else class="text-center py-10 text-grey">
+      <div class="mb-4" style="font-size: 48px;">⚠️</div>
+      <h3 class="mb-2 font-weight-bold">Carta não encontrada</h3>
+      <p class="mb-0">A carta solicitada não foi encontrada ou não existe.</p>
     </div>
-
-
   </BaseModal>
 </template>
 
@@ -78,8 +73,6 @@ const isOpen = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value)
 });
-
-
 
 watch(() => props.cardId, async (newCardId) => {
   if (newCardId && isOpen.value) {
@@ -112,173 +105,10 @@ function handleImageError(event: Event) {
   const img = event.target as HTMLImageElement;
   img.src = '/placeholder-card.jpg';
 }
-
-
 </script>
 
-<style scoped lang="scss">
-@use '../../../styles/_variables.scss' as *;
-
+<style scoped>
 .card-detail-modal {
-  .card-image-section {
-    margin-bottom: 24px;
-    text-align: center;
-
-    .card-image-container {
-      display: inline-block;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-
-      .card-image {
-        width: 300px;
-        height: 400px;
-        object-fit: cover;
-        display: block;
-      }
-    }
-  }
-
-  .card-info-section {
-    .card-header {
-      margin-bottom: 20px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid $gray-200;
-
-      .card-name {
-        margin: 0 0 8px 0;
-        font-size: 24px;
-        font-weight: 700;
-        color: $black;
-        line-height: 1.2;
-      }
-
-
-    }
-
-    .card-description {
-      margin-bottom: 24px;
-
-      h4 {
-        margin: 0 0 12px 0;
-        font-size: 16px;
-        font-weight: 600;
-        color: $black;
-      }
-
-      p {
-        margin: 0;
-        font-size: 14px;
-        line-height: 1.6;
-        color: $gray-700;
-      }
-    }
-
-    .card-metadata {
-      background: $gray-50;
-      border-radius: 8px;
-      padding: 16px;
-
-      .metadata-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
-
-        &:last-child {
-          margin-bottom: 0;
-        }
-
-        .metadata-label {
-          font-size: 14px;
-          font-weight: 500;
-          color: $gray-600;
-        }
-
-        .metadata-value {
-          font-size: 14px;
-          color: $black;
-          font-family: monospace;
-          background: $white;
-          padding: 4px 8px;
-          border-radius: 4px;
-          border: 1px solid $gray-200;
-        }
-      }
-    }
-  }
-}
-
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
-  color: $gray-600;
-
-  .loading-spinner {
-    width: 32px;
-    height: 32px;
-    border: 3px solid $gray-200;
-    border-top: 3px solid $primary;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 16px;
-  }
-
-  p {
-    margin: 0;
-    font-size: 14px;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-}
-
-.error-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: $gray-600;
-
-  .error-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
-  }
-
-  h3 {
-    margin: 0 0 8px 0;
-    font-size: 18px;
-    font-weight: 600;
-    color: $black;
-  }
-
-  p {
-    margin: 0;
-    font-size: 14px;
-  }
-}
-
-@media (max-width: 768px) {
-  .card-detail-modal {
-    .card-image-section {
-      .card-image-container {
-        .card-image {
-          width: 250px;
-          height: 350px;
-        }
-      }
-    }
-
-    .card-info-section {
-      .card-header {
-        .card-name {
-          font-size: 20px;
-        }
-      }
-    }
-  }
+  min-width: 250px;
 }
 </style> 
