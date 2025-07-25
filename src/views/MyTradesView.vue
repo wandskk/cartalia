@@ -32,6 +32,7 @@
               :view-mode="viewMode"
               @retry="fetchUserTrades"
               @delete="handleDeleteTrade"
+              @card-click="handleCardClick"
             />
           </div>
         </v-card-text>
@@ -51,6 +52,12 @@
       @confirm="confirmDelete"
       @cancel="showDeleteModal = false"
     />
+
+    <!-- Modal de Detalhes da Carta -->
+    <CardDetailModal
+      v-model="showCardDetailModal"
+      :card-id="selectedCardId"
+    />
   </div>
 </template>
 
@@ -68,7 +75,9 @@ import CreateTradeModal from "../components/features/trades/CreateTradeModal.vue
 import TradeStats from "../components/features/trades/TradeStats.vue";
 import TradeFilters from "../components/features/trades/TradeFilters.vue";
 import DeleteConfirmationModal from "../components/features/trades/DeleteConfirmationModal.vue";
+import CardDetailModal from "../components/features/cards/CardDetailModal.vue";
 import type { Trade } from "../types";
+import type { Card } from "../types/cards";
 
 const router = useRouter();
 const tradesStore = useTradesStore();
@@ -82,6 +91,8 @@ const userTrades = computed(() => tradesStore.userTrades);
 const viewMode = ref<"grid" | "list">("grid");
 const showCreateModal = ref(false);
 const showDeleteModal = ref(false);
+const showCardDetailModal = ref(false);
+const selectedCardId = ref<string>("");
 const tradeToDelete = ref<Trade | null>(null);
 
 const filters = ref({
@@ -124,9 +135,13 @@ async function confirmDelete() {
   }
 }
 
+function handleCardClick(card: Card) {
+  selectedCardId.value = card.id;
+  showCardDetailModal.value = true;
+}
+
 function handleTradeCreated() {
   showCreateModal.value = false;
-  notification.show("Troca criada com sucesso!", "success");
   fetchUserTrades();
 }
 </script>

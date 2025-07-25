@@ -41,12 +41,7 @@
               v-if="cardsStore.loading"
               class="d-flex flex-column align-center justify-center py-15"
             >
-              <v-progress-circular
-                indeterminate
-                color="primary"
-                size="48"
-                class="mb-4"
-              />
+              <LoadingSpinner size="large" class="mb-4" />
               <p class="text-grey text-center">Carregando suas cartas...</p>
             </div>
 
@@ -115,12 +110,7 @@
               v-if="cardsStore.loading"
               class="d-flex flex-column align-center justify-center py-15"
             >
-              <v-progress-circular
-                indeterminate
-                color="primary"
-                size="48"
-                class="mb-4"
-              />
+              <LoadingSpinner size="large" class="mb-4" />
               <p class="text-grey text-center">Carregando cartas disponíveis...</p>
             </div>
 
@@ -227,6 +217,7 @@ import { useNotificationStore } from "../../../stores/notification";
 
 import Card from "../../common/Card.vue";
 import TradePreview from "./TradePreview.vue";
+import LoadingSpinner from "../../common/LoadingSpinner.vue";
 import type { Card as CardType } from "../../../types";
 import SearchWithPagination from "../../common/SearchWithPagination.vue";
 

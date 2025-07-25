@@ -60,6 +60,7 @@
           :show-status="true"
           status="active"
           @delete="handleDelete"
+          @card-click="handleCardClick"
         />
       </div>
     </div>
@@ -70,6 +71,7 @@
 import TradeItem from "./TradeItem.vue";
 import LoadingSpinner from "../../common/LoadingSpinner.vue";
 import type { Trade } from "../../../types";
+import type { Card } from "../../../types/cards";
 
 interface Props {
   trades: Trade[];
@@ -81,6 +83,7 @@ interface Props {
 interface Emits {
   (e: "retry"): void;
   (e: "delete", trade: Trade): void;
+  (e: "card-click", card: Card): void;
 }
 
 withDefaults(defineProps<Props>(), {
@@ -97,6 +100,10 @@ function retry() {
 
 function handleDelete(trade: Trade) {
   emit("delete", trade);
+}
+
+function handleCardClick(card: Card) {
+  emit("card-click", card);
 }
 </script>
 

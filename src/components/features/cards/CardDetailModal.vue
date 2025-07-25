@@ -1,47 +1,65 @@
 <template>
   <BaseModal
     v-model="isOpen"
-    :title="card?.name || 'Detalhes da Carta'"
-    size="md"
+    :title="modalTitle"
+    size="lg"
     @update:model-value="$emit('update:modelValue', $event)"
   >
     <div v-if="card" class="card-detail-modal">
-      <div class="d-flex flex-column flex-md-row align-start ga-6">
-        <div class="d-flex justify-center">
+      <div class="d-flex flex-column flex-md-row align-start ga-8">
+        <!-- Imagem da Carta -->
+        <div class="card-image-section d-flex justify-center">
           <v-img
             :src="card.imageUrl"
             :alt="card.name"
-            width="250"
-            height="350"
+            width="320"
+            height="448"
             class="rounded-lg elevation-3"
             @error="handleImageError"
             cover
-          />
+          >
+            <template v-slot:placeholder>
+              <div class="d-flex align-center justify-center fill-height">
+                <LoadingSpinner />
+              </div>
+            </template>
+          </v-img>
         </div>
-        <div class="flex-grow-1">
-          <h3 class="text-h5 font-weight-bold mb-4">{{ card.name }}</h3>
-          <div class="mb-6">
-            <h4 class="text-subtitle-1 font-weight-medium mb-2">Descrição</h4>
-            <p class="text-body-2 text-grey">{{ card.description }}</p>
+        
+        <!-- Informações da Carta -->
+        <div class="card-info-section flex-grow-1 d-flex flex-column">
+          <h3 class="text-h4 font-weight-bold mb-6 text-primary">{{ card.name }}</h3>
+          
+          <div class="mb-8">
+            <h4 class="text-h6 font-weight-medium mb-4 text-grey-darken-1">Descrição</h4>
+            <p class="text-body-1 text-grey-darken-2 line-height-1-6">{{ card.description }}</p>
           </div>
-          <v-sheet color="grey-lighten-4" rounded="lg" class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <span class="text-caption font-weight-medium text-grey">ID:</span>
-              <v-chip variant="outlined" size="small" class="font-mono">{{ card.id }}</v-chip>
+          
+          <v-sheet color="grey-lighten-4" rounded="lg" class="pa-6 mt-auto">
+            <div class="d-flex flex-column flex-sm-row align-start align-sm-center justify-space-between ga-3">
+              <span class="text-subtitle-2 font-weight-medium text-grey-darken-1">ID da Carta:</span>
+              <v-chip 
+                variant="outlined" 
+                size="small" 
+                class="font-mono text-caption"
+                color="primary"
+              >
+                {{ card.id }}
+              </v-chip>
             </div>
           </v-sheet>
         </div>
       </div>
     </div>
 
-    <div v-else-if="loading" class="d-flex flex-column align-center justify-center py-10 text-grey">
-      <v-progress-circular indeterminate color="primary" size="32" class="mb-4" />
+    <div v-else-if="loading" class="d-flex flex-column align-center justify-center py-15 text-grey">
+      <LoadingSpinner size="large" class="mb-4" />
       <p class="text-body-1">Carregando detalhes da carta...</p>
     </div>
 
-    <div v-else class="d-flex flex-column align-center justify-center py-10 text-center">
-      <v-icon size="48" color="warning" class="mb-4">mdi-alert-circle</v-icon>
-      <h3 class="text-h6 font-weight-bold mb-2">Carta não encontrada</h3>
+    <div v-else class="d-flex flex-column align-center justify-center py-15 text-center">
+      <v-icon size="64" color="warning" class="mb-4">mdi-alert-circle</v-icon>
+      <h3 class="text-h5 font-weight-bold mb-3">Carta não encontrada</h3>
       <p class="text-body-1 text-grey">A carta solicitada não foi encontrada ou não existe.</p>
     </div>
   </BaseModal>
@@ -51,6 +69,7 @@
 import { ref, computed, watch } from 'vue';
 import { useCardsStore } from '../../../stores/cards';
 import BaseModal from '../../common/BaseModal.vue';
+import LoadingSpinner from '../../common/LoadingSpinner.vue';
 import type { Card } from '../../../types';
 
 interface Props {
@@ -72,6 +91,14 @@ const card = ref<Card | null>(null);
 const isOpen = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value)
+});
+
+const modalTitle = computed(() => {
+  if (!card.value?.name) return 'Detalhes da Carta';
+  
+  // Limita o título a 50 caracteres para evitar quebra de layout
+  const title = card.value.name;
+  return title.length > 50 ? title.substring(0, 47) + '...' : title;
 });
 
 watch(() => props.cardId, async (newCardId) => {
@@ -109,6 +136,43 @@ function handleImageError(event: Event) {
 
 <style scoped>
 .card-detail-modal {
-  min-width: 250px;
+  min-width: 320px;
+  max-width: 100%;
+}
+
+.card-image-section {
+  flex-shrink: 0;
+}
+
+.card-info-section {
+  min-width: 0;
+  flex: 1;
+}
+
+.line-height-1-6 {
+  line-height: 1.6;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 1024px) {
+  .card-detail-modal {
+    min-width: 280px;
+  }
+}
+
+@media (max-width: 768px) {
+  .card-detail-modal {
+    min-width: 250px;
+  }
+  
+  .card-image-section {
+    margin-bottom: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-detail-modal {
+    min-width: 200px;
+  }
 }
 </style> 

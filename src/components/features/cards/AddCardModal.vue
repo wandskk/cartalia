@@ -27,12 +27,7 @@
         v-if="initialLoading || searchLoading || loading"
         class="d-flex flex-column align-center justify-center py-15"
       >
-        <v-progress-circular
-          indeterminate
-          color="primary"
-          size="48"
-          class="mb-4"
-        />
+        <LoadingSpinner size="large" class="mb-4" />
         <p class="text-grey text-center">
           {{
             initialLoading
@@ -65,12 +60,7 @@
         v-else-if="loadingStore.isLoading"
         class="d-flex flex-column align-center justify-center py-15"
       >
-        <v-progress-circular
-          indeterminate
-          color="primary"
-          size="48"
-          class="mb-4"
-        />
+        <LoadingSpinner size="large" class="mb-4" />
         <p class="text-grey text-center">Adicionando cartas à sua coleção...</p>
       </div>
 
@@ -143,6 +133,7 @@ import { useLoadingStore } from "../../../stores/loading";
 import { useNotificationStore } from "../../../stores/notification";
 import BaseModal from "../../common/BaseModal.vue";
 import Card from "../../common/Card.vue";
+import LoadingSpinner from "../../common/LoadingSpinner.vue";
 import SearchWithPagination from "../../common/SearchWithPagination.vue";
 import type { Card as CardType } from "../../../types";
 

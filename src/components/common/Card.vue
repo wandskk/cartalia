@@ -25,7 +25,7 @@
       >
         <template v-slot:placeholder>
           <div class="d-flex align-center justify-center fill-height">
-            <v-progress-circular indeterminate color="primary"></v-progress-circular>
+            <LoadingSpinner />
           </div>
         </template>
       </v-img>

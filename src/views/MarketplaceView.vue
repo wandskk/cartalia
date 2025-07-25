@@ -41,16 +41,23 @@
               @retry="fetchTrades"
               @page-change="handlePageChange"
               @delete="handleDeleteTrade"
+              @card-click="handleCardClick"
             />
           </v-card-text>
         </v-card>
       </div>
     </Container>
+
+    <!-- Modal de Detalhes da Carta -->
+    <CardDetailModal
+      v-model="showCardDetailModal"
+      :card-id="selectedCardId"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useTradesStore } from "../stores/trades";
 import { useAuthStore } from "../stores/auth";
@@ -60,11 +67,17 @@ import PageHeader from "../components/common/PageHeader.vue";
 import TradeList from "../components/features/trades/TradeList.vue";
 import TradeFilters from "../components/features/trades/TradeFilters.vue";
 import StatCard from "../components/common/StatCard.vue";
+import CardDetailModal from "../components/features/cards/CardDetailModal.vue";
+import type { Card } from "../types/cards";
 
 const router = useRouter();
 const tradesStore = useTradesStore();
 const authStore = useAuthStore();
 const { filteredTrades, updateFilters } = useMarketplaceFilters();
+
+// Modal de detalhes da carta
+const showCardDetailModal = ref(false);
+const selectedCardId = ref<string>("");
 
 const loading = computed(() => tradesStore.loading);
 const error = computed(() => tradesStore.error);
@@ -98,6 +111,11 @@ async function handleDeleteTrade(tradeId: string) {
 
 function handleFiltersChange(newFilters: any) {
   updateFilters(newFilters);
+}
+
+function handleCardClick(card: Card) {
+  selectedCardId.value = card.id;
+  showCardDetailModal.value = true;
 }
 
 function goToCreateTrade() {

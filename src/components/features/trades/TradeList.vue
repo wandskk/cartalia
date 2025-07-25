@@ -42,6 +42,7 @@
           status="active"
           class="mb-3"
           @delete="handleDeleteTrade"
+          @card-click="handleCardClick"
         />
       </div>
       
@@ -69,6 +70,7 @@ import { useNotificationStore } from '../../../stores/notification';
 import TradeItem from './TradeItem.vue';
 import SimplePagination from '../../common/SimplePagination.vue';
 import type { Trade } from '../../../types';
+import type { Card } from '../../../types/cards';
 
 interface Props {
   trades: Trade[];
@@ -87,6 +89,7 @@ interface Emits {
   (e: 'retry'): void;
   (e: 'page-change', page: number): void;
   (e: 'delete', tradeId: string): void;
+  (e: 'card-click', card: Card): void;
 }
 
 withDefaults(defineProps<Props>(), {
@@ -135,6 +138,10 @@ async function handleDeleteTrade(trade: Trade) {
       'error'
     );
   }
+}
+
+function handleCardClick(card: Card) {
+  emit('card-click', card);
 }
 </script>
 

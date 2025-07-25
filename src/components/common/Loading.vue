@@ -1,6 +1,10 @@
+<script setup lang="ts">
+import LoadingSpinner from "./LoadingSpinner.vue";
+</script>
+
 <template>
   <div class="loading-overlay d-flex align-center justify-center">
-    <v-progress-circular indeterminate color="primary" size="56" />
+    <LoadingSpinner size="56" />
   </div>
 </template>
 

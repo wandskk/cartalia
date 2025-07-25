@@ -43,6 +43,8 @@
                   class="card-preview mb-3"
                   variant="outlined"
                   hover
+                  @click="handleCardClick(tradeCard.card)"
+                  style="cursor: pointer;"
                 >
                   <div class="d-flex align-center pa-3">
                     <div class="card-image mr-3">
@@ -90,6 +92,8 @@
                   class="card-preview mb-3"
                   variant="outlined"
                   hover
+                  @click="handleCardClick(tradeCard.card)"
+                  style="cursor: pointer;"
                 >
                   <div class="d-flex align-center pa-3">
                     <div class="card-image mr-3">
@@ -153,6 +157,7 @@
 import { ref, computed } from 'vue';
 import { useAuthStore } from '../../../stores/auth';
 import type { Trade } from '../../../types';
+import type { Card } from '../../../types/cards';
 
 interface Props {
   trade: Trade;
@@ -163,6 +168,7 @@ interface Props {
 
 interface Emits {
   (e: 'delete', trade: Trade): void;
+  (e: 'card-click', card: Card): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -220,6 +226,10 @@ const statusColor = computed(() => {
     default: return 'success';
   }
 });
+
+function handleCardClick(card: Card) {
+  emit('card-click', card);
+}
 
 function handleDelete() {
   emit('delete', props.trade);
