@@ -1,17 +1,17 @@
 <template>
   <BaseModal v-model="showModal">
-    <div class="delete-confirmation">
-      <div class="confirmation-icon">⚠️</div>
-      <h3>Confirmar Exclusão</h3>
-      <p>Tem certeza que deseja excluir esta troca? Esta ação não pode ser desfeita.</p>
+    <div class="d-flex flex-column align-center text-center pa-6">
+      <v-icon size="48" color="warning" class="mb-4">mdi-alert-circle</v-icon>
+      <h3 class="text-h5 font-weight-bold mb-3">Confirmar Exclusão</h3>
+      <p class="text-body-1 text-grey mb-6">Tem certeza que deseja excluir esta troca? Esta ação não pode ser desfeita.</p>
       
-      <div class="confirmation-actions">
-        <BaseButton @click="handleCancel" color="secondary" variant="outlined">
+      <div class="d-flex flex-wrap justify-center ga-3">
+        <v-btn @click="handleCancel" color="secondary" variant="outlined">
           Cancelar
-        </BaseButton>
-        <BaseButton @click="handleConfirm" color="error" :loading="loading">
+        </v-btn>
+        <v-btn @click="handleConfirm" color="error" variant="elevated" :loading="loading" prepend-icon="mdi-delete">
           Excluir Troca
-        </BaseButton>
+        </v-btn>
       </div>
     </div>
   </BaseModal>
@@ -20,7 +20,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import BaseModal from '../../common/BaseModal.vue';
-import BaseButton from '../../common/BaseButton.vue';
 
 interface Props {
   modelValue: boolean;

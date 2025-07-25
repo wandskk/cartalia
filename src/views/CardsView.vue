@@ -3,10 +3,7 @@
     <Container>
       <CardsHeader @add-cards="showAddForm = true" />
 
-      <CardStats 
-        :total-cards="totalUserCards" 
-        :recent-cards="recentCards" 
-      />
+      <CardStats :total-cards="totalUserCards" :recent-cards="recentCards" />
 
       <div v-if="!showAddForm" class="user-cards-section">
         <CardsFilters
@@ -18,21 +15,18 @@
           @update:view-mode="setViewMode"
         />
 
-        <CardsErrorState 
-          v-if="hasError" 
-          :error="error || ''" 
-          @retry="fetchUserCards" 
+        <CardsErrorState
+          v-if="hasError"
+          :error="error || ''"
+          @retry="fetchUserCards"
         />
 
-        <CardsEmptyState 
-          v-else-if="isEmpty" 
-          @add-cards="showAddForm = true" 
-        />
+        <CardsEmptyState v-else-if="isEmpty" @add-cards="showAddForm = true" />
 
         <v-card v-else-if="!loading" class="cards-content" elevation="2">
           <v-card-text class="pa-6">
             <CardsNoResults v-if="filteredCards.length === 0" />
-            
+
             <CardList
               v-else
               :cards="paginatedCards"
@@ -55,15 +49,9 @@
         </v-card>
       </div>
 
-      <AddCardModal 
-        v-model="showAddForm" 
-        @cards-added="fetchUserCards"
-      />
-      
-      <CardDetailModal 
-        v-model="showCardDetail" 
-        :card-id="selectedCardId"
-      />
+      <AddCardModal v-model="showAddForm" @cards-added="fetchUserCards" />
+
+      <CardDetailModal v-model="showCardDetail" :card-id="selectedCardId" />
     </Container>
   </div>
 </template>
@@ -98,7 +86,7 @@ const loadingStore = useLoadingStore();
 
 const showAddForm = ref(false);
 const showCardDetail = ref(false);
-const selectedCardId = ref<string>('');
+const selectedCardId = ref<string>("");
 const currentPage = ref(1);
 const itemsPerPage = ref(12);
 
@@ -115,7 +103,7 @@ const {
   filteredCards,
   setFilter,
   setSearchQuery,
-  setViewMode
+  setViewMode,
 } = useCardFilters(userCards);
 
 const paginatedCards = computed(() => {
@@ -166,7 +154,6 @@ function handlePageChange(page: number) {
 .cards-view {
   min-height: 100vh;
   background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-  padding: 24px 0;
 }
 
 .cards-content {

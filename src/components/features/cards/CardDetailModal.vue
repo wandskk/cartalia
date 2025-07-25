@@ -6,8 +6,8 @@
     @update:model-value="$emit('update:modelValue', $event)"
   >
     <div v-if="card" class="card-detail-modal">
-      <div class="d-flex flex-column flex-md-row align-center mb-6">
-        <div class="d-flex justify-center mb-4 mb-md-0 mr-md-6">
+      <div class="d-flex flex-column flex-md-row align-start ga-6">
+        <div class="d-flex justify-center">
           <v-img
             :src="card.imageUrl"
             :alt="card.name"
@@ -19,15 +19,15 @@
           />
         </div>
         <div class="flex-grow-1">
-          <h3 class="text-h5 font-weight-bold mb-2">{{ card.name }}</h3>
-          <div class="mb-4">
-            <h4 class="text-subtitle-1 font-weight-medium mb-1">Descrição</h4>
-            <p class="text-body-2 mb-0">{{ card.description }}</p>
+          <h3 class="text-h5 font-weight-bold mb-4">{{ card.name }}</h3>
+          <div class="mb-6">
+            <h4 class="text-subtitle-1 font-weight-medium mb-2">Descrição</h4>
+            <p class="text-body-2 text-grey">{{ card.description }}</p>
           </div>
-          <v-sheet color="grey-lighten-4" rounded="lg" class="pa-3">
-            <div class="d-flex align-center justify-space-between mb-2">
+          <v-sheet color="grey-lighten-4" rounded="lg" class="pa-4">
+            <div class="d-flex align-center justify-space-between">
               <span class="text-caption font-weight-medium text-grey">ID:</span>
-              <span class="text-caption font-mono bg-white px-2 py-1 rounded border">{{ card.id }}</span>
+              <v-chip variant="outlined" size="small" class="font-mono">{{ card.id }}</v-chip>
             </div>
           </v-sheet>
         </div>
@@ -36,13 +36,13 @@
 
     <div v-else-if="loading" class="d-flex flex-column align-center justify-center py-10 text-grey">
       <v-progress-circular indeterminate color="primary" size="32" class="mb-4" />
-      <p>Carregando detalhes da carta...</p>
+      <p class="text-body-1">Carregando detalhes da carta...</p>
     </div>
 
-    <div v-else class="text-center py-10 text-grey">
-      <div class="mb-4" style="font-size: 48px;">⚠️</div>
-      <h3 class="mb-2 font-weight-bold">Carta não encontrada</h3>
-      <p class="mb-0">A carta solicitada não foi encontrada ou não existe.</p>
+    <div v-else class="d-flex flex-column align-center justify-center py-10 text-center">
+      <v-icon size="48" color="warning" class="mb-4">mdi-alert-circle</v-icon>
+      <h3 class="text-h6 font-weight-bold mb-2">Carta não encontrada</h3>
+      <p class="text-body-1 text-grey">A carta solicitada não foi encontrada ou não existe.</p>
     </div>
   </BaseModal>
 </template>

@@ -6,31 +6,31 @@
     :show-close-button="true"
     :persistent="true"
   >
-    <div class="error-content">
-      <div class="error-icon">
-        <v-icon size="48" color="error">mdi-alert-circle</v-icon>
-      </div>
-      <div class="error-message">
-        <h3 class="error-title">{{ errorStore.currentError?.message || 'Ocorreu um erro' }}</h3>
-        <p class="error-description">
+    <div class="d-flex flex-column align-center text-center pa-6">
+      <v-icon size="48" color="error" class="mb-4">mdi-alert-circle</v-icon>
+      <div class="text-center" style="max-width: 400px;">
+        <h3 class="text-h6 font-weight-bold mb-3">{{ errorStore.currentError?.message || 'Ocorreu um erro' }}</h3>
+        <p class="text-body-1 text-grey">
           {{ errorStore.currentError?.details || 'Algo deu errado. Tente novamente.' }}
         </p>
       </div>
     </div>
 
     <template #footer>
-      <div class="error-actions">
+      <div class="d-flex justify-center ga-3">
         <v-btn
           @click="handleRetry"
           color="primary"
           variant="elevated"
           :loading="loading"
+          prepend-icon="mdi-refresh"
         >
           Tentar Novamente
         </v-btn>
         <v-btn
           @click="handleClose"
           variant="outlined"
+          prepend-icon="mdi-close"
         >
           Fechar
         </v-btn>
