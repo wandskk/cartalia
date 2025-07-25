@@ -1,36 +1,17 @@
 <template>
-  <div class="cards-empty-state">
-    <div class="empty-content">
-      <div class="empty-icon">🃏</div>
-      <h3>{{ title }}</h3>
-      <p>{{ description }}</p>
-      <BaseButton @click="$emit('add-cards')" color="primary">
-        {{ buttonText }}
-      </BaseButton>
+  <div class="text-center max-width-400">
+    <div class="mb-4 text-h1">
+      <v-icon size="64" color="grey">mdi-cards</v-icon>
     </div>
+    <h3 class="text-h5 font-weight-bold mb-4">Nenhuma carta encontrada</h3>
+    <p class="text-body-1 text-grey mb-6">
+      Parece que não há cartas disponíveis no momento. Tente ajustar os filtros ou volte mais tarde.
+    </p>
   </div>
 </template>
 
 <script setup lang="ts">
-import BaseButton from '../../common/BaseButton.vue';
-
-interface Props {
-  title?: string;
-  description?: string;
-  buttonText?: string;
-}
-
-interface Emits {
-  (e: 'add-cards'): void;
-}
-
-withDefaults(defineProps<Props>(), {
-  title: 'Você ainda não tem cartas',
-  description: 'Adicione cartas à sua coleção para começar a fazer trocas!',
-  buttonText: 'Adicionar Primeira Carta'
-});
-
-defineEmits<Emits>();
+// Componente simples, sem lógica adicional
 </script>
 
 <style scoped lang="scss">

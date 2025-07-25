@@ -1,14 +1,18 @@
 <template>
-  <button
-    class="hamburger-btn"
+  <v-btn
+    icon
+    variant="text"
+    size="small"
+    class="hamburger-btn d-none d-md-none d-lg-none"
     @click="$emit('toggle')"
-    :class="{ 'is-active': isOpen }"
     :title="isOpen ? 'Fechar menu' : 'Abrir menu'"
   >
-    <span class="hamburger-line"></span>
-    <span class="hamburger-line"></span>
-    <span class="hamburger-line"></span>
-  </button>
+    <div class="hamburger-icon" :class="{ 'is-active': isOpen }">
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+    </div>
+  </v-btn>
 </template>
 
 <script setup lang="ts">
@@ -25,26 +29,13 @@ defineEmits<{
 <style scoped lang="scss">
 @use "../../styles/_variables.scss" as *;
 
-.hamburger-btn {
-  display: none;
+.hamburger-icon {
+  display: flex;
   flex-direction: column;
   justify-content: space-around;
-  width: 32px;
-  height: 32px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  border-radius: 6px;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background: $gray-100;
-  }
-
-  @media (max-width: 768px) {
-    display: flex;
-  }
+  width: 20px;
+  height: 20px;
+  position: relative;
 }
 
 .hamburger-line {
@@ -56,10 +47,10 @@ defineEmits<{
   transform-origin: center;
 }
 
-.hamburger-btn.is-active {
+.hamburger-icon.is-active {
   .hamburger-line {
     &:nth-child(1) {
-      transform: rotate(45deg) translate(6px, 6px);
+      transform: rotate(45deg) translate(5px, 5px);
     }
 
     &:nth-child(2) {
@@ -67,7 +58,7 @@ defineEmits<{
     }
 
     &:nth-child(3) {
-      transform: rotate(-45deg) translate(6px, -6px);
+      transform: rotate(-45deg) translate(5px, -5px);
     }
   }
 }

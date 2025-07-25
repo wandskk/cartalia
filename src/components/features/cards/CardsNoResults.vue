@@ -1,8 +1,8 @@
 <template>
-  <div class="cards-no-results">
-    <div class="no-results-icon">🔍</div>
-    <h3>{{ title }}</h3>
-    <p>{{ description }}</p>
+  <div class="d-flex flex-column align-center justify-center py-8 text-center">
+    <v-icon size="48" color="grey-lighten-1" class="mb-4">mdi-magnify</v-icon>
+    <h3 class="text-h6 font-weight-bold mb-2">{{ title }}</h3>
+    <p class="text-body-2 text-grey mb-0">{{ description }}</p>
   </div>
 </template>
 

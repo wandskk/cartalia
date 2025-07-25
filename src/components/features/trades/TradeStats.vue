@@ -1,36 +1,14 @@
 <template>
-  <div class="trade-stats">
-    <div class="stats-grid">
-      <StatCard
-        :number="totalTrades"
-        label="Total de Trocas"
-        icon="📊"
-      />
-      
-      <StatCard
-        :number="activeTrades"
-        label="Trocas Ativas"
-        icon="🔄"
-      />
-
-      <StatCard
-        :number="thisMonthTrades"
-        label="Este Mês"
-        icon="📈"
-      />
-
-      <StatCard
-        :number="`${successRate}%`"
-        label="Taxa de Sucesso"
-        icon="🎯"
-      />
-    </div>
-  </div>
+  <StatsGrid 
+    :stats="tradeStats"
+    min-column-width="200px"
+    gap="ga-5"
+  />
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import StatCard from '../../common/StatCard.vue';
+import StatsGrid from '../../common/StatsGrid.vue';
 import type { Trade } from '../../../types';
 
 interface Props {
@@ -60,22 +38,31 @@ const successRate = computed(() => {
   if (totalTrades.value === 0) return 0;
   return Math.round((activeTrades.value / totalTrades.value) * 100);
 });
-</script>
 
-<style scoped lang="scss">
-@use '../../../styles/_variables.scss' as *;
-
-.trade-stats {
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin-bottom: 32px;
-
-    @media (max-width: 768px) {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
+const tradeStats = computed(() => [
+  {
+    number: totalTrades.value,
+    label: 'Total de Trocas',
+    icon: 'mdi-chart-line',
+    variant: 'default' as const
+  },
+  {
+    number: activeTrades.value,
+    label: 'Trocas Ativas',
+    icon: 'mdi-sync',
+    variant: 'default' as const
+  },
+  {
+    number: thisMonthTrades.value,
+    label: 'Este Mês',
+    icon: 'mdi-trending-up',
+    variant: 'default' as const
+  },
+  {
+    number: `${successRate.value}%`,
+    label: 'Taxa de Sucesso',
+    icon: 'mdi-target',
+    variant: 'default' as const
   }
-}
-</style> 
+]);
+</script> 

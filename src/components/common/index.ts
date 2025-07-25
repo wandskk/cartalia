@@ -14,6 +14,7 @@ export { default as NotificationIcon } from './NotificationIcon.vue';
 export { default as PageHeader } from './PageHeader.vue';
 export { default as Pagination } from './Pagination.vue';
 export { default as SearchInput } from './SearchInput.vue';
+export { default as SearchWithPagination } from './SearchWithPagination.vue';
 export { default as SimplePagination } from './SimplePagination.vue';
 export { default as StatCard } from './StatCard.vue';
 export { default as UserAvatar } from './UserAvatar.vue';

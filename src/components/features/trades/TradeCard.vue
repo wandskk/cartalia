@@ -1,69 +1,88 @@
 <template>
-  <div class="trade-card">
-    <div class="trade-header">
-      <div class="user-info">
-        <div class="user-avatar">
-          {{ userInitials }}
+  <v-card class="trade-card" elevation="2">
+    <v-card-text class="pa-6">
+      <div class="d-flex justify-space-between align-start mb-6">
+        <div class="d-flex align-center">
+          <v-avatar size="40" color="primary" class="mr-4">
+            <span class="text-white font-weight-bold">{{ userInitials }}</span>
+          </v-avatar>
+          <div>
+            <h3 class="text-subtitle-1 font-weight-bold mb-1">{{ trade.user.name }}</h3>
+            <span class="text-caption text-grey">{{ formattedDate }}</span>
+          </div>
         </div>
-        <div class="user-details">
-          <h3 class="user-name">{{ trade.user.name }}</h3>
-          <span class="trade-date">{{ formattedDate }}</span>
+        
+        <div v-if="isOwner">
+          <v-btn 
+            @click="handleDelete"
+            color="error"
+            size="small"
+            variant="outlined"
+            prepend-icon="mdi-delete"
+          >
+            Deletar
+          </v-btn>
         </div>
       </div>
-      
-      <div v-if="isOwner" class="trade-actions">
-        <BaseButton 
-          @click="handleDelete"
-          color="error"
-          size="small"
-        >
-          Deletar
-        </BaseButton>
-      </div>
-    </div>
 
-    <div class="trade-content">
       <div class="cards-section">
-        <div class="offering-section">
-          <h4>Oferecendo</h4>
-          <div class="cards-grid">
-            <div 
-              v-for="tradeCard in offeringCards" 
-              :key="tradeCard.id"
-              class="card-preview"
-            >
-              <img :src="tradeCard.card.imageUrl" :alt="tradeCard.card.name" />
-              <span class="card-name">{{ tradeCard.card.name }}</span>
+        <div class="d-flex align-center justify-center ga-6">
+          <div class="offering-section flex-grow-1">
+            <h4 class="text-subtitle-2 font-weight-bold mb-3 text-center">Oferecendo</h4>
+            <div class="cards-grid">
+              <v-card
+                v-for="tradeCard in offeringCards" 
+                :key="tradeCard.id"
+                class="card-preview d-flex flex-column align-center pa-3 mb-3"
+                elevation="1"
+              >
+                <v-img 
+                  :src="tradeCard.card.imageUrl" 
+                  :alt="tradeCard.card.name" 
+                  width="80" 
+                  height="112" 
+                  cover 
+                  class="rounded mb-2" 
+                />
+                <span class="text-body-2 font-weight-medium text-center">{{ tradeCard.card.name }}</span>
+              </v-card>
             </div>
           </div>
-        </div>
 
-        <div class="trade-arrow">
-          <span>⇄</span>
-        </div>
+          <div class="trade-arrow d-flex align-center justify-center">
+            <v-icon size="24" color="primary">mdi-swap-horizontal</v-icon>
+          </div>
 
-        <div class="receiving-section">
-          <h4>Recebendo</h4>
-          <div class="cards-grid">
-            <div 
-              v-for="tradeCard in receivingCards" 
-              :key="tradeCard.id"
-              class="card-preview"
-            >
-              <img :src="tradeCard.card.imageUrl" :alt="tradeCard.card.name" />
-              <span class="card-name">{{ tradeCard.card.name }}</span>
+          <div class="receiving-section flex-grow-1">
+            <h4 class="text-subtitle-2 font-weight-bold mb-3 text-center">Recebendo</h4>
+            <div class="cards-grid">
+              <v-card
+                v-for="tradeCard in receivingCards" 
+                :key="tradeCard.id"
+                class="card-preview d-flex flex-column align-center pa-3 mb-3"
+                elevation="1"
+              >
+                <v-img 
+                  :src="tradeCard.card.imageUrl" 
+                  :alt="tradeCard.card.name" 
+                  width="80" 
+                  height="112" 
+                  cover 
+                  class="rounded mb-2" 
+                />
+                <span class="text-body-2 font-weight-medium text-center">{{ tradeCard.card.name }}</span>
+              </v-card>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
+    </v-card-text>
+  </v-card>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useAuthStore } from '../../../stores/auth';
-import BaseButton from '../../common/BaseButton.vue';
 import type { Trade } from '../../../types';
 
 interface Props {
@@ -107,135 +126,34 @@ const isOwner = computed(() => {
 });
 
 function handleDelete() {
-  if (confirm('Tem certeza que deseja deletar esta troca?')) {
-    emit('delete', props.trade.id);
-  }
+  emit('delete', props.trade.id);
 }
 </script>
 
-<style scoped lang="scss">
-@use '../../../styles/_variables.scss' as *;
-
+<style scoped>
 .trade-card {
-  padding: 24px;
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(var(--v-theme-primary), 0.1);
+}
 
-  &:hover {
-    transform: translateY(-2px);
+.trade-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 8px;
+}
+
+@media (max-width: 768px) {
+  .cards-section .d-flex {
+    flex-direction: column;
   }
-
-  .trade-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-
-      .user-avatar {
-        width: 40px;
-        height: 40px;
-        background: $primary;
-        color: $white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-        font-size: 14px;
-      }
-
-      .user-details {
-        .user-name {
-          margin: 0 0 4px 0;
-          color: $black;
-          font-size: 16px;
-          font-weight: 600;
-        }
-
-        .trade-date {
-          font-size: 12px;
-          color: $gray-500;
-        }
-      }
-    }
-
-    .trade-actions {
-      .base-button {
-        font-size: 12px;
-        padding: 6px 12px;
-      }
-    }
-  }
-
-  .trade-content {
-    .cards-section {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      gap: 20px;
-      align-items: center;
-
-      @media (max-width: 768px) {
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
-
-      .offering-section,
-      .receiving-section {
-        h4 {
-          margin: 0 0 12px 0;
-          color: $black;
-          font-size: 14px;
-          font-weight: 600;
-          text-align: center;
-        }
-
-        .cards-grid {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-
-          .card-preview {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px;
-            background: $gray-100;
-            border-radius: 6px;
-
-            img {
-              width: 40px;
-              height: 40px;
-              object-fit: cover;
-              border-radius: 4px;
-            }
-
-            .card-name {
-              font-size: 12px;
-              color: $black;
-              font-weight: 500;
-              flex: 1;
-            }
-          }
-        }
-      }
-
-      .trade-arrow {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        color: $primary;
-        font-weight: bold;
-
-        @media (max-width: 768px) {
-          transform: rotate(90deg);
-        }
-      }
-    }
+  
+  .trade-arrow {
+    transform: rotate(90deg);
   }
 }
 </style> 

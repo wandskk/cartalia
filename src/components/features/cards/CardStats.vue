@@ -1,48 +1,30 @@
 <template>
-  <div class="card-stats">
-    <div class="stats-grid">
-      <StatCard
-        :number="totalCards"
-        label="Total de Cartas"
-        icon="📊"
-        variant="primary"
-      />
-      <StatCard
-        :number="recentCards"
-        label="Adicionadas este mês"
-        icon="🔄"
-        variant="secondary"
-      />
-    </div>
-  </div>
+  <StatsGrid :stats="cardStats" min-column-width="200px" gap="ga-5" />
 </template>
 
 <script setup lang="ts">
-import StatCard from '../../common/StatCard.vue';
+import { computed } from "vue";
+import StatsGrid from "../../common/StatsGrid.vue";
 
 interface Props {
   totalCards: number;
   recentCards: number;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
+
+const cardStats = computed(() => [
+  {
+    number: props.totalCards,
+    label: "Total de Cartas",
+    icon: "mdi-cards",
+    variant: "primary" as const,
+  },
+  {
+    number: props.recentCards,
+    label: "Adicionadas este mês",
+    icon: "mdi-sync",
+    variant: "secondary" as const,
+  },
+]);
 </script>
-
-<style scoped lang="scss">
-@use '../../../styles/_variables.scss' as *;
-
-.card-stats {
-  margin-bottom: 32px;
-
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-
-    @media (max-width: 480px) {
-      grid-template-columns: 1fr;
-      gap: 16px;
-    }
-  }
-}
-</style> 

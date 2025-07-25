@@ -3,10 +3,7 @@
     <Container>
       <CardsHeader @add-cards="showAddForm = true" />
 
-      <CardStats 
-        :total-cards="totalUserCards" 
-        :recent-cards="recentCards" 
-      />
+      <CardStats :total-cards="totalUserCards" :recent-cards="recentCards" />
 
       <div v-if="!showAddForm" class="user-cards-section">
         <CardsFilters
@@ -18,52 +15,43 @@
           @update:view-mode="setViewMode"
         />
 
-
-
-        <CardsErrorState 
-          v-if="hasError" 
-          :error="error || ''" 
-          @retry="fetchUserCards" 
+        <CardsErrorState
+          v-if="hasError"
+          :error="error || ''"
+          @retry="fetchUserCards"
         />
 
-        <CardsEmptyState 
-          v-else-if="isEmpty" 
-          @add-cards="showAddForm = true" 
-        />
+        <CardsEmptyState v-else-if="isEmpty" @add-cards="showAddForm = true" />
 
-        <div v-else-if="!loading" class="cards-content">
-          <CardsNoResults v-if="filteredCards.length === 0" />
-          
-          <CardList
-            v-else
-            :cards="paginatedCards"
-            :loading="loading"
-            :error="error"
-            :clickable="true"
-            :view-mode="viewMode"
-            @card-click="handleCardClick"
-            @retry="fetchUserCards"
-          />
+        <v-card v-else-if="!loading" class="cards-content" elevation="2">
+          <v-card-text class="pa-6">
+            <CardsNoResults v-if="filteredCards.length === 0" />
 
-          <Pagination
-            v-if="filteredCards.length > 0"
-            :total-items="filteredCards.length"
-            :items-per-page="itemsPerPage"
-            :current-page="currentPage"
-            @page-change="handlePageChange"
-          />
-        </div>
+            <CardList
+              v-else
+              :cards="paginatedCards"
+              :loading="loading"
+              :error="error"
+              :clickable="true"
+              :view-mode="viewMode"
+              @card-click="handleCardClick"
+              @retry="fetchUserCards"
+            />
+
+            <Pagination
+              v-if="filteredCards.length > 0"
+              :total-items="filteredCards.length"
+              :items-per-page="itemsPerPage"
+              :current-page="currentPage"
+              @page-change="handlePageChange"
+            />
+          </v-card-text>
+        </v-card>
       </div>
 
-      <AddCardModal 
-        v-model="showAddForm" 
-        @cards-added="fetchUserCards"
-      />
-      
-      <CardDetailModal 
-        v-model="showCardDetail" 
-        :card-id="selectedCardId"
-      />
+      <AddCardModal v-model="showAddForm" @cards-added="fetchUserCards" />
+
+      <CardDetailModal v-model="showCardDetail" :card-id="selectedCardId" />
     </Container>
   </div>
 </template>
@@ -98,7 +86,7 @@ const loadingStore = useLoadingStore();
 
 const showAddForm = ref(false);
 const showCardDetail = ref(false);
-const selectedCardId = ref<string>('');
+const selectedCardId = ref<string>("");
 const currentPage = ref(1);
 const itemsPerPage = ref(12);
 
@@ -115,7 +103,7 @@ const {
   filteredCards,
   setFilter,
   setSearchQuery,
-  setViewMode
+  setViewMode,
 } = useCardFilters(userCards);
 
 const paginatedCards = computed(() => {
@@ -123,8 +111,6 @@ const paginatedCards = computed(() => {
   const endIndex = startIndex + itemsPerPage.value;
   return filteredCards.value.slice(startIndex, endIndex);
 });
-
-
 
 const { hasError, isEmpty } = useCardStates(loading, error, userCards);
 
@@ -164,27 +150,20 @@ function handlePageChange(page: number) {
 }
 </script>
 
-<style scoped lang="scss">
-@use "../styles/_variables.scss" as *;
-
+<style scoped>
 .cards-view {
   min-height: 100vh;
-  background: linear-gradient(135deg, $gray-50 0%, $white 100%);
-  padding: 24px 0;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+}
 
-  .user-cards-section {
-    .cards-content {
-      background: $white;
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      border: 1px solid rgba(0, 0, 0, 0.05);
+.cards-content {
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
 
-      @media (max-width: 768px) {
-        padding: 16px;
-        border-radius: 12px;
-      }
-    }
+@media (max-width: 768px) {
+  .cards-content {
+    border-radius: 12px;
   }
 }
 </style>

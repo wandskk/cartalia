@@ -42,22 +42,44 @@ export const useCardsStore = defineStore('cards', () => {
     error.value = null;
     
     try {
-      const response: CardListResponse = await CardServices.getAllCards(page, rpp, search);
-      allCards.value = response.list;
-      
-      let calculatedTotal = 0;
-      if (response.more) {
-        calculatedTotal = page * rpp + rpp;
+      // Se rpp é grande (1000+), carregar todas as cartas de uma vez
+      if (rpp >= 1000) {
+        const response: CardListResponse = await CardServices.getAllCards(1, 1000);
+        allCards.value = response.list;
+        
+        // Se ainda há mais cartas, continuar carregando
+        let currentPage = 2;
+        while (response.more) {
+          const nextResponse: CardListResponse = await CardServices.getAllCards(currentPage, 1000);
+          allCards.value = [...allCards.value, ...nextResponse.list];
+          response.more = nextResponse.more;
+          currentPage++;
+        }
+        
+        pagination.value = {
+          page: 1,
+          rpp: allCards.value.length,
+          more: false,
+          total: allCards.value.length
+        };
       } else {
-        calculatedTotal = page * rpp;
+        const response: CardListResponse = await CardServices.getAllCards(page, rpp, search);
+        allCards.value = response.list;
+        
+        let calculatedTotal = 0;
+        if (response.more) {
+          calculatedTotal = page * rpp + rpp;
+        } else {
+          calculatedTotal = page * rpp;
+        }
+        
+        pagination.value = {
+          page: response.page,
+          rpp: response.rpp,
+          more: response.more,
+          total: calculatedTotal
+        };
       }
-      
-      pagination.value = {
-        page: response.page,
-        rpp: response.rpp,
-        more: response.more,
-        total: calculatedTotal
-      };
     } catch (err: any) {
       error.value = err.message || 'Erro ao carregar cartas';
     } finally {

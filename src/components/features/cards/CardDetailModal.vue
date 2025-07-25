@@ -1,54 +1,67 @@
 <template>
   <BaseModal
     v-model="isOpen"
-    :title="card?.name || 'Detalhes da Carta'"
-    size="md"
+    :title="modalTitle"
+    size="lg"
     @update:model-value="$emit('update:modelValue', $event)"
   >
     <div v-if="card" class="card-detail-modal">
-      <div class="card-image-section">
-        <div class="card-image-container">
-          <img 
-            :src="card.imageUrl" 
-            :alt="card.name" 
+      <div class="d-flex flex-column flex-md-row align-start ga-8">
+        <!-- Imagem da Carta -->
+        <div class="card-image-section d-flex justify-center">
+          <v-img
+            :src="card.imageUrl"
+            :alt="card.name"
+            width="320"
+            height="448"
+            class="rounded-lg elevation-3"
             @error="handleImageError"
-            class="card-image"
-          />
+            cover
+          >
+            <template v-slot:placeholder>
+              <div class="d-flex align-center justify-center fill-height">
+                <LoadingSpinner />
+              </div>
+            </template>
+          </v-img>
         </div>
-      </div>
-
-      <div class="card-info-section">
-        <div class="card-header">
-          <h3 class="card-name">{{ card.name }}</h3>
-        </div>
-
-        <div class="card-description">
-          <h4>Descrição</h4>
-          <p>{{ card.description }}</p>
-        </div>
-
-        <div class="card-metadata">
-          <div class="metadata-item">
-            <span class="metadata-label">ID:</span>
-            <span class="metadata-value">{{ card.id }}</span>
+        
+        <!-- Informações da Carta -->
+        <div class="card-info-section flex-grow-1 d-flex flex-column">
+          <h3 class="text-h4 font-weight-bold mb-6 text-primary">{{ card.name }}</h3>
+          
+          <div class="mb-8">
+            <h4 class="text-h6 font-weight-medium mb-4 text-grey-darken-1">Descrição</h4>
+            <p class="text-body-1 text-grey-darken-2 line-height-1-6">{{ card.description }}</p>
           </div>
-
+          
+          <v-sheet color="grey-lighten-4" rounded="lg" class="pa-6 mt-auto">
+            <div class="d-flex flex-column flex-sm-row align-start align-sm-center justify-space-between ga-3">
+              <span class="text-subtitle-2 font-weight-medium text-grey-darken-1">ID da Carta:</span>
+              <v-chip 
+                variant="outlined" 
+                size="small" 
+                class="font-mono text-caption"
+                color="primary"
+              >
+                {{ card.id }}
+              </v-chip>
+            </div>
+          </v-sheet>
         </div>
       </div>
     </div>
 
-    <div v-else-if="loading" class="loading-state">
-      <div class="loading-spinner"></div>
-      <p>Carregando detalhes da carta...</p>
+    <div v-else-if="loading" class="d-flex flex-column align-center justify-center py-15 text-grey">
+      <LoadingSpinner size="large" class="mb-4" />
+      <p class="text-body-1">Carregando detalhes da carta...</p>
     </div>
 
-    <div v-else class="error-state">
-      <div class="error-icon">⚠️</div>
-      <h3>Carta não encontrada</h3>
-      <p>A carta solicitada não foi encontrada ou não existe.</p>
+    <div v-else class="d-flex flex-column align-center justify-center py-15 text-center">
+      <v-icon size="64" color="warning" class="mb-4">mdi-alert-circle</v-icon>
+      <h3 class="text-h5 font-weight-bold mb-3">Carta não encontrada</h3>
+      <p class="text-body-1 text-grey">A carta solicitada não foi encontrada ou não existe.</p>
     </div>
-
-
   </BaseModal>
 </template>
 
@@ -56,6 +69,7 @@
 import { ref, computed, watch } from 'vue';
 import { useCardsStore } from '../../../stores/cards';
 import BaseModal from '../../common/BaseModal.vue';
+import LoadingSpinner from '../../common/LoadingSpinner.vue';
 import type { Card } from '../../../types';
 
 interface Props {
@@ -79,7 +93,13 @@ const isOpen = computed({
   set: (value) => emit('update:modelValue', value)
 });
 
-
+const modalTitle = computed(() => {
+  if (!card.value?.name) return 'Detalhes da Carta';
+  
+  // Limita o título a 50 caracteres para evitar quebra de layout
+  const title = card.value.name;
+  return title.length > 50 ? title.substring(0, 47) + '...' : title;
+});
 
 watch(() => props.cardId, async (newCardId) => {
   if (newCardId && isOpen.value) {
@@ -112,173 +132,47 @@ function handleImageError(event: Event) {
   const img = event.target as HTMLImageElement;
   img.src = '/placeholder-card.jpg';
 }
-
-
 </script>
 
-<style scoped lang="scss">
-@use '../../../styles/_variables.scss' as *;
-
+<style scoped>
 .card-detail-modal {
-  .card-image-section {
-    margin-bottom: 24px;
-    text-align: center;
-
-    .card-image-container {
-      display: inline-block;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-
-      .card-image {
-        width: 300px;
-        height: 400px;
-        object-fit: cover;
-        display: block;
-      }
-    }
-  }
-
-  .card-info-section {
-    .card-header {
-      margin-bottom: 20px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid $gray-200;
-
-      .card-name {
-        margin: 0 0 8px 0;
-        font-size: 24px;
-        font-weight: 700;
-        color: $black;
-        line-height: 1.2;
-      }
-
-
-    }
-
-    .card-description {
-      margin-bottom: 24px;
-
-      h4 {
-        margin: 0 0 12px 0;
-        font-size: 16px;
-        font-weight: 600;
-        color: $black;
-      }
-
-      p {
-        margin: 0;
-        font-size: 14px;
-        line-height: 1.6;
-        color: $gray-700;
-      }
-    }
-
-    .card-metadata {
-      background: $gray-50;
-      border-radius: 8px;
-      padding: 16px;
-
-      .metadata-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
-
-        &:last-child {
-          margin-bottom: 0;
-        }
-
-        .metadata-label {
-          font-size: 14px;
-          font-weight: 500;
-          color: $gray-600;
-        }
-
-        .metadata-value {
-          font-size: 14px;
-          color: $black;
-          font-family: monospace;
-          background: $white;
-          padding: 4px 8px;
-          border-radius: 4px;
-          border: 1px solid $gray-200;
-        }
-      }
-    }
-  }
+  min-width: 320px;
+  max-width: 100%;
 }
 
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
-  color: $gray-600;
-
-  .loading-spinner {
-    width: 32px;
-    height: 32px;
-    border: 3px solid $gray-200;
-    border-top: 3px solid $primary;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 16px;
-  }
-
-  p {
-    margin: 0;
-    font-size: 14px;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
+.card-image-section {
+  flex-shrink: 0;
 }
 
-.error-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: $gray-600;
+.card-info-section {
+  min-width: 0;
+  flex: 1;
+}
 
-  .error-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
-  }
+.line-height-1-6 {
+  line-height: 1.6;
+}
 
-  h3 {
-    margin: 0 0 8px 0;
-    font-size: 18px;
-    font-weight: 600;
-    color: $black;
-  }
-
-  p {
-    margin: 0;
-    font-size: 14px;
+/* Responsividade para telas menores */
+@media (max-width: 1024px) {
+  .card-detail-modal {
+    min-width: 280px;
   }
 }
 
 @media (max-width: 768px) {
   .card-detail-modal {
-    .card-image-section {
-      .card-image-container {
-        .card-image {
-          width: 250px;
-          height: 350px;
-        }
-      }
-    }
+    min-width: 250px;
+  }
+  
+  .card-image-section {
+    margin-bottom: 16px;
+  }
+}
 
-    .card-info-section {
-      .card-header {
-        .card-name {
-          font-size: 20px;
-        }
-      }
-    }
+@media (max-width: 480px) {
+  .card-detail-modal {
+    min-width: 200px;
   }
 }
 </style> 

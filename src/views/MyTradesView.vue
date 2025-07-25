@@ -6,37 +6,45 @@
         subtitle="Gerencie suas solicitações de troca e crie novas propostas"
       >
         <template #actions>
-          <BaseButton
+          <v-btn
             @click="showCreateModal = true"
             color="primary"
-            class="create-btn"
+            variant="elevated"
+            class="d-flex align-center ga-2"
           >
-            <span class="btn-icon">+</span>
+            <v-icon>mdi-plus</v-icon>
             Nova Troca
-          </BaseButton>
+          </v-btn>
         </template>
       </PageHeader>
 
       <TradeStats :trades="userTrades" />
 
-      <div class="trades-section">
-        <div class="section-header">
-          <TradeFilters v-model="filters" @filter="handleFiltersChange" />
-
-        </div>
-
-        <div class="trades-content">
-          <MyTradeList
-            :trades="filteredTrades"
+      <v-card class="trades-section" elevation="2">
+        <v-card-text class="pa-6">
+          <TradeFilters 
+            @filters-change="handleFiltersChange"
+            @page-change="handleLocalPageChange"
             :loading="loading"
-            :error="error"
-            :view-mode="viewMode"
-            @retry="fetchUserTrades"
-            @delete="handleDeleteTrade"
-            @edit="handleEditTrade"
+            :show-pagination="showLocalPagination"
+            :total-items="totalFilteredTrades"
+            :items-per-page="localPagination.rpp"
+            :current-page="localPagination.page"
           />
-        </div>
-      </div>
+
+          <div class="trades-content">
+            <MyTradeList
+              :trades="paginatedTradesList"
+              :loading="loading"
+              :error="error"
+              :view-mode="viewMode"
+              @retry="fetchUserTrades"
+              @delete="handleDeleteTrade"
+              @card-click="handleCardClick"
+            />
+          </div>
+        </v-card-text>
+      </v-card>
     </Container>
 
     <!-- Modal de Criação de Troca -->
@@ -52,6 +60,12 @@
       @confirm="confirmDelete"
       @cancel="showDeleteModal = false"
     />
+
+    <!-- Modal de Detalhes da Carta -->
+    <CardDetailModal
+      v-model="showCardDetailModal"
+      :card-id="selectedCardId"
+    />
   </div>
 </template>
 
@@ -63,14 +77,15 @@ import { useAuthStore } from "../stores/auth";
 import { useNotificationStore } from "../stores/notification";
 import { useTradeFilters } from "../composables/useTradeFilters";
 import Container from "../components/common/Container.vue";
-import BaseButton from "../components/common/BaseButton.vue";
 import PageHeader from "../components/common/PageHeader.vue";
 import MyTradeList from "../components/features/trades/MyTradeList.vue";
 import CreateTradeModal from "../components/features/trades/CreateTradeModal.vue";
 import TradeStats from "../components/features/trades/TradeStats.vue";
 import TradeFilters from "../components/features/trades/TradeFilters.vue";
 import DeleteConfirmationModal from "../components/features/trades/DeleteConfirmationModal.vue";
+import CardDetailModal from "../components/features/cards/CardDetailModal.vue";
 import type { Trade } from "../types";
+import type { Card } from "../types/cards";
 
 const router = useRouter();
 const tradesStore = useTradesStore();
@@ -84,16 +99,41 @@ const userTrades = computed(() => tradesStore.userTrades);
 const viewMode = ref<"grid" | "list">("grid");
 const showCreateModal = ref(false);
 const showDeleteModal = ref(false);
+const showCardDetailModal = ref(false);
+const selectedCardId = ref<string>("");
 const tradeToDelete = ref<Trade | null>(null);
 
-const filters = ref({
-  searchTerm: "",
+// Paginação local para filtros
+const localPagination = ref({
+  page: 1,
+  rpp: 12
 });
 
 const { filteredTrades, updateFilters } = useTradeFilters(userTrades);
 
-function handleFiltersChange(newFilters: { searchTerm: string }) {
-  updateFilters(newFilters);
+const totalFilteredTrades = computed(() => {
+  return filteredTrades.value.length;
+});
+
+const showLocalPagination = computed(() => {
+  return totalFilteredTrades.value > localPagination.value.rpp;
+});
+
+const paginatedTradesList = computed(() => {
+  const startIndex = (localPagination.value.page - 1) * localPagination.value.rpp;
+  const endIndex = startIndex + localPagination.value.rpp;
+  return filteredTrades.value.slice(startIndex, endIndex);
+});
+
+function handleFiltersChange(newFilters: { search: string }) {
+  // Converter para o formato esperado pelo useTradeFilters
+  updateFilters({ searchTerm: newFilters.search });
+  // Reset para primeira página quando filtrar
+  localPagination.value.page = 1;
+}
+
+function handleLocalPageChange(page: number) {
+  localPagination.value.page = page;
 }
 
 onMounted(() => {
@@ -105,7 +145,8 @@ onMounted(() => {
 });
 
 async function fetchUserTrades() {
-  await tradesStore.fetchAllTrades();
+  // Carregar mais trades da API para ter dados suficientes para filtragem
+  await tradesStore.fetchAllTrades(1, 50, true); // Carregar 50 trades de uma vez
 }
 
 async function handleDeleteTrade(trade: Trade) {
@@ -126,66 +167,25 @@ async function confirmDelete() {
   }
 }
 
-function handleEditTrade() {
-  notification.show("Funcionalidade de edição em desenvolvimento", "info");
+function handleCardClick(card: Card) {
+  selectedCardId.value = card.id;
+  showCardDetailModal.value = true;
 }
 
 function handleTradeCreated() {
   showCreateModal.value = false;
-  notification.show("Troca criada com sucesso!", "success");
   fetchUserTrades();
 }
 </script>
 
-<style scoped lang="scss">
-@use "../styles/_variables.scss" as *;
-
+<style scoped>
 .my-trades-view {
   min-height: 100vh;
-  background: linear-gradient(135deg, $gray-50 0%, $white 100%);
-  padding: 24px 0;
+  background: linear-gradient(135deg, rgb(var(--v-theme-grey-lighten-5)) 0%, white 100%);
+}
 
-  .create-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    font-weight: 600;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba($primary, 0.3);
-    transition: all 0.3s ease;
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba($primary, 0.4);
-    }
-
-    .btn-icon {
-      font-size: 18px;
-      font-weight: bold;
-    }
-  }
-
-  .trades-section {
-    background: $white;
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba($primary, 0.1);
-
-    .section-header {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      flex-wrap: wrap;
-      gap: 16px;
-
-
-      & .trade-filters {
-        width: 100%;
-      }
-    }
-  }
+.trades-section {
+  border-radius: 16px;
+  border: 1px solid rgba(var(--v-theme-primary), 0.1);
 }
 </style>

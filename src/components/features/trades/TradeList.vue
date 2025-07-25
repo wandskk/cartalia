@@ -1,35 +1,38 @@
 <template>
   <div class="trade-list">
-    <div v-if="loading && trades.length === 0" class="loading-state">
-      <div class="loading-spinner"></div>
-      <p>Carregando trocas...</p>
+    <div v-if="loading && trades.length === 0" class="d-flex flex-column align-center justify-center py-10 text-grey">
+      <LoadingSpinner text="Carregando trocas..." />
     </div>
 
-    <div v-else-if="error && trades.length === 0" class="error-state">
-      <p class="error-message">{{ error }}</p>
-      <BaseButton @click="retry" color="primary">Tentar novamente</BaseButton>
+    <div v-else-if="error && trades.length === 0" class="d-flex flex-column align-center justify-center py-10 text-center">
+      <div class="mb-4 text-error">{{ error }}</div>
+      <v-btn @click="retry" color="primary" variant="elevated">Tentar novamente</v-btn>
     </div>
 
-    <div v-else-if="trades.length === 0" class="empty-state">
-      <div class="empty-content">
-        <div class="empty-icon">🃏</div>
-        <h3>Nenhuma troca disponível</h3>
-        <p>Seja o primeiro a criar uma troca no marketplace!</p>
-        <BaseButton v-if="isAuthenticated" @click="goToCreateTrade" color="primary">
+    <div v-else-if="trades.length === 0" class="d-flex align-center justify-center py-10">
+      <div class="text-center max-width-400">
+        <div class="mb-4 text-h1 opacity-50">
+          <v-icon size="64" color="grey">mdi-cards</v-icon>
+        </div>
+        <h3 class="mb-2 font-weight-bold">Nenhuma troca disponível</h3>
+        <p class="mb-4 text-grey">Seja o primeiro a criar uma troca no marketplace!</p>
+        <v-btn v-if="isAuthenticated" @click="goToCreateTrade" color="primary" variant="elevated" class="mb-2">
           Criar Primeira Troca
-        </BaseButton>
-        <BaseButton v-else @click="goToLogin" color="primary">
+        </v-btn>
+        <v-btn v-else @click="goToLogin" color="primary" variant="elevated">
           Fazer Login para Criar Troca
-        </BaseButton>
+        </v-btn>
       </div>
     </div>
 
     <div v-else class="trades-content">
-      <div class="trades-header">
-        <h3>{{ trades.length }} troca{{ trades.length !== 1 ? 's' : '' }} encontrada{{ trades.length !== 1 ? 's' : '' }}</h3>
+      <div class="d-flex align-center justify-space-between mb-4 pb-2 border-b">
+        <h3 class="mb-0 text-grey-darken-2 text-h6">
+          {{ trades.length }} troca{{ trades.length !== 1 ? 's' : '' }} encontrada{{ trades.length !== 1 ? 's' : '' }}
+        </h3>
       </div>
-
-      <div class="trades-grid">
+      
+      <div class="trades-list">
         <TradeItem
           v-for="trade in trades"
           :key="trade.id"
@@ -37,24 +40,24 @@
           :show-actions="false"
           :show-status="true"
           status="active"
+          class="mb-3"
           @delete="handleDeleteTrade"
+          @card-click="handleCardClick"
         />
       </div>
-
-      <div v-if="showPagination && pagination.more" class="pagination">
-        <BaseButton 
-          @click="loadMore" 
-          :loading="loading"
-          color="secondary"
-        >
-          Carregar mais trocas
-        </BaseButton>
-      </div>
+      
+      <SimplePagination
+        v-if="showPagination && pagination.total > 0"
+        :total-items="pagination.total"
+        :items-per-page="pagination.rpp"
+        :current-page="pagination.page"
+        :loading="loading"
+        @page-change="handlePageChange"
+      />
     </div>
 
-    <div v-if="loading && trades.length > 0" class="loading-more">
-      <div class="loading-spinner"></div>
-      <p>Carregando mais trocas...</p>
+    <div v-if="loading && trades.length > 0" class="d-flex flex-column align-center justify-center py-6 text-grey">
+      <LoadingSpinner text="Carregando mais trocas..." size="32" />
     </div>
   </div>
 </template>
@@ -64,9 +67,10 @@ import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../../stores/auth';
 import { useNotificationStore } from '../../../stores/notification';
-import BaseButton from '../../common/BaseButton.vue';
 import TradeItem from './TradeItem.vue';
+import SimplePagination from '../../common/SimplePagination.vue';
 import type { Trade } from '../../../types';
+import type { Card } from '../../../types/cards';
 
 interface Props {
   trades: Trade[];
@@ -76,14 +80,16 @@ interface Props {
   pagination?: {
     page: number;
     rpp: number;
+    total: number;
     more: boolean;
   };
 }
 
 interface Emits {
   (e: 'retry'): void;
-  (e: 'load-more'): void;
+  (e: 'page-change', page: number): void;
   (e: 'delete', tradeId: string): void;
+  (e: 'card-click', card: Card): void;
 }
 
 withDefaults(defineProps<Props>(), {
@@ -93,6 +99,7 @@ withDefaults(defineProps<Props>(), {
   pagination: () => ({
     page: 1,
     rpp: 10,
+    total: 0,
     more: false
   })
 });
@@ -109,8 +116,8 @@ function retry() {
   emit('retry');
 }
 
-function loadMore() {
-  emit('load-more');
+function handlePageChange(page: number) {
+  emit('page-change', page);
 }
 
 function goToCreateTrade() {
@@ -132,181 +139,20 @@ async function handleDeleteTrade(trade: Trade) {
     );
   }
 }
+
+function handleCardClick(card: Card) {
+  emit('card-click', card);
+}
 </script>
 
-<style scoped lang="scss">
-@use '../../../styles/_variables.scss' as *;
-
+<style scoped>
 .trade-list {
   width: 100%;
-
-  .loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 80px 20px;
-    color: $gray-600;
-
-    .loading-spinner {
-      width: 48px;
-      height: 48px;
-      border: 4px solid $gray-200;
-      border-top: 4px solid $primary;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 16px;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  }
-
-  .error-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 80px 20px;
-    text-align: center;
-
-    .error-message {
-      color: $error;
-      margin-bottom: 16px;
-      font-size: 16px;
-    }
-  }
-
-  .empty-state {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 80px 20px;
-
-    .empty-content {
-      text-align: center;
-      max-width: 400px;
-
-      .empty-icon {
-        font-size: 64px;
-        margin-bottom: 16px;
-        opacity: 0.5;
-      }
-
-      h3 {
-        margin: 0 0 16px 0;
-        color: $black;
-        font-size: 24px;
-        font-weight: 600;
-      }
-
-      p {
-        margin: 0 0 24px 0;
-        color: $gray-600;
-        font-size: 16px;
-        line-height: 1.5;
-      }
-    }
-  }
-
-  .trades-content {
-    .trades-header {
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid $gray-200;
-
-      h3 {
-        margin: 0;
-        color: $gray-700;
-        font-size: 18px;
-        font-weight: 500;
-      }
-    }
-
-    .trades-grid {
-      display: grid;
-      gap: 24px;
-      margin-bottom: 32px;
-
-      @media (min-width: 768px) {
-        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      }
-
-      @media (min-width: 1200px) {
-        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-      }
-
-      @media (max-width: 767px) {
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
-    }
-
-    .pagination {
-      display: flex;
-      justify-content: center;
-      margin-top: 32px;
-      padding-top: 24px;
-      border-top: 1px solid $gray-200;
-    }
-  }
-
-  .loading-more {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 32px 20px;
-    color: $gray-600;
-
-    .loading-spinner {
-      width: 32px;
-      height: 32px;
-      border: 3px solid $gray-200;
-      border-top: 3px solid $primary;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 12px;
-    }
-  }
 }
 
-@media (max-width: 768px) {
-  .trade-list {
-    .trades-content {
-      .trades-header {
-        margin-bottom: 16px;
-        padding-bottom: 12px;
-
-        h3 {
-          font-size: 16px;
-        }
-      }
-
-      .trades-grid {
-        gap: 12px;
-      }
-    }
-
-    .empty-state {
-      padding: 60px 16px;
-
-      .empty-content {
-        .empty-icon {
-          font-size: 48px;
-        }
-
-        h3 {
-          font-size: 20px;
-        }
-
-        p {
-          font-size: 14px;
-        }
-      }
-    }
-  }
+.trades-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 </style> 

@@ -1,72 +1,97 @@
 <template>
   <div class="marketplace-view">
     <Container>
-      <PageHeader 
+      <PageHeader
         title="Marketplace de Cartas"
         subtitle="Explore as trocas disponíveis e encontre as cartas que você procura"
       >
         <template #actions>
           <div v-if="isAuthenticated" class="header-actions">
-            <BaseButton @click="goToCreateTrade" color="primary">
+            <v-btn @click="goToCreateTrade" color="primary" variant="elevated">
               Criar Nova Troca
-            </BaseButton>
+            </v-btn>
           </div>
-        
+
           <div v-else class="header-actions">
-            <BaseButton @click="goToLogin" color="primary">
+            <v-btn @click="goToLogin" color="primary" variant="elevated">
               Fazer Login
-            </BaseButton>
-            <BaseButton @click="goToRegister" color="secondary">
+            </v-btn>
+            <v-btn @click="goToRegister" variant="outlined" color="grey">
               Cadastrar
-            </BaseButton>
+            </v-btn>
           </div>
         </template>
       </PageHeader>
 
       <div class="marketplace-content">
         <div class="stats-section">
-          <StatCard
-            :number="filteredTradesCount"
-            label="Trocas Disponíveis"
-          />
+          <StatCard :number="filteredTradesCount" label="Trocas Disponíveis" />
         </div>
 
-        <div class="trades-section">
-          <TradeFilters @filters-change="handleFiltersChange" />
-          
-          <TradeList
-            :trades="filteredTradesList"
-            :loading="loading"
-            :error="error"
-            :show-pagination="true"
-            :pagination="pagination"
-            @retry="fetchTrades"
-            @load-more="loadMoreTrades"
-            @delete="handleDeleteTrade"
-          />
-        </div>
+        <v-card class="trades-section" elevation="2">
+          <v-card-text class="pa-6">
+            <TradeFilters 
+              @filters-change="handleFiltersChange"
+              @page-change="handleLocalPageChange"
+              :loading="loading"
+              :show-pagination="showLocalPagination"
+              :total-items="totalFilteredTrades"
+              :items-per-page="localPagination.rpp"
+              :current-page="localPagination.page"
+            />
+
+            <TradeList
+              :trades="paginatedTradesList"
+              :loading="loading"
+              :error="error"
+              :show-pagination="false"
+              :pagination="pagination"
+              @retry="fetchTrades"
+              @page-change="handlePageChange"
+              @delete="handleDeleteTrade"
+              @card-click="handleCardClick"
+            />
+          </v-card-text>
+        </v-card>
       </div>
     </Container>
+
+    <!-- Modal de Detalhes da Carta -->
+    <CardDetailModal
+      v-model="showCardDetailModal"
+      :card-id="selectedCardId"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { useTradesStore } from '../stores/trades';
-import { useAuthStore } from '../stores/auth';
-import { useMarketplaceFilters } from '../composables/useMarketplaceFilters';
-import Container from '../components/common/Container.vue';
-import BaseButton from '../components/common/BaseButton.vue';
-import PageHeader from '../components/common/PageHeader.vue';
-import TradeList from '../components/features/trades/TradeList.vue';
-import TradeFilters from '../components/features/trades/TradeFilters.vue';
-import StatCard from '../components/common/StatCard.vue';
+import { computed, onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import { useTradesStore } from "../stores/trades";
+import { useAuthStore } from "../stores/auth";
+import { useMarketplaceFilters } from "../composables/useMarketplaceFilters";
+import Container from "../components/common/Container.vue";
+import PageHeader from "../components/common/PageHeader.vue";
+import TradeList from "../components/features/trades/TradeList.vue";
+import TradeFilters from "../components/features/trades/TradeFilters.vue";
+import StatCard from "../components/common/StatCard.vue";
+import CardDetailModal from "../components/features/cards/CardDetailModal.vue";
+import type { Card } from "../types/cards";
 
 const router = useRouter();
 const tradesStore = useTradesStore();
 const authStore = useAuthStore();
 const { filteredTrades, updateFilters } = useMarketplaceFilters();
+
+// Modal de detalhes da carta
+const showCardDetailModal = ref(false);
+const selectedCardId = ref<string>("");
+
+// Paginação local para filtros
+const localPagination = ref({
+  page: 1,
+  rpp: 12
+});
 
 const loading = computed(() => tradesStore.loading);
 const error = computed(() => tradesStore.error);
@@ -78,8 +103,22 @@ const filteredTradesList = computed(() => {
   return filteredTrades.value(trades.value);
 });
 
-const filteredTradesCount = computed(() => {
+const totalFilteredTrades = computed(() => {
   return filteredTradesList.value.length;
+});
+
+const showLocalPagination = computed(() => {
+  return totalFilteredTrades.value > localPagination.value.rpp;
+});
+
+const paginatedTradesList = computed(() => {
+  const startIndex = (localPagination.value.page - 1) * localPagination.value.rpp;
+  const endIndex = startIndex + localPagination.value.rpp;
+  return filteredTradesList.value.slice(startIndex, endIndex);
+});
+
+const filteredTradesCount = computed(() => {
+  return totalFilteredTrades.value;
 });
 
 onMounted(() => {
@@ -87,12 +126,20 @@ onMounted(() => {
 });
 
 async function fetchTrades() {
-  await tradesStore.fetchAllTrades();
+  // Carregar mais trades da API para ter dados suficientes para filtragem
+  await tradesStore.fetchAllTrades(1, 50, true); // Carregar 50 trades de uma vez
 }
 
-async function loadMoreTrades() {
-  const nextPage = pagination.value.page + 1;
-  await tradesStore.fetchAllTrades(nextPage, pagination.value.rpp);
+async function handlePageChange(page: number) {
+  // Carregar mais trades da API se necessário
+  if (page > Math.ceil(trades.value.length / pagination.value.rpp)) {
+    const nextPage = Math.ceil(trades.value.length / pagination.value.rpp) + 1;
+    await tradesStore.fetchAllTrades(nextPage, pagination.value.rpp, false);
+  }
+}
+
+function handleLocalPageChange(page: number) {
+  localPagination.value.page = page;
 }
 
 async function handleDeleteTrade(tradeId: string) {
@@ -101,70 +148,63 @@ async function handleDeleteTrade(tradeId: string) {
 
 function handleFiltersChange(newFilters: any) {
   updateFilters(newFilters);
+  // Reset para primeira página quando filtrar
+  localPagination.value.page = 1;
+}
+
+function handleCardClick(card: Card) {
+  selectedCardId.value = card.id;
+  showCardDetailModal.value = true;
 }
 
 function goToCreateTrade() {
-  router.push('/my-trades');
+  router.push("/my-trades");
 }
 
 function goToLogin() {
-  router.push('/login');
+  router.push("/login");
 }
 
 function goToRegister() {
-  router.push('/register');
+  router.push("/register");
 }
 </script>
 
-<style scoped lang="scss">
-@use '../styles/_variables.scss' as *;
-
+<style scoped>
 .marketplace-view {
   min-height: 100vh;
-  background: $gray-50;
-  padding: 24px 0;
+  background: #f8fafc;
+}
 
-  .marketplace-content {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
+.marketplace-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
 
-  .stats-section {
-    display: flex;
-  }
+.stats-section {
+  display: flex;
+}
 
-  .trades-section {
-    background: $white;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
+.trades-section {
+  border-radius: 12px;
+}
 
-  .header-actions {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-
-    @media (max-width: 768px) {
-      width: 100%;
-      justify-content: center;
-      margin-top: 16px;
-    }
-  }
+.header-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 @media (max-width: 768px) {
-  .marketplace-view {
-    padding: 16px 0;
+  .marketplace-content {
+    gap: 16px;
+  }
 
-    .marketplace-content {
-      gap: 16px;
-    }
-
-    .trades-section {
-      padding: 16px;
-    }
+  .header-actions {
+    width: 100%;
+    justify-content: center;
+    margin-top: 16px;
   }
 }
-</style> 
+</style>

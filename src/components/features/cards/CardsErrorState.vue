@@ -1,16 +1,14 @@
 <template>
-  <div class="cards-error-state">
-    <div class="error-icon">⚠️</div>
-    <p class="error-message">{{ error }}</p>
-    <BaseButton @click="$emit('retry')" color="primary">
+  <div class="d-flex flex-column align-center justify-center py-10 text-center">
+    <v-icon size="48" color="error" class="mb-4">mdi-alert-circle</v-icon>
+    <p class="text-error text-body-1 mb-4">{{ error }}</p>
+    <v-btn @click="$emit('retry')" color="primary" variant="elevated">
       Tentar novamente
-    </BaseButton>
+    </v-btn>
   </div>
 </template>
 
 <script setup lang="ts">
-import BaseButton from '../../common/BaseButton.vue';
-
 interface Props {
   error: string;
 }

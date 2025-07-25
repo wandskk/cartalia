@@ -1,73 +1,103 @@
 <template>
   <div class="card-selector">
-    <div class="selector-header">
-      <h3>{{ title }}</h3>
-      <span class="card-count">{{ selectedCards.length }} carta{{ selectedCards.length !== 1 ? 's' : '' }} selecionada{{ selectedCards.length !== 1 ? 's' : '' }}</span>
+    <div class="d-flex justify-space-between align-center mb-4">
+      <h3 class="text-h6 font-weight-bold">{{ title }}</h3>
+      <v-chip color="primary" variant="tonal" size="small">
+        {{ selectedCards.length }} carta{{ selectedCards.length !== 1 ? 's' : '' }} selecionada{{ selectedCards.length !== 1 ? 's' : '' }}
+      </v-chip>
     </div>
 
-    <div class="search-section">
-      <BaseInput
+    <div class="mb-4">
+      <v-text-field
         v-model="searchTerm"
         :placeholder="searchPlaceholder"
         @input="handleSearch"
+        prepend-inner-icon="mdi-magnify"
+        variant="outlined"
+        density="compact"
+        hide-details
       />
     </div>
 
     <div class="cards-section">
-      <div v-if="loading" class="loading-state">
-        <div class="loading-spinner"></div>
-        <p>Carregando cartas...</p>
+      <div v-if="loading" class="d-flex flex-column align-center justify-center py-10 text-grey">
+        <LoadingSpinner text="Carregando cartas..." />
       </div>
 
-      <div v-else-if="error" class="error-state">
-        <p class="error-message">{{ error }}</p>
-        <BaseButton @click="retry" color="primary">Tentar novamente</BaseButton>
+      <div v-else-if="error" class="d-flex flex-column align-center justify-center py-10 text-center">
+        <v-icon size="48" color="error" class="mb-4">mdi-alert-circle</v-icon>
+        <p class="text-error text-body-1 mb-4">{{ error }}</p>
+        <v-btn @click="retry" color="primary" variant="elevated">Tentar novamente</v-btn>
       </div>
 
-      <div v-else-if="filteredCards.length === 0" class="empty-state">
-        <p>{{ emptyMessage }}</p>
+      <div v-else-if="filteredCards.length === 0" class="d-flex flex-column align-center justify-center py-10 text-center">
+        <v-icon size="48" color="grey-lighten-1" class="mb-4">mdi-cards</v-icon>
+        <p class="text-body-1 text-grey">{{ emptyMessage }}</p>
       </div>
 
       <div v-else class="cards-grid">
-        <div
+        <v-card
           v-for="card in filteredCards"
           :key="card.id"
           class="card-item"
-          :class="{ selected: isCardSelected(card) }"
+          :class="{ 'selected-card': isCardSelected(card) }"
           @click="toggleCard(card)"
+          elevation="2"
         >
-          <div class="card-image">
-            <img :src="card.imageUrl" :alt="card.name" />
-            <div v-if="isCardSelected(card)" class="selected-overlay">
-              <span class="check-icon">✓</span>
+          <v-img
+            :src="card.imageUrl"
+            :alt="card.name"
+            height="200"
+            cover
+            class="card-image"
+          >
+            <template v-slot:placeholder>
+              <div class="d-flex align-center justify-center fill-height">
+                <LoadingSpinner />
+              </div>
+            </template>
+            
+            <div v-if="isCardSelected(card)" class="selected-overlay d-flex align-center justify-center">
+              <v-icon size="32" color="white">mdi-check-circle</v-icon>
             </div>
-          </div>
-          <div class="card-info">
-            <h4 class="card-name">{{ card.name }}</h4>
-            <p class="card-description">{{ truncatedDescription(card.description) }}</p>
-          </div>
-        </div>
+          </v-img>
+          
+          <v-card-text class="pa-3">
+            <h4 class="text-subtitle-1 font-weight-bold mb-2">{{ card.name }}</h4>
+            <p class="text-body-2 text-grey">{{ truncatedDescription(card.description) }}</p>
+          </v-card-text>
+        </v-card>
       </div>
     </div>
 
-    <div v-if="selectedCards.length > 0" class="selected-preview">
-      <h4>Cartas Selecionadas</h4>
+    <div v-if="selectedCards.length > 0" class="selected-preview mt-6">
+      <h4 class="text-h6 font-weight-bold mb-4">Cartas Selecionadas</h4>
       <div class="selected-cards">
-        <div
+        <v-card
           v-for="card in selectedCards"
           :key="card.id"
-          class="selected-card"
+          class="selected-card d-flex align-center pa-3 mb-3"
+          elevation="1"
         >
-          <img :src="card.imageUrl" :alt="card.name" />
-          <span class="card-name">{{ card.name }}</span>
-          <button
+          <v-img
+            :src="card.imageUrl"
+            :alt="card.name"
+            width="60"
+            height="84"
+            cover
+            class="rounded mr-3"
+          />
+          <span class="text-body-2 font-weight-medium flex-grow-1">{{ card.name }}</span>
+          <v-btn
             @click="removeCard(card)"
-            class="remove-btn"
-            type="button"
+            icon
+            variant="text"
+            size="small"
+            color="error"
           >
-            ×
-          </button>
-        </div>
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card>
       </div>
     </div>
   </div>
@@ -75,8 +105,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import BaseInput from '../../common/BaseInput.vue';
-import BaseButton from '../../common/BaseButton.vue';
+import LoadingSpinner from '../../common/LoadingSpinner.vue';
 import type { Card } from '../../../types';
 
 interface Props {
@@ -98,7 +127,7 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false,
   error: null,
   searchPlaceholder: 'Buscar cartas...',
-  emptyMessage: 'Nenhuma carta encontrada.'
+  emptyMessage: 'Nenhuma carta encontrada'
 });
 
 const emit = defineEmits<Emits>();
@@ -106,9 +135,7 @@ const emit = defineEmits<Emits>();
 const searchTerm = ref('');
 
 const filteredCards = computed(() => {
-  if (!searchTerm.value) {
-    return props.cards;
-  }
+  if (!searchTerm.value) return props.cards;
   
   const term = searchTerm.value.toLowerCase();
   return props.cards.filter(card => 
@@ -117,15 +144,15 @@ const filteredCards = computed(() => {
   );
 });
 
-function isCardSelected(card: Card): boolean {
-  return props.selectedCards.some(selectedCard => selectedCard.id === card.id);
+function handleSearch() {
+  // Search is handled by computed property
 }
 
 function toggleCard(card: Card) {
   const newSelectedCards = [...props.selectedCards];
+  const index = newSelectedCards.findIndex(c => c.id === card.id);
   
-  if (isCardSelected(card)) {
-    const index = newSelectedCards.findIndex(c => c.id === card.id);
+  if (index > -1) {
     newSelectedCards.splice(index, 1);
   } else {
     newSelectedCards.push(card);
@@ -139,15 +166,12 @@ function removeCard(card: Card) {
   emit('update:selectedCards', newSelectedCards);
 }
 
-function truncatedDescription(description: string): string {
-  if (description.length <= 60) {
-    return description;
-  }
-  return description.substring(0, 60) + '...';
+function isCardSelected(card: Card) {
+  return props.selectedCards.some(c => c.id === card.id);
 }
 
-function handleSearch() {
-  // Implementação futura: debounce para busca em tempo real
+function truncatedDescription(description: string) {
+  return description.length > 100 ? description.substring(0, 100) + '...' : description;
 }
 
 function retry() {
@@ -155,229 +179,54 @@ function retry() {
 }
 </script>
 
-<style scoped lang="scss">
-@use '../../../styles/_variables.scss' as *;
-@use 'sass:color';
+<style scoped>
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
 
-.card-selector {
-  .selector-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
+.card-item {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
 
-    h3 {
-      margin: 0;
-      color: $black;
-      font-size: 18px;
-      font-weight: 600;
-    }
+.card-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
+}
 
-    .card-count {
-      font-size: 14px;
-      color: $gray-500;
-    }
-  }
+.selected-card {
+  border-color: rgb(var(--v-theme-primary)) !important;
+  background: rgba(var(--v-theme-primary), 0.05) !important;
+}
 
-  .search-section {
-    margin-bottom: 20px;
-  }
+.selected-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(var(--v-theme-primary), 0.8);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
 
-  .cards-section {
-    .loading-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 20px;
-      color: $gray-600;
+.selected-card .selected-overlay {
+  opacity: 1;
+}
 
-      .loading-spinner {
-        width: 32px;
-        height: 32px;
-        border: 3px solid $gray-200;
-        border-top: 3px solid $primary;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin-bottom: 12px;
-      }
+.selected-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    }
-
-    .error-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 20px;
-      text-align: center;
-
-      .error-message {
-        color: $error;
-        margin-bottom: 12px;
-        font-size: 14px;
-      }
-    }
-
-    .empty-state {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 20px;
-      color: $gray-500;
-      font-size: 14px;
-    }
-
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 12px;
-      max-height: 400px;
-      overflow-y: auto;
-      padding: 4px;
-
-      .card-item {
-        background: $white;
-        border: 2px solid $gray-200;
-        border-radius: 8px;
-        overflow: hidden;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        position: relative;
-
-        &:hover {
-          border-color: $primary;
-          transform: translateY(-2px);
-        }
-
-        &.selected {
-          border-color: $primary;
-          background: $primary;
-          color: $white;
-
-          .card-info {
-            .card-name,
-            .card-description {
-              color: $white;
-            }
-          }
-        }
-
-        .card-image {
-          position: relative;
-          width: 100%;
-          height: 120px;
-          overflow: hidden;
-
-          img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-          }
-
-          .selected-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba($primary, 0.9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            .check-icon {
-              color: $white;
-              font-size: 24px;
-              font-weight: bold;
-            }
-          }
-        }
-
-        .card-info {
-          padding: 12px;
-
-          .card-name {
-            margin: 0 0 4px 0;
-            font-size: 14px;
-            font-weight: 600;
-            color: $black;
-            line-height: 1.2;
-          }
-
-          .card-description {
-            margin: 0;
-            font-size: 12px;
-            color: $gray-600;
-            line-height: 1.3;
-          }
-        }
-      }
-    }
-  }
-
-  .selected-preview {
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid $gray-200;
-
-    h4 {
-      margin: 0 0 12px 0;
-      color: $black;
-      font-size: 16px;
-      font-weight: 600;
-    }
-
-    .selected-cards {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-
-      .selected-card {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        background: $gray-100;
-        border-radius: 6px;
-        padding: 8px 12px;
-
-        img {
-          width: 32px;
-          height: 32px;
-          object-fit: cover;
-          border-radius: 4px;
-        }
-
-        .card-name {
-          font-size: 12px;
-          color: $black;
-          font-weight: 500;
-        }
-
-        .remove-btn {
-          background: $error;
-          color: $white;
-          border: none;
-          border-radius: 50%;
-          width: 16px;
-          height: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          font-size: 10px;
-          font-weight: bold;
-
-          &:hover {
-            background: color.scale($error, $lightness: -10%);
-          }
-        }
-      }
-    }
+@media (max-width: 768px) {
+  .cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
   }
 }
 </style> 

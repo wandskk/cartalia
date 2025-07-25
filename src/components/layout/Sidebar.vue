@@ -13,12 +13,12 @@
     }"
   >
     <!-- Header com logo e botão de colapso -->
-    <div class="sidebar-header" v-if="!isMobileOpen">
-      <div class="header-content">
-        <div v-if="!isCollapsed" class="logo-section">
+    <div class="sidebar-header pa-4" v-if="!isMobileOpen">
+      <div class="d-flex align-center justify-space-between">
+        <div v-if="!isCollapsed" class="flex-grow-1">
           <Logo />
         </div>
-        <div class="header-actions">
+        <div class="d-flex align-center">
           <v-btn
             v-if="!isMobileOpen"
             icon
@@ -26,10 +26,11 @@
             @click="toggleCollapse"
             :title="collapseButtonTitle"
             size="small"
-            class="collapse-btn"
+            class="transition-all duration-300"
           >
             <v-icon 
               :class="{ 'rotate-icon': isCollapsed }"
+              class="transition-transform duration-300"
             >
               mdi-chevron-left
             </v-icon>
@@ -39,14 +40,14 @@
     </div>
 
     <!-- Lista de navegação -->
-    <v-list class="sidebar-nav">
+    <v-list class="sidebar-nav pa-4">
       <v-list-item
         v-for="item in navigationItems"
         :key="item.path"
         :to="item.path"
         :prepend-icon="item.icon"
         :title="isCollapsed ? '' : item.label"
-        class="nav-item"
+        class="nav-item ma-1 rounded-lg transition-all duration-200"
         :class="{ 'nav-item-active': isActiveRoute(item.path) }"
         @click="handleNavClick"
       />
@@ -58,14 +59,14 @@
         @click="handleLogout"
         :prepend-icon="'mdi-logout'"
         :title="isCollapsed ? '' : 'Sair'"
-        class="nav-item nav-item-logout"
+        class="nav-item nav-item-logout ma-1 rounded-lg transition-all duration-200"
       />
       <v-list-item
         v-else
         to="/login"
         :prepend-icon="'mdi-login'"
         :title="isCollapsed ? '' : 'Entrar'"
-        class="nav-item nav-item-login"
+        class="nav-item nav-item-login ma-1 rounded-lg transition-all duration-200"
         @click="handleNavClick"
       />
     </v-list>
@@ -152,6 +153,8 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="scss">
+@use "../../styles/_variables.scss" as *;
+
 .sidebar {
   position: fixed;
   top: 0;
@@ -172,43 +175,14 @@ onUnmounted(() => {
 }
 
 .sidebar-header {
-  padding: 1rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.header-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.logo-section {
-  flex: 1;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-}
-
-.collapse-btn {
-  transition: all 0.3s ease;
 }
 
 .rotate-icon {
   transform: rotate(180deg);
-  transition: transform 0.3s ease;
-}
-
-.sidebar-nav {
-  padding: 1rem 0;
 }
 
 .nav-item {
-  margin: 0.25rem 0.5rem;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-
   &:hover {
     background: rgba(0, 0, 0, 0.05);
   }

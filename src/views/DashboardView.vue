@@ -1,29 +1,27 @@
 <template>
-  <Container>
-    <div class="dashboard-view">
-      <div class="dashboard-content">
-        <DashboardHeader />
-        <DashboardStats
-          :total-cards="totalCards"
-          :total-trades="totalTrades"
-          :active-trades="activeTrades"
-          :unique-cards="uniqueCards"
-        />
+  <Container class="dashboard-view pa-0">
+    <div class="dashboard-content">
+      <DashboardHeader />
+      <DashboardStats
+        :total-cards="totalCards"
+        :total-trades="totalTrades"
+        :active-trades="activeTrades"
+        :unique-cards="uniqueCards"
+      />
 
-        <QuickActions
-          :total-cards="totalCards"
-          :user-trades="userTrades"
-          :marketplace-trades="marketplaceTrades"
-        />
+      <QuickActions
+        :total-cards="totalCards"
+        :user-trades="userTrades"
+        :marketplace-trades="marketplaceTrades"
+      />
 
-        <RecentActivity
-          :trades="userTradesList"
-          :cards="userCards"
-          :loading="loading"
-          :error="error"
-          @retry="fetchData"
-        />
-      </div>
+      <RecentActivity
+        :trades="userTradesList"
+        :cards="userCards"
+        :loading="loading"
+        :error="error"
+        @retry="fetchData"
+      />
     </div>
   </Container>
 </template>
@@ -51,37 +49,39 @@ const {
 } = useDashboard();
 </script>
 
-<style scoped lang="scss">
-@use "../styles/_variables.scss" as *;
-
+<style scoped>
 .dashboard-view {
   min-height: 100vh;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   padding: 2rem 0;
   overflow-x: hidden;
+}
 
-  @media (max-width: 768px) {
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  max-width: 100%;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .dashboard-view {
     padding: 1.5rem 0;
   }
 
-  @media (max-width: 480px) {
+  .dashboard-content {
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-view {
     padding: 1rem 0;
   }
 
   .dashboard-content {
-    display: flex;
-    flex-direction: column;
-    gap: 3rem;
-    max-width: 100%;
-    width: 100%;
-
-    @media (max-width: 768px) {
-      gap: 2rem;
-    }
-
-    @media (max-width: 480px) {
-      gap: 1.5rem;
-    }
+    gap: 1.5rem;
   }
 }
 </style>

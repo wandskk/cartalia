@@ -1,16 +1,18 @@
 <template>
-  <div class="view-toggle">
-    <button 
+  <div class="d-flex ga-1 bg-grey-lighten-4 rounded-lg pa-1">
+    <v-btn
       v-for="view in viewModes"
       :key="view.value"
-      @click="handleViewChange(view.value)" 
-      :class="['view-btn', { active: modelValue === view.value }]"
+      @click="handleViewChange(view.value)"
+      :variant="modelValue === view.value ? 'elevated' : 'text'"
+      :color="modelValue === view.value ? 'primary' : 'grey'"
+      size="small"
       :title="view.title"
-      type="button"
       :aria-label="view.title"
+      class="text-none"
     >
-      {{ view.icon }}
-    </button>
+      <v-icon :icon="view.icon" size="16"></v-icon>
+    </v-btn>
   </div>
 </template>
 
@@ -31,8 +33,8 @@ interface Emits {
 }
 
 const { modelValue, viewModes = [
-  { value: 'grid', icon: '⊞', title: 'Visualização em grade' },
-  { value: 'list', icon: '☰', title: 'Visualização em lista' }
+  { value: 'grid', icon: 'mdi-view-grid', title: 'Visualização em grade' },
+  { value: 'list', icon: 'mdi-view-list', title: 'Visualização em lista' }
 ] } = defineProps<Props>();
 
 const emit = defineEmits<Emits>();
@@ -40,38 +42,4 @@ const emit = defineEmits<Emits>();
 function handleViewChange(view: 'grid' | 'list') {
   emit('update:modelValue', view);
 }
-</script>
-
-<style scoped lang="scss">
-@use '../../styles/_variables.scss' as *;
-
-.view-toggle {
-  display: flex;
-  gap: 4px;
-  background: $gray-100;
-  border-radius: 8px;
-  padding: 4px;
-
-  .view-btn {
-    padding: 8px 12px;
-    border: none;
-    background: transparent;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    color: $gray-600;
-    font-size: 16px;
-
-    &.active {
-      background: $white;
-      color: $primary;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    &:hover:not(.active) {
-      background: rgba($primary, 0.1);
-      color: $primary;
-    }
-  }
-}
-</style> 
+</script> 

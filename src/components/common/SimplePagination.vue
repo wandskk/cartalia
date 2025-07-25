@@ -1,26 +1,28 @@
 <template>
-  <div v-if="totalPages > 1" class="simple-pagination">
-    <button
-      class="pagination-btn"
-      :class="{ disabled: currentPage === 1 || loading }"
+  <div v-if="totalPages > 1" class="d-flex align-center justify-center ga-4 py-4">
+    <v-btn
       :disabled="currentPage === 1 || loading"
+      variant="outlined"
+      size="small"
       @click="handlePageChange(currentPage - 1)"
     >
-      <span class="pagination-icon">‹</span>
+      <v-icon class="mr-1">mdi-chevron-left</v-icon>
       Anterior
-    </button>
+    </v-btn>
 
-    <div class="page-info">Página {{ currentPage }}</div>
+    <div class="text-body-2 text-grey font-weight-medium min-width-100 text-center pagination-text">
+      Página {{ currentPage }}
+    </div>
 
-    <button
-      class="pagination-btn"
-      :class="{ disabled: currentPage === totalPages || loading }"
+    <v-btn
       :disabled="currentPage === totalPages || loading"
+      variant="outlined"
+      size="small"
       @click="handlePageChange(currentPage + 1)"
     >
       Próxima
-      <span class="pagination-icon">›</span>
-    </button>
+      <v-icon class="ml-1">mdi-chevron-right</v-icon>
+    </v-btn>
   </div>
 </template>
 
@@ -54,79 +56,24 @@ function handlePageChange(page: number) {
 }
 </script>
 
-<style scoped lang="scss">
-@use "../../styles/_variables.scss" as *;
-
-.simple-pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  padding: 16px 0;
-
-  .pagination-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    border: 1px solid $gray-300;
-    border-radius: 8px;
-    background: $white;
-    color: $gray-700;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-
-    &:hover:not(.disabled) {
-      background: $gray-50;
-      border-color: $gray-400;
-      color: $gray-900;
-    }
-
-    &:active:not(.disabled) {
-      transform: translateY(1px);
-    }
-
-    &.disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      background: $gray-100;
-      color: $gray-500;
-    }
-
-    .pagination-icon {
-      font-size: 16px;
-      font-weight: bold;
-    }
-  }
-
-  .page-info {
-    font-size: 14px;
-    color: $gray-600;
-    font-weight: 500;
-    min-width: 100px;
-    text-align: center;
-  }
+<style scoped>
+.pagination-text {
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 @media (max-width: 768px) {
-  .simple-pagination {
+  .d-flex {
     gap: 12px;
-
-    .pagination-btn {
-      padding: 6px 12px;
-      font-size: 13px;
-
-      .pagination-icon {
-        font-size: 14px;
-      }
-    }
-
-    .page-info {
-      font-size: 13px;
-      min-width: 80px;
-    }
+  }
+  
+  .text-body-2 {
+    min-width: 80px;
+  }
+  
+  .pagination-text {
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 }
 </style>

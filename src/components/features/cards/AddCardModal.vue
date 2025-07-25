@@ -6,27 +6,37 @@
     @update:model-value="$emit('update:modelValue', $event)"
   >
     <div class="add-card-modal">
-      <div class="search-section">
-        <div class="search-box">
-          <SearchInput
-            v-model="searchQuery"
-            placeholder="Buscar cartas..."
-            :disabled="initialLoading"
-          />
-        </div>
-      </div>
+      <SearchWithPagination
+        v-model:search-query="searchQuery"
+        placeholder="Buscar cartas..."
+        :disabled="initialLoading"
+        :show-pagination="
+          filteredCards.length > 0 &&
+          !initialLoading &&
+          !searchLoading &&
+          !loadingStore.isLoading
+        "
+        :total-items="cardsStore.pagination.total || filteredCards.length"
+        :items-per-page="itemsPerPage"
+        :current-page="currentPage"
+        :loading="loading"
+        @page-change="handlePageChange"
+      />
 
       <div
         v-if="initialLoading || searchLoading || loading"
-        class="cards-loading"
+        class="d-flex flex-column align-center justify-center py-15"
       >
-        <LoadingSpinner 
-          :text="initialLoading
-            ? 'Carregando cartas disponíveis...'
-            : searchLoading
-            ? 'Buscando cartas...'
-            : 'Carregando página...'" 
-        />
+        <LoadingSpinner size="large" class="mb-4" />
+        <p class="text-grey text-center">
+          {{
+            initialLoading
+              ? "Carregando cartas disponíveis..."
+              : searchLoading
+              ? "Buscando cartas..."
+              : "Carregando página..."
+          }}
+        </p>
       </div>
 
       <div v-else-if="!loadingStore.isLoading && !loading" class="cards-grid">
@@ -34,27 +44,24 @@
           v-for="card in paginatedCards"
           :key="card.id"
           :card="card"
-          :selectable="!isCardOwned(card.id)"
+          :selectable="true"
           :selected="selectedCards.includes(card.id)"
-          :clickable="!isCardOwned(card.id)"
+          :clickable="true"
           size="sm"
           variant="compact"
           :show-description="true"
           :max-description-length="80"
-          :class="{ 'owned-card': isCardOwned(card.id) }"
           @click="handleCardClick(card.id)"
           @select="handleCardSelect"
-        >
-          <template v-if="isCardOwned(card.id)" #overlay>
-            <div class="owned-overlay">
-              <span class="owned-badge">✓ Já possui</span>
-            </div>
-          </template>
-        </Card>
+        />
       </div>
 
-      <div v-else-if="loadingStore.isLoading" class="cards-loading">
-        <LoadingSpinner text="Adicionando cartas à sua coleção..." />
+      <div
+        v-else-if="loadingStore.isLoading"
+        class="d-flex flex-column align-center justify-center py-15"
+      >
+        <LoadingSpinner size="large" class="mb-4" />
+        <p class="text-grey text-center">Adicionando cartas à sua coleção...</p>
       </div>
 
       <div
@@ -64,11 +71,13 @@
           !searchLoading &&
           !searchQuery
         "
-        class="no-results"
+        class="d-flex flex-column align-center justify-center py-15 text-center"
       >
-        <div class="no-results-icon">🔍</div>
-        <h3>Nenhuma carta encontrada</h3>
-        <p>Nenhuma carta disponível no sistema</p>
+        <v-icon size="64" color="grey-lighten-1" class="mb-4"
+          >mdi-magnify</v-icon
+        >
+        <h3 class="text-h6 mb-2 text-grey">Nenhuma carta encontrada</h3>
+        <p class="text-body-2 text-grey">Nenhuma carta disponível no sistema</p>
       </div>
 
       <div
@@ -78,48 +87,31 @@
           !searchLoading &&
           searchQuery
         "
-        class="no-results"
+        class="d-flex flex-column align-center justify-center py-15 text-center"
       >
-        <div class="no-results-icon">🔍</div>
-        <h3>Nenhuma carta encontrada</h3>
-        <p>Tente ajustar sua busca</p>
+        <v-icon size="64" color="grey-lighten-1" class="mb-4"
+          >mdi-magnify</v-icon
+        >
+        <h3 class="text-h6 mb-2 text-grey">Nenhuma carta encontrada</h3>
+        <p class="text-body-2 text-grey">Tente ajustar sua busca</p>
       </div>
     </div>
 
     <template #footer>
-      <div style="width: 100%">
-        <SimplePagination
-          v-if="
-            filteredCards.length > 0 &&
-            !initialLoading &&
-            !searchLoading &&
-            !loadingStore.isLoading
-          "
-          :total-items="cardsStore.pagination.total || filteredCards.length"
-          :items-per-page="itemsPerPage"
-          :current-page="currentPage"
-          :loading="loading"
-          @page-change="handlePageChange"
-        />
-
-        <div
-          style="
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-            margin-top: 16px;
-          "
-        >
-          <BaseButton
+      <div class="w-100">
+        <div class="d-flex ga-3 justify-end mt-4">
+          <v-btn
             @click="$emit('update:modelValue', false)"
-            color="secondary"
+            variant="outlined"
+            color="grey"
           >
             Cancelar
-          </BaseButton>
-          <BaseButton
+          </v-btn>
+          <v-btn
             @click="handleAddCards"
             color="primary"
             :disabled="selectedCards.length === 0 || loadingStore.isLoading"
+            :loading="loadingStore.isLoading"
           >
             <span v-if="loadingStore.isLoading">Adicionando...</span>
             <span v-else
@@ -127,7 +119,7 @@
                 selectedCards.length !== 1 ? "s" : ""
               }}</span
             >
-          </BaseButton>
+          </v-btn>
         </div>
       </div>
     </template>
@@ -140,12 +132,10 @@ import { useCardsStore } from "../../../stores/cards";
 import { useLoadingStore } from "../../../stores/loading";
 import { useNotificationStore } from "../../../stores/notification";
 import BaseModal from "../../common/BaseModal.vue";
-import BaseButton from "../../common/BaseButton.vue";
 import Card from "../../common/Card.vue";
-import SimplePagination from "../../common/SimplePagination.vue";
 import LoadingSpinner from "../../common/LoadingSpinner.vue";
+import SearchWithPagination from "../../common/SearchWithPagination.vue";
 import type { Card as CardType } from "../../../types";
-import SearchInput from "../../common/SearchInput.vue";
 
 interface Props {
   modelValue: boolean;
@@ -178,9 +168,6 @@ const isOpen = computed({
 
 const loading = computed(() => cardsStore.loading);
 const allCards = computed(() => cardsStore.allCards);
-const userCards = computed(() => cardsStore.userCards);
-
-const userCardIds = computed(() => userCards.value.map((card) => card.id));
 
 const paginatedCards = computed(() => {
   return filteredCards.value;
@@ -248,7 +235,6 @@ watch(
 async function fetchAllCards() {
   initialLoading.value = true;
   try {
-    await cardsStore.fetchUserCards();
     await cardsStore.fetchAllCards(currentPage.value, itemsPerPage.value);
   } finally {
     initialLoading.value = false;
@@ -273,14 +259,8 @@ function toggleCardSelection(cardId: string) {
   }
 }
 
-function isCardOwned(cardId: string): boolean {
-  return userCardIds.value.includes(cardId);
-}
-
 function handleCardClick(cardId: string) {
-  if (!isCardOwned(cardId)) {
-    toggleCardSelection(cardId);
-  }
+  toggleCardSelection(cardId);
 }
 
 function handleCardSelect(card: CardType, selected: boolean) {
@@ -300,23 +280,25 @@ async function handleAddCards() {
   if (selectedCards.value.length === 0) return;
 
   loadingStore.startLoading();
-  
+
   try {
     await cardsStore.addCardsToUser(selectedCards.value);
-    
+
     notificationStore.show(
-      `${selectedCards.value.length} carta${selectedCards.value.length !== 1 ? 's' : ''} adicionada${selectedCards.value.length !== 1 ? 's' : ''} com sucesso!`,
-      'success'
+      `${selectedCards.value.length} carta${
+        selectedCards.value.length !== 1 ? "s" : ""
+      } adicionada${selectedCards.value.length !== 1 ? "s" : ""} com sucesso!`,
+      "success"
     );
-    
+
     selectedCards.value = [];
     emit("cards-added");
     emit("update:modelValue", false);
   } catch (error: any) {
     console.error("Erro ao adicionar cartas:", error);
     notificationStore.show(
-      error.message || 'Erro ao adicionar cartas à sua coleção',
-      'error'
+      error.message || "Erro ao adicionar cartas à sua coleção",
+      "error"
     );
   } finally {
     loadingStore.stopLoading();
@@ -324,104 +306,20 @@ async function handleAddCards() {
 }
 </script>
 
-<style scoped lang="scss">
-@use "../../../styles/_variables.scss" as *;
-
-.add-card-modal {
-  .search-section {
-    margin-bottom: 24px;
-
-    .search-box {
-      position: relative;
-    }
-  }
-
-  .cards-loading {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 20px;
-    color: $gray-600;
-  }
-
-  .cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
-    max-height: 400px;
-    overflow-y: auto;
-    padding: 4px;
-  }
-
-  .owned-card {
-    opacity: 0.6;
-    filter: grayscale(30%);
-    pointer-events: none;
-    position: relative;
-
-    .owned-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba($success, 0.1);
-      display: flex;
-      align-items: flex-start;
-      justify-content: flex-end;
-      padding: 8px;
-      z-index: 10;
-
-      .owned-badge {
-        background: $success;
-        color: $white;
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 10px;
-        font-weight: 600;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      }
-    }
-
-    &:hover {
-      transform: none !important;
-      box-shadow: none !important;
-    }
-  }
-
-  .no-results {
-    text-align: center;
-    padding: 60px 20px;
-    color: $gray-600;
-
-    .no-results-icon {
-      font-size: 48px;
-      margin-bottom: 16px;
-      opacity: 0.6;
-    }
-
-    h3 {
-      margin: 0 0 8px 0;
-      font-size: 18px;
-      font-weight: 600;
-    }
-
-    p {
-      margin: 0;
-      font-size: 14px;
-    }
-  }
-
-
+<style scoped>
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 4px;
 }
 
 @media (max-width: 768px) {
-  .add-card-modal {
-    .cards-grid {
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 12px;
-    }
+  .cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
   }
 }
 </style>

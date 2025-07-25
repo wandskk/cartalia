@@ -1,61 +1,35 @@
 <template>
-  <div class="quick-actions">
-    <h3>Ações Rápidas</h3>
-    
+  <div class="mb-0">
+    <h3 class="text-h4 font-weight-bold text-center mb-8">Ações Rápidas</h3>
+
     <div class="actions-grid">
-      <div class="action-card" @click="goToCards">
-        <div class="action-icon">🃏</div>
-        <div class="action-content">
-          <h4>Minhas Cartas</h4>
-          <p>Visualize e gerencie sua coleção de cartas</p>
-          <div class="action-meta">
-            <span class="card-count">{{ totalCards }} carta{{ totalCards !== 1 ? 's' : '' }}</span>
-          </div>
+      <v-card
+        v-for="action in actions"
+        :key="action.title"
+        @click="action.handler"
+        class="action-card d-flex align-center pa-6 ga-6"
+        elevation="2"
+      >
+        <div class="d-flex align-center justify-center mb-3">
+          <v-icon :icon="action.icon" size="28" color="primary"></v-icon>
         </div>
-        <div class="action-arrow">→</div>
-      </div>
 
-      <div class="action-card" @click="goToMarketplace">
-        <div class="action-icon">🏪</div>
-        <div class="action-content">
-          <h4>Marketplace</h4>
-          <p>Explore trocas disponíveis no marketplace</p>
-          <div class="action-meta">
-            <span class="marketplace-count">{{ marketplaceTrades }} troca{{ marketplaceTrades !== 1 ? 's' : '' }} disponíve{{ marketplaceTrades !== 1 ? 'is' : 'l' }}</span>
-          </div>
+        <div class="flex-grow-1 min-width-0">
+          <h4 class="text-h6 font-weight-bold mb-2">{{ action.title }}</h4>
+          <p class="text-body-2 text-grey mb-3">{{ action.description }}</p>
+          <v-chip :color="action.chipColor" variant="tonal" size="small">
+            {{ action.meta }}
+          </v-chip>
         </div>
-        <div class="action-arrow">→</div>
-      </div>
 
-      <div class="action-card" @click="goToMyTrades">
-        <div class="action-icon">📋</div>
-        <div class="action-content">
-          <h4>Minhas Trocas</h4>
-          <p>Gerencie suas solicitações de troca</p>
-          <div class="action-meta">
-            <span class="trades-count">{{ userTrades }} troca{{ userTrades !== 1 ? 's' : '' }} ativa{{ userTrades !== 1 ? 's' : '' }}</span>
-          </div>
-        </div>
-        <div class="action-arrow">→</div>
-      </div>
-
-      <div class="action-card" @click="goToCreateTrade">
-        <div class="action-icon">➕</div>
-        <div class="action-content">
-          <h4>Nova Troca</h4>
-          <p>Crie uma nova solicitação de troca</p>
-          <div class="action-meta">
-            <span class="create-hint">Criar agora</span>
-          </div>
-        </div>
-        <div class="action-arrow">→</div>
-      </div>
+        <v-icon size="20" color="grey">mdi-chevron-right</v-icon>
+      </v-card>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
+import { useRouter } from "vue-router";
 
 interface Props {
   totalCards: number;
@@ -63,230 +37,122 @@ interface Props {
   marketplaceTrades: number;
 }
 
-defineProps<Props>();
-
+const props = defineProps<Props>();
 const router = useRouter();
 
-function goToCards() {
-  router.push('/cards');
-}
-
-function goToMarketplace() {
-  router.push('/marketplace');
-}
-
-function goToMyTrades() {
-  router.push('/my-trades');
-}
-
-function goToCreateTrade() {
-  router.push('/my-trades');
-}
+const actions = [
+  {
+    title: "Adicionar Cartas",
+    description: "Adicione cartas à sua coleção",
+    icon: "mdi-cards",
+    meta: `${props.totalCards} cart${props.totalCards !== 1 ? "as" : "a"}`,
+    action: () => router.push("/cards"),
+  },
+  {
+    icon: "mdi-store",
+    title: "Marketplace",
+    description: "Explore trocas disponíveis no marketplace",
+    meta: `${props.marketplaceTrades} troca${
+      props.marketplaceTrades !== 1 ? "s" : ""
+    } disponíve${props.marketplaceTrades !== 1 ? "is" : "l"}`,
+    chipColor: "secondary",
+    handler: () => router.push("/marketplace"),
+  },
+  {
+    icon: "mdi-clipboard-list",
+    title: "Minhas Trocas",
+    description: "Gerencie suas solicitações de troca",
+    meta: `${props.userTrades} troca${props.userTrades !== 1 ? "s" : ""} ativa${
+      props.userTrades !== 1 ? "s" : ""
+    }`,
+    chipColor: "info",
+    handler: () => router.push("/my-trades"),
+  },
+  {
+    icon: "mdi-plus-circle",
+    title: "Nova Troca",
+    description: "Crie uma nova solicitação de troca",
+    meta: "Criar agora",
+    chipColor: "success",
+    handler: () => router.push("/my-trades"),
+  },
+];
 </script>
 
-<style scoped lang="scss">
-@use '../../../styles/_variables.scss' as *;
+<style scoped>
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+  width: 100%;
+}
 
-.quick-actions {
-  margin-bottom: 0;
+.action-card {
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
 
-  h3 {
-    margin: 0 0 2rem 0;
-    color: #1e293b;
-    font-size: 1.5rem;
-    font-weight: 700;
-    line-height: 1.3;
-    text-align: center;
+.action-card:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(var(--v-theme-primary), 0.2);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
 
-    @media (max-width: 768px) {
-      font-size: 1.375rem;
-      margin-bottom: 1.5rem;
-    }
+.action-card:hover .v-icon {
+  transform: translateX(6px);
+  color: rgb(var(--v-theme-primary)) !important;
+}
 
-    @media (max-width: 480px) {
-      font-size: 1.25rem;
-      margin-bottom: 1.25rem;
-    }
-  }
-
+@media (max-width: 1024px) {
   .actions-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 1.5rem;
-    width: 100%;
-
-    @media (max-width: 1024px) {
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.25rem;
-    }
-
-    @media (max-width: 768px) {
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
-
-    @media (max-width: 480px) {
-      gap: 0.875rem;
-    }
-
-    .action-card {
-      background: rgba(255, 255, 255, 0.8);
-      backdrop-filter: blur(10px);
-      border-radius: 1.5rem;
-      padding: 2rem;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      position: relative;
-      overflow: hidden;
-
-      @media (max-width: 768px) {
-        padding: 1.5rem;
-        gap: 1.25rem;
-      }
-
-      @media (max-width: 480px) {
-        padding: 1.25rem;
-        gap: 1rem;
-      }
-
-      &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-      }
-
-      &:hover {
-        transform: translateY(-4px);
-        background: rgba(255, 255, 255, 0.95);
-        border-color: rgba(59, 130, 246, 0.2);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-
-        &::before {
-          opacity: 1;
-        }
-
-        .action-arrow {
-          transform: translateX(6px);
-          color: #3b82f6;
-        }
-      }
-
-      .action-icon {
-        width: 4rem;
-        height: 4rem;
-        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-        border-radius: 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.75rem;
-        flex-shrink: 0;
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        transition: all 0.3s ease;
-
-        @media (max-width: 768px) {
-          width: 3.5rem;
-          height: 3.5rem;
-          font-size: 1.5rem;
-          border-radius: 0.875rem;
-        }
-
-        @media (max-width: 480px) {
-          width: 3rem;
-          height: 3rem;
-          font-size: 1.25rem;
-          border-radius: 0.75rem;
-        }
-      }
-
-      .action-content {
-        flex: 1;
-        min-width: 0;
-
-        h4 {
-          margin: 0 0 0.5rem 0;
-          color: #1e293b;
-          font-size: 1.25rem;
-          font-weight: 700;
-          line-height: 1.3;
-
-          @media (max-width: 768px) {
-            font-size: 1.125rem;
-            margin-bottom: 0.375rem;
-          }
-
-          @media (max-width: 480px) {
-            font-size: 1rem;
-            margin-bottom: 0.25rem;
-          }
-        }
-
-        p {
-          margin: 0 0 0.75rem 0;
-          color: #64748b;
-          font-size: 0.9375rem;
-          line-height: 1.5;
-
-          @media (max-width: 768px) {
-            font-size: 0.875rem;
-            margin-bottom: 0.625rem;
-          }
-
-          @media (max-width: 480px) {
-            font-size: 0.8125rem;
-            margin-bottom: 0.5rem;
-          }
-        }
-
-        .action-meta {
-          .card-count,
-          .marketplace-count,
-          .trades-count,
-          .create-hint {
-            font-size: 0.75rem;
-            color: #3b82f6;
-            font-weight: 600;
-            background: rgba(59, 130, 246, 0.1);
-            padding: 0.375rem 0.75rem;
-            border-radius: 1rem;
-            display: inline-block;
-            line-height: 1.2;
-
-            @media (max-width: 480px) {
-              font-size: 0.6875rem;
-              padding: 0.25rem 0.5rem;
-              border-radius: 0.75rem;
-            }
-          }
-        }
-      }
-
-      .action-arrow {
-        color: #94a3b8;
-        font-size: 1.25rem;
-        font-weight: 600;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        flex-shrink: 0;
-
-        @media (max-width: 768px) {
-          font-size: 1.125rem;
-        }
-
-        @media (max-width: 480px) {
-          font-size: 1rem;
-        }
-      }
-    }
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
   }
 }
-</style> 
+
+@media (max-width: 768px) {
+  .actions-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .action-card {
+    padding: 20px !important;
+    gap: 16px !important;
+  }
+
+  .action-card .v-avatar {
+    width: 56px !important;
+    height: 56px !important;
+  }
+
+  .action-card .v-avatar span {
+    font-size: 24px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .actions-grid {
+    gap: 14px;
+  }
+
+  .action-card {
+    padding: 16px !important;
+    gap: 12px !important;
+  }
+
+  .action-card .v-avatar {
+    width: 48px !important;
+    height: 48px !important;
+  }
+
+  .action-card .v-avatar span {
+    font-size: 20px !important;
+  }
+}
+</style>
