@@ -30,34 +30,28 @@
           {{ trades.length }} troca{{ trades.length !== 1 ? 's' : '' }} encontrada{{ trades.length !== 1 ? 's' : '' }}
         </h3>
       </div>
-      <v-row class="mb-6" dense>
-        <v-col
+      
+      <div class="trades-list">
+        <TradeItem
           v-for="trade in trades"
           :key="trade.id"
-          cols="12"
-          md="6"
-          lg="4"
-          class="mb-2"
-        >
-          <TradeItem
-            :trade="trade"
-            :show-actions="false"
-            :show-status="true"
-            status="active"
-            @delete="handleDeleteTrade"
-          />
-        </v-col>
-      </v-row>
-      <div v-if="showPagination && pagination.more" class="d-flex justify-center mt-6 pt-4 border-t">
-        <v-btn 
-          @click="loadMore" 
-          :loading="loading"
-          color="secondary"
-          variant="elevated"
-        >
-          Carregar mais trocas
-        </v-btn>
+          :trade="trade"
+          :show-actions="false"
+          :show-status="true"
+          status="active"
+          class="mb-3"
+          @delete="handleDeleteTrade"
+        />
       </div>
+      
+      <SimplePagination
+        v-if="showPagination && pagination.total > 0"
+        :total-items="pagination.total"
+        :items-per-page="pagination.rpp"
+        :current-page="pagination.page"
+        :loading="loading"
+        @page-change="handlePageChange"
+      />
     </div>
 
     <div v-if="loading && trades.length > 0" class="d-flex flex-column align-center justify-center py-6 text-grey">
@@ -73,6 +67,7 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../../stores/auth';
 import { useNotificationStore } from '../../../stores/notification';
 import TradeItem from './TradeItem.vue';
+import SimplePagination from '../../common/SimplePagination.vue';
 import type { Trade } from '../../../types';
 
 interface Props {
@@ -83,13 +78,14 @@ interface Props {
   pagination?: {
     page: number;
     rpp: number;
+    total: number;
     more: boolean;
   };
 }
 
 interface Emits {
   (e: 'retry'): void;
-  (e: 'load-more'): void;
+  (e: 'page-change', page: number): void;
   (e: 'delete', tradeId: string): void;
 }
 
@@ -100,6 +96,7 @@ withDefaults(defineProps<Props>(), {
   pagination: () => ({
     page: 1,
     rpp: 10,
+    total: 0,
     more: false
   })
 });
@@ -116,8 +113,8 @@ function retry() {
   emit('retry');
 }
 
-function loadMore() {
-  emit('load-more');
+function handlePageChange(page: number) {
+  emit('page-change', page);
 }
 
 function goToCreateTrade() {
@@ -141,8 +138,14 @@ async function handleDeleteTrade(trade: Trade) {
 }
 </script>
 
-<style scoped lang="scss">
+<style scoped>
 .trade-list {
   width: 100%;
+}
+
+.trades-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 </style> 

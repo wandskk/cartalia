@@ -7,18 +7,18 @@
       >
         <template #actions>
           <div v-if="isAuthenticated" class="header-actions">
-            <BaseButton @click="goToCreateTrade" color="primary">
+            <v-btn @click="goToCreateTrade" color="primary" variant="elevated">
               Criar Nova Troca
-            </BaseButton>
+            </v-btn>
           </div>
 
           <div v-else class="header-actions">
-            <BaseButton @click="goToLogin" color="primary">
+            <v-btn @click="goToLogin" color="primary" variant="elevated">
               Fazer Login
-            </BaseButton>
-            <BaseButton @click="goToRegister" color="secondary">
+            </v-btn>
+            <v-btn @click="goToRegister" variant="outlined" color="grey">
               Cadastrar
-            </BaseButton>
+            </v-btn>
           </div>
         </template>
       </PageHeader>
@@ -28,20 +28,22 @@
           <StatCard :number="filteredTradesCount" label="Trocas Disponíveis" />
         </div>
 
-        <div class="trades-section">
-          <TradeFilters @filters-change="handleFiltersChange" />
+        <v-card class="trades-section" elevation="2">
+          <v-card-text class="pa-6">
+            <TradeFilters @filters-change="handleFiltersChange" />
 
-          <TradeList
-            :trades="filteredTradesList"
-            :loading="loading"
-            :error="error"
-            :show-pagination="true"
-            :pagination="pagination"
-            @retry="fetchTrades"
-            @load-more="loadMoreTrades"
-            @delete="handleDeleteTrade"
-          />
-        </div>
+            <TradeList
+              :trades="filteredTradesList"
+              :loading="loading"
+              :error="error"
+              :show-pagination="true"
+              :pagination="pagination"
+              @retry="fetchTrades"
+              @page-change="handlePageChange"
+              @delete="handleDeleteTrade"
+            />
+          </v-card-text>
+        </v-card>
       </div>
     </Container>
   </div>
@@ -54,7 +56,6 @@ import { useTradesStore } from "../stores/trades";
 import { useAuthStore } from "../stores/auth";
 import { useMarketplaceFilters } from "../composables/useMarketplaceFilters";
 import Container from "../components/common/Container.vue";
-import BaseButton from "../components/common/BaseButton.vue";
 import PageHeader from "../components/common/PageHeader.vue";
 import TradeList from "../components/features/trades/TradeList.vue";
 import TradeFilters from "../components/features/trades/TradeFilters.vue";
@@ -87,9 +88,8 @@ async function fetchTrades() {
   await tradesStore.fetchAllTrades();
 }
 
-async function loadMoreTrades() {
-  const nextPage = pagination.value.page + 1;
-  await tradesStore.fetchAllTrades(nextPage, pagination.value.rpp);
+async function handlePageChange(page: number) {
+  await tradesStore.fetchAllTrades(page, pagination.value.rpp);
 }
 
 async function handleDeleteTrade(tradeId: string) {
@@ -113,52 +113,41 @@ function goToRegister() {
 }
 </script>
 
-<style scoped lang="scss">
-@use "../styles/_variables.scss" as *;
-
+<style scoped>
 .marketplace-view {
   min-height: 100vh;
-  background: $gray-50;
+  background: #f8fafc;
+}
 
-  .marketplace-content {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
+.marketplace-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
 
-  .stats-section {
-    display: flex;
-  }
+.stats-section {
+  display: flex;
+}
 
-  .trades-section {
-    background: $white;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
+.trades-section {
+  border-radius: 12px;
+}
 
-  .header-actions {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-
-    @media (max-width: 768px) {
-      width: 100%;
-      justify-content: center;
-      margin-top: 16px;
-    }
-  }
+.header-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 @media (max-width: 768px) {
-  .marketplace-view {
-    .marketplace-content {
-      gap: 16px;
-    }
+  .marketplace-content {
+    gap: 16px;
+  }
 
-    .trades-section {
-      padding: 16px;
-    }
+  .header-actions {
+    width: 100%;
+    justify-content: center;
+    margin-top: 16px;
   }
 }
 </style>

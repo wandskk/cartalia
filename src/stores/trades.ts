@@ -12,6 +12,7 @@ export const useTradesStore = defineStore('trades', () => {
   const pagination = ref({
     page: 1,
     rpp: 10,
+    total: 0,
     more: false
   });
 
@@ -38,6 +39,7 @@ export const useTradesStore = defineStore('trades', () => {
       pagination.value = {
         page: response.page,
         rpp: response.rpp,
+        total: response.list.length,
         more: response.more
       };
     } catch (err: any) {
