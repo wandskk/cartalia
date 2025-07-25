@@ -39,7 +39,7 @@ describe('CardPreview', () => {
 
     const vImg = wrapper.find('.v-img');
     expect(vImg.exists()).toBe(true);
-    // Test that the image element exists and has the expected attributes
+
     expect(vImg.element.tagName).toBe('IMG');
   });
 

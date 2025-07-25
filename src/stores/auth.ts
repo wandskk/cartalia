@@ -13,7 +13,7 @@ export const useAuthStore = defineStore("auth", () => {
   const token = ref<string | null>(localStorage.getItem("tokenCartalia"));
   const isAuthenticated = computed(() => !!token.value && !!user.value);
 
-  // Initialize user from localStorage
+
   const storedUser = localStorage.getItem("userCartalia");
   if (storedUser) {
     try {
@@ -64,5 +64,5 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
-  return { user, token, isAuthenticated, login, register, logout, fetchUserProfile };
+  return { user, token, isAuthenticated, setUser, login, register, logout, fetchUserProfile };
 });

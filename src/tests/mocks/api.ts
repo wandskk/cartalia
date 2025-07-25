@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 import type { User, Card, Trade, LoginResponse, RegisterResponse } from '../../types';
 
-// Mock responses
+
 export const mockUser: User = {
   id: 'user-1',
   name: 'Test User',
@@ -53,14 +53,14 @@ export const mockRegisterResponse: RegisterResponse = {
   userId: 'user-1'
 };
 
-// Mock API functions
+
 export const mockApi = {
-  // Auth
+
   login: vi.fn().mockResolvedValue(mockLoginResponse),
   register: vi.fn().mockResolvedValue(mockRegisterResponse),
   getUserProfile: vi.fn().mockResolvedValue(mockUser),
   
-  // Cards
+
   getAllCards: vi.fn().mockResolvedValue({
     list: mockCards,
     rpp: 10,
@@ -71,7 +71,7 @@ export const mockApi = {
   getUserCards: vi.fn().mockResolvedValue(mockCards),
   addCardsToUser: vi.fn().mockResolvedValue({ success: true }),
   
-  // Trades
+
   getAllTrades: vi.fn().mockResolvedValue({
     list: mockTrades,
     rpp: 10,
@@ -83,7 +83,7 @@ export const mockApi = {
   deleteTrade: vi.fn().mockResolvedValue({ success: true })
 };
 
-// Mock axios
+
 export const mockAxios = {
   get: vi.fn(),
   post: vi.fn(),
@@ -95,15 +95,15 @@ export const mockAxios = {
   }
 };
 
-// Mock fetch
+
 export const mockFetch = vi.fn();
 
-// Setup global fetch mock
+
 global.fetch = mockFetch;
 
-// Helper para configurar respostas de API
+
 export function setupApiMocks() {
-  // Reset all mocks
+
   Object.values(mockApi).forEach(mock => mock.mockClear());
   mockAxios.get.mockClear();
   mockAxios.post.mockClear();
@@ -111,7 +111,7 @@ export function setupApiMocks() {
   mockAxios.delete.mockClear();
   mockFetch.mockClear();
   
-  // Setup default responses
+
   mockApi.login.mockResolvedValue(mockLoginResponse);
   mockApi.register.mockResolvedValue(mockRegisterResponse);
   mockApi.getUserProfile.mockResolvedValue(mockUser);
@@ -135,7 +135,7 @@ export function setupApiMocks() {
   mockApi.deleteTrade.mockResolvedValue({ success: true });
 }
 
-// Helper para simular erro de API
+
 export function setupApiError(error: any = new Error('API Error')) {
   Object.values(mockApi).forEach(mock => mock.mockRejectedValue(error));
   mockAxios.get.mockRejectedValue(error);
@@ -145,7 +145,7 @@ export function setupApiError(error: any = new Error('API Error')) {
   mockFetch.mockRejectedValue(error);
 }
 
-// Helper para simular delay de API
+
 export function setupApiDelay(delay: number = 1000) {
   Object.values(mockApi).forEach(mock => {
     mock.mockImplementation(() => new Promise(resolve => setTimeout(resolve, delay)));

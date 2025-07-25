@@ -23,11 +23,7 @@
       @page-change="handlePageChange"
     />
 
-    <LoadingOverlay 
-      :loading="loading"
-      :message="loadingMessage"
-      :size="32"
-    />
+    <LoadingOverlay :loading="loading" :message="loadingMessage" :size="32" />
 
     <div v-if="!loading" class="cards-grid flex-grow-1">
       <Card
@@ -50,7 +46,9 @@
       v-if="paginatedCards.length === 0 && !loading"
       class="d-flex flex-column align-center justify-center py-15 text-center"
     >
-      <v-icon size="64" color="grey-lighten-1" class="mb-4">{{ emptyIcon }}</v-icon>
+      <v-icon size="64" color="grey-lighten-1" class="mb-4">{{
+        emptyIcon
+      }}</v-icon>
       <h3 class="text-h6 mb-2 text-grey">Nenhuma carta encontrada</h3>
       <p class="text-body-2 text-grey" v-if="search.hasQuery.value">
         Tente ajustar sua busca
@@ -63,13 +61,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue';
-import { useCardSelection } from '../../../composables/useCardSelection';
-import { useSearch } from '../../../composables/useSearch';
-import SearchWithPagination from '../../common/SearchWithPagination.vue';
-import LoadingOverlay from '../../common/LoadingOverlay.vue';
-import Card from '../../common/Card.vue';
-import type { Card as CardType } from '../../../types';
+import { computed, watch } from "vue";
+import { useCardSelection } from "../../../composables/useCardSelection";
+import { useSearch } from "../../../composables/useSearch";
+import SearchWithPagination from "../../common/SearchWithPagination.vue";
+import LoadingOverlay from "../../common/LoadingOverlay.vue";
+import Card from "../../common/Card.vue";
+import type { Card as CardType } from "../../../types";
 
 interface Props {
   title: string;
@@ -94,19 +92,21 @@ interface Props {
 
 const props = defineProps<Props>();
 
-// Composables
 const cardSelection = useCardSelection({
-  initialSelection: props.selectedCards
+  initialSelection: props.selectedCards,
 });
 
 const search = useSearch({
   initialQuery: props.searchQuery,
-  debounceMs: 500
+  debounceMs: 500,
 });
 
-// Computed
 const filteredCards = computed(() => {
-  return search.filterByQuery(props.cards, ['name', 'description'], search.debouncedQuery.value);
+  return search.filterByQuery(
+    props.cards,
+    ["name", "description"],
+    search.debouncedQuery.value
+  );
 });
 
 const totalFilteredItems = computed(() => {
@@ -123,7 +123,6 @@ const showPagination = computed(() => {
   return totalFilteredItems.value > props.itemsPerPage;
 });
 
-// Methods
 function handleCardClick(cardId: string) {
   props.onCardToggle(cardId);
 }
@@ -136,19 +135,22 @@ function handlePageChange(page: number) {
   props.onPageChange(page);
 }
 
-// Watch for external changes
-watch(() => props.selectedCards, () => {
-  cardSelection.selectedCards.value = [...props.selectedCards];
-}, { deep: true });
+watch(
+  () => props.selectedCards,
+  () => {
+    cardSelection.selectedCards.value = [...props.selectedCards];
+  },
+  { deep: true }
+);
 
-watch(() => props.searchQuery, (newQuery) => {
-  search.setQuery(newQuery);
-});
+watch(
+  () => props.searchQuery,
+  (newQuery) => {
+    search.setQuery(newQuery);
+  }
+);
 
-// Emit changes back to parent
-watch(cardSelection.selectedCards, () => {
-  // This will be handled by the parent component
-}, { deep: true });
+watch(cardSelection.selectedCards, () => {}, { deep: true });
 
 watch(search.searchQuery, (newQuery) => {
   props.onSearchChange(newQuery);
@@ -171,4 +173,4 @@ watch(search.searchQuery, (newQuery) => {
     gap: 12px;
   }
 }
-</style> 
+</style>

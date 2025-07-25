@@ -165,7 +165,7 @@ describe('useSteps', () => {
         validateStep: (step) => step !== 1 // Disable step 1
       });
 
-      // Should be able to go directly to step 2 since step 1 is not in the path
+
       const result = validateSteps.goToStep(2);
       expect(result).toBe(false); // Should fail because step 1 is invalid and in the path
       expect(validateSteps.currentStep.value).toBe(0);

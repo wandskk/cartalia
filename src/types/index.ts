@@ -1,23 +1,30 @@
-// API Types
 export * from './api';
-
-// Auth Types
 export * from './auth';
-
-// Card Types
 export * from './cards';
-
-// Common Types
 export * from './common';
-
-// Component Types
 export * from './components';
-
-// Store Types
 export * from './store';
-
-// Trade Types
 export * from './trades';
-
-// Modal Types
-export * from './modals'; 
+export type { 
+  BaseModalProps,
+  BaseModalEmits,
+  ConfirmationModalProps,
+  FormModalProps,
+  ListModalProps,
+  LoadingModalProps,
+  LoadingModalState,
+  ErrorModalProps,
+  ErrorModalState,
+  EmptyModalProps,
+  EmptyModalState,
+  PaginationModalProps,
+  PaginationModalState,
+  SearchModalProps,
+  SearchModalState,
+  SelectionModalProps,
+  SelectionModalState,
+  FilterModalProps,
+  FilterModalState,
+  NotificationModalProps,
+  NotificationModalState
+} from './modals'; 

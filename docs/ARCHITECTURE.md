@@ -131,43 +131,43 @@ services/
 
 #### Arquivos e Pastas
 ```typescript
-// PascalCase para componentes
+
 BaseButton.vue
 UserProfile.vue
 
-// camelCase para utilitários e serviços
+
 authService.ts
 errorHandler.ts
 
-// kebab-case para pastas
+
 feature-name/
 component-name/
 ```
 
 #### Variáveis e Funções
 ```typescript
-// camelCase para variáveis e funções
+
 const userName = 'John';
 const isLoading = ref(false);
 
 function handleUserLogin() {
-  // ...
+
 }
 
-// PascalCase para classes e interfaces
+
 interface UserData {
   id: string;
   name: string;
 }
 
 class AuthService {
-  // ...
+
 }
 ```
 
 #### Constantes
 ```typescript
-// UPPER_SNAKE_CASE para constantes
+
 const API_BASE_URL = 'https://api.example.com';
 const MAX_RETRY_ATTEMPTS = 3;
 ```
@@ -181,51 +181,51 @@ const MAX_RETRY_ATTEMPTS = 3;
 </template>
 
 <script setup lang="ts">
-// Imports externos primeiro
+
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 
-// Imports internos
+
 import BaseButton from '../common/BaseButton.vue';
 import { useAuthStore } from '../../stores/auth';
 
-// Types e interfaces
+
 interface Props {
   title: string;
   loading?: boolean;
 }
 
-// Props e emits
+
 const props = defineProps<Props>();
 const emit = defineEmits<{
   submit: [data: any];
 }>();
 
-// Composables
+
 const router = useRouter();
 const authStore = useAuthStore();
 
-// Refs e reactive
+
 const formData = ref({});
 
-// Computed
+
 const isValid = computed(() => {
-  // ...
+
 });
 
-// Methods
+
 function handleSubmit() {
-  // ...
+
 }
 
-// Lifecycle hooks
+
 onMounted(() => {
-  // ...
+
 });
 </script>
 
 <style scoped lang="scss">
-// Estilos sempre por último
+
 </style>
 ```
 
@@ -237,16 +237,16 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
 export const useFeatureStore = defineStore('feature', () => {
-  // State
+
   const items = ref<Item[]>([]);
   const loading = ref(false);
   const error = ref<string | null>(null);
 
-  // Getters
+
   const hasItems = computed(() => items.value.length > 0);
   const itemCount = computed(() => items.value.length);
 
-  // Actions
+
   async function fetchItems() {
     loading.value = true;
     error.value = null;
@@ -273,16 +273,16 @@ export const useFeatureStore = defineStore('feature', () => {
   }
 
   return {
-    // State
+
     items,
     loading,
     error,
     
-    // Getters
+
     hasItems,
     itemCount,
     
-    // Actions
+
     fetchItems,
     addItem,
     removeItem
@@ -294,7 +294,7 @@ export const useFeatureStore = defineStore('feature', () => {
 
 ### 🏭 Factory Pattern
 ```typescript
-// Factory para criação de componentes de erro
+
 export class ErrorFactory {
   static createApiError(message: string, status: number): AppError {
     return {
@@ -318,7 +318,7 @@ export class ErrorFactory {
 
 ### 🎯 Observer Pattern
 ```typescript
-// Store de notificações usando observer pattern
+
 export const useNotificationStore = defineStore('notification', () => {
   const notifications = ref<Notification[]>([]);
   const listeners = ref<Function[]>([]);
@@ -345,7 +345,7 @@ export const useNotificationStore = defineStore('notification', () => {
 
 ### 🔧 Strategy Pattern
 ```typescript
-// Estratégias de validação
+
 interface ValidationStrategy {
   validate(value: any): ValidationResult;
 }
@@ -421,7 +421,7 @@ User Action → Component → Store → Service → API
 ### 🔒 Headers de Segurança
 
 ```typescript
-// Headers configurados no Vercel
+
 {
   "X-Content-Type-Options": "nosniff",
   "X-Frame-Options": "DENY",
@@ -435,14 +435,14 @@ User Action → Component → Store → Service → API
 
 #### Code Splitting
 ```typescript
-// Lazy loading de rotas
+
 const LoginView = () => import('../views/LoginView.vue');
 const DashboardView = () => import('../views/DashboardView.vue');
 ```
 
 #### Bundle Optimization
 ```typescript
-// Vite config - Manual chunks
+
 rollupOptions: {
   output: {
     manualChunks: {
@@ -454,7 +454,7 @@ rollupOptions: {
 
 #### Caching Strategy
 ```javascript
-// Service Worker - Cache first
+
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)

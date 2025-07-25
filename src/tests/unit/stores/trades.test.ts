@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { useTradesStore } from '../../../stores/trades';
 
-// Mock dos serviços
+
 vi.mock('../../../services/modules/trades', () => ({
   TradeServices: {
     getAllTrades: vi.fn(),
@@ -11,7 +11,7 @@ vi.mock('../../../services/modules/trades', () => ({
   }
 }));
 
-// Mock das stores
+
 vi.mock('../../../stores/auth', () => ({
   useAuthStore: () => ({
     user: { id: 'user1', name: 'Test User' }

@@ -1,26 +1,25 @@
-// Tipos comuns reutilizáveis
-
-// Estados de loading
 export interface LoadingState {
   isLoading: boolean;
   error: string | null;
 }
 
-// Paginação
-export interface Pagination {
+export interface PaginationParams {
+  page: number;
+  rpp: number;
+}
+
+export interface PaginationResponse {
   page: number;
   rpp: number;
   more: boolean;
 }
 
-// Filtros básicos
 export interface BaseFilters {
   search?: string;
-  page: number;
-  rpp: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }
 
-// Respostas paginadas
 export interface PaginatedResponse<T> {
   list: T[];
   rpp: number;
@@ -28,7 +27,6 @@ export interface PaginatedResponse<T> {
   more: boolean;
 }
 
-// Tipos de notificação
 export type NotificationType = 'success' | 'error' | 'warning' | 'info';
 
 export interface Notification {
@@ -38,7 +36,6 @@ export interface Notification {
   duration?: number;
 }
 
-// Tipos de erro
 export type ErrorType = 'api' | 'validation' | 'network' | 'auth' | 'unknown';
 
 export interface AppError {
@@ -51,7 +48,6 @@ export interface AppError {
   stack?: string;
 }
 
-// Tipos de eventos
 export interface FormEvent {
   target: {
     value: string;

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="loading" class="loading-overlay" :class="{ 'overlay': overlay }">
+  <div v-if="loading" class="loading-overlay" :class="{ overlay: overlay }">
     <div class="loading-content">
       <v-progress-circular
         :size="size"
@@ -7,11 +7,11 @@
         :color="color"
         indeterminate
       />
-      
+
       <div v-if="message" class="loading-message">
         {{ message }}
       </div>
-      
+
       <div v-if="showSpinner" class="loading-spinner">
         <div class="spinner-dot"></div>
         <div class="spinner-dot"></div>
@@ -34,12 +34,12 @@ interface Props {
 
 withDefaults(defineProps<Props>(), {
   loading: false,
-  message: '',
+  message: "",
   size: 48,
   width: 4,
-  color: 'primary',
+  color: "primary",
   showSpinner: false,
-  overlay: true
+  overlay: true,
 });
 </script>
 
@@ -85,18 +85,20 @@ withDefaults(defineProps<Props>(), {
   border-radius: 50%;
   background-color: #1976d2;
   animation: spinner-bounce 1.4s ease-in-out infinite both;
-  
+
   &:nth-child(1) {
     animation-delay: -0.32s;
   }
-  
+
   &:nth-child(2) {
     animation-delay: -0.16s;
   }
 }
 
 @keyframes spinner-bounce {
-  0%, 80%, 100% {
+  0%,
+  80%,
+  100% {
     transform: scale(0);
   }
   40% {
@@ -104,10 +106,9 @@ withDefaults(defineProps<Props>(), {
   }
 }
 
-// Variants
 .loading-overlay:not(.overlay) {
   position: relative;
   background: transparent;
   backdrop-filter: none;
 }
-</style> 
+</style>

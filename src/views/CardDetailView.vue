@@ -98,7 +98,7 @@ const cardsStore = useCardsStore();
 const authStore = useAuthStore();
 const notification = useNotificationStore();
 
-// Composables
+
 const { isLoading: loading, withLoading } = useLoadingState();
 
 const cardId = computed(() => route.params.id as string);

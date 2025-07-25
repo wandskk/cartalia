@@ -112,7 +112,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useAuthStore } from '../../../stores/auth';
-import { dateFormatters, textFormatters, arrayFormatters, statusFormatters } from '../../../utils/formatters';
+import { formatDate, formatStatus } from '../../../utils/formatters';
 import CardPreview from '../../common/CardPreview.vue';
 import type { Trade } from '../../../types';
 import type { Card } from '../../../types/cards';
@@ -140,11 +140,11 @@ const emit = defineEmits<Emits>();
 const authStore = useAuthStore();
 
 const formattedDate = computed(() => {
-  return dateFormatters.formatDate(props.trade.createdAt);
+  return formatDate(props.trade.createdAt);
 });
 
 const formattedId = computed(() => {
-  return textFormatters.formatId(props.trade.id);
+  return `#${props.trade.id.slice(0, 8)}`;
 });
 
 const offeringCards = computed(() => {
@@ -164,15 +164,23 @@ const canDelete = computed(() => {
 });
 
 const statusText = computed(() => {
-  return statusFormatters.formatTradeStatus(props.status);
+  return formatStatus(props.status);
 });
 
 const statusColor = computed(() => {
-  return statusFormatters.getStatusColor(props.status);
+  const colorMap: Record<string, string> = {
+    'active': 'success',
+    'completed': 'primary',
+    'expired': 'error',
+    'pending': 'warning',
+    'cancelled': 'grey'
+  };
+  return colorMap[props.status] || 'grey';
 });
 
 const cardsCountText = computed(() => {
-  return arrayFormatters.formatCount(props.trade.tradeCards.length, 'carta');
+  const count = props.trade.tradeCards.length;
+  return `${count} carta${count !== 1 ? 's' : ''}`;
 });
 
 function handleCardClick(card: Card) {

@@ -82,14 +82,12 @@ export function usePagination(options: UsePaginationOptions = {}) {
     if (items > 0) {
       const limitedItems = Math.min(items, maxItemsPerPage);
       itemsPerPage.value = limitedItems;
-      // Reset to first page when changing items per page
       currentPage.value = 1;
     }
   }
 
   function setTotalItems(total: number): void {
     totalItemsCount.value = total;
-    // Adjust current page if it's now out of bounds
     if (currentPage.value > totalPages.value && totalPages.value > 0) {
       currentPage.value = totalPages.value;
     }
@@ -105,28 +103,27 @@ export function usePagination(options: UsePaginationOptions = {}) {
     setPage(page);
   }
 
-  // Helper function to get paginated items from an array
   function paginateItems<T>(items: T[]): T[] {
     return items.slice(startIndex.value, endIndex.value);
   }
 
-  // Helper function to get page numbers for pagination component
+
   function getPageNumbers(maxVisible: number = 5): number[] {
     const pages: number[] = [];
     const total = totalPages.value;
     const current = currentPage.value;
 
     if (total <= maxVisible) {
-      // Show all pages if total is less than max visible
+
       for (let i = 1; i <= total; i++) {
         pages.push(i);
       }
     } else {
-      // Calculate range to show
+
       let start = Math.max(1, current - Math.floor(maxVisible / 2));
       let end = Math.min(total, start + maxVisible - 1);
 
-      // Adjust start if end is at the limit
+
       if (end === total) {
         start = Math.max(1, end - maxVisible + 1);
       }
@@ -140,12 +137,12 @@ export function usePagination(options: UsePaginationOptions = {}) {
   }
 
   return {
-    // State
+
     currentPage,
     itemsPerPage,
     totalItemsCount,
     
-    // Computed
+
     totalPages,
     hasNext,
     hasPrev,
@@ -153,7 +150,7 @@ export function usePagination(options: UsePaginationOptions = {}) {
     endIndex,
     pageInfo,
     
-    // Methods
+
     setPage,
     nextPage,
     prevPage,

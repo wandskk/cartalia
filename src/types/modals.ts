@@ -1,109 +1,102 @@
-/**
- * Tipos para modais e componentes de UI
- */
-
-// Props base para modais
 export interface BaseModalProps {
   modelValue: boolean;
   title?: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  width?: string | number;
   persistent?: boolean;
-  closeOnOverlay?: boolean;
+  closeOnOverlayClick?: boolean;
   showCloseButton?: boolean;
 }
 
-// Emits base para modais
 export interface BaseModalEmits {
-  (e: 'update:modelValue', value: boolean): void;
-  (e: 'close'): void;
-  (e: 'confirm'): void;
-  (e: 'cancel'): void;
+  'update:modelValue': [value: boolean];
+  close: [];
+  confirm: [];
+  cancel: [];
 }
 
-// Props para modais de confirmação
 export interface ConfirmationModalProps extends BaseModalProps {
   message: string;
   confirmText?: string;
   cancelText?: string;
-  confirmColor?: string;
-  cancelColor?: string;
+  type?: 'warning' | 'error' | 'info' | 'success';
   loading?: boolean;
 }
 
-// Props para modais de formulário
 export interface FormModalProps extends BaseModalProps {
   loading?: boolean;
-  disabled?: boolean;
+  error?: string | null;
   submitText?: string;
   cancelText?: string;
+  onConfirm?: (data: any) => void;
+  onCancel?: () => void;
 }
 
-// Props para modais de lista
 export interface ListModalProps extends BaseModalProps {
   items: any[];
   loading?: boolean;
-  emptyMessage?: string;
-  searchable?: boolean;
-  selectable?: boolean;
-  multiple?: boolean;
-}
-
-// Estados de loading para modais
-export interface ModalLoadingState {
-  isLoading: boolean;
-  message?: string;
-  progress?: number;
-  indeterminate?: boolean;
-}
-
-// Props para componentes de loading em modais
-export interface ModalLoadingProps {
-  loading: boolean;
-  message?: string;
-  size?: 'small' | 'medium' | 'large';
-  color?: string;
-  overlay?: boolean;
-  progress?: number;
-  indeterminate?: boolean;
-}
-
-// Estados de erro para modais
-export interface ModalErrorState {
-  hasError: boolean;
-  message?: string;
-  details?: string;
-  retryable?: boolean;
-}
-
-// Props para componentes de erro em modais
-export interface ModalErrorProps {
   error?: string | null;
-  retryable?: boolean;
+  emptyMessage?: string;
+  onItemClick?: (item: any) => void;
   onRetry?: () => void;
-  showDetails?: boolean;
 }
 
-// Estados vazios
-export interface EmptyState {
+export interface LoadingModalProps {
+  loading: boolean;
+  text?: string;
+  showSpinner?: boolean;
+  showProgress?: boolean;
+  progress?: number;
+}
+
+export interface LoadingModalState {
+  isLoading: boolean;
+  loadingText: string;
+  showSpinner: boolean;
+  showProgress: boolean;
+  progressValue: number;
+}
+
+export interface ErrorModalProps {
+  error: string | null;
+  showIcon?: boolean;
+  retryText?: string;
+  onRetry?: () => void;
+}
+
+export interface ErrorModalState {
+  hasError: boolean;
+  errorMessage: string | null;
+  showRetryButton: boolean;
+}
+
+export interface EmptyModalProps {
   isEmpty: boolean;
-  message?: string;
-  icon?: string;
-  actionText?: string;
-  onAction?: () => void;
-}
-
-// Props para componentes de estado vazio
-export interface EmptyProps {
-  message?: string;
-  icon?: string;
-  actionText?: string;
-  onAction?: () => void;
+  emptyMessage: string;
+  emptyIcon?: string;
   showAction?: boolean;
+  actionText?: string;
+  onAction?: () => void;
 }
 
-// Estados de paginação para modais
-export interface ModalPaginationState {
-  page: number;
+export interface EmptyModalState {
+  isEmpty: boolean;
+  message: string;
+  icon: string;
+  showAction: boolean;
+  actionText: string;
+}
+
+export interface PaginationModalProps {
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  itemsPerPage: number;
+  onPageChange?: (page: number) => void;
+  onItemsPerPageChange?: (itemsPerPage: number) => void;
+}
+
+export interface PaginationModalState {
+  currentPage: number;
   totalPages: number;
   totalItems: number;
   itemsPerPage: number;
@@ -111,104 +104,85 @@ export interface ModalPaginationState {
   hasPrev: boolean;
 }
 
-// Props para componentes de paginação em modais
-export interface ModalPaginationProps {
-  currentPage: number;
-  totalPages: number;
-  totalItems: number;
-  itemsPerPage: number;
-  showInfo?: boolean;
-  showFirstLast?: boolean;
-  disabled?: boolean;
+export interface SearchModalProps {
+  searchQuery: string;
+  placeholder?: string;
+  loading?: boolean;
+  onSearch?: (query: string) => void;
+  onClear?: () => void;
+  debounce?: number;
 }
 
-// Estados de busca para modais
-export interface ModalSearchState {
+export interface SearchModalState {
   query: string;
   isSearching: boolean;
   hasResults: boolean;
-  totalResults: number;
 }
 
-// Props para componentes de busca em modais
-export interface ModalSearchProps {
-  modelValue: string;
-  placeholder?: string;
-  debounce?: number;
-  minLength?: number;
-  maxLength?: number;
-  disabled?: boolean;
-  loading?: boolean;
-  clearable?: boolean;
-}
-
-// Estados de seleção
-export interface SelectionState {
-  selectedItems: string[];
-  totalSelected: number;
-  hasSelection: boolean;
-  isAllSelected: boolean;
-  isIndeterminate: boolean;
-}
-
-// Props para componentes de seleção
-export interface SelectionProps {
-  modelValue: string[];
+export interface SelectionModalProps {
   items: any[];
+  selectedItems: any[];
   multiple?: boolean;
-  maxSelection?: number;
-  disabled?: boolean;
+  loading?: boolean;
+  error?: string | null;
+  onSelectionChange?: (items: any[]) => void;
+  itemKey?: string;
+  itemLabel?: string | ((item: any) => string);
 }
 
-// Estados de filtros para modais
-export interface ModalFilterState {
-  filters: Record<string, any>;
-  hasActiveFilters: boolean;
-  totalActiveFilters: number;
+export interface SelectionModalState {
+  items: any[];
+  selectedItems: any[];
+  isMultiple: boolean;
+  isLoading: boolean;
+  hasError: boolean;
 }
 
-// Props para componentes de filtros em modais
-export interface ModalFilterProps {
-  modelValue: Record<string, any>;
-  availableFilters: ModalFilterOption[];
-  disabled?: boolean;
-  collapsible?: boolean;
+export interface FilterModalProps {
+  filters: FilterOption[];
+  selectedFilters: Record<string, any>;
+  onFilterChange?: (filters: Record<string, any>) => void;
+  onClearFilters?: () => void;
+  onApplyFilters?: () => void;
 }
 
-// Opções de filtro para modais
-export interface ModalFilterOption {
+export interface FilterOption {
   key: string;
   label: string;
   type: 'text' | 'select' | 'multiselect' | 'date' | 'range';
   options?: FilterOptionValue[];
   placeholder?: string;
-  multiple?: boolean;
+  required?: boolean;
 }
 
-// Valores de opção de filtro
 export interface FilterOptionValue {
   value: string | number;
   label: string;
   disabled?: boolean;
 }
 
-// Estados de notificação
-export interface NotificationState {
-  message: string;
-  type: 'success' | 'error' | 'warning' | 'info';
-  duration?: number;
-  persistent?: boolean;
-  actionText?: string;
-  onAction?: () => void;
+export interface FilterModalState {
+  filters: FilterOption[];
+  selectedFilters: Record<string, any>;
+  hasChanges: boolean;
+  isValid: boolean;
 }
 
-// Props para componentes de notificação
-export interface NotificationProps {
+export interface NotificationModalProps {
+  type: 'success' | 'error' | 'warning' | 'info';
+  title: string;
   message: string;
-  type?: 'success' | 'error' | 'warning' | 'info';
   duration?: number;
-  persistent?: boolean;
-  actionText?: string;
-  onAction?: () => void;
-  closable?: boolean;
+  showIcon?: boolean;
+  showCloseButton?: boolean;
+  onClose?: () => void;
+}
+
+export interface NotificationModalState {
+  type: 'success' | 'error' | 'warning' | 'info';
+  title: string;
+  message: string;
+  isVisible: boolean;
+  showIcon: boolean;
+  showCloseButton: boolean;
 } 

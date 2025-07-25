@@ -106,7 +106,7 @@
           >
             <span v-if="loadingStore.isLoading">Adicionando...</span>
             <span v-else
-              >Adicionar {{ arrayFormatters.formatCount(cardSelection.selectedCount.value, 'carta') }}</span
+              >Adicionar {{ cardSelection.selectedCount.value }} carta{{ cardSelection.selectedCount.value !== 1 ? 's' : '' }}</span
             >
           </v-btn>
         </div>
@@ -122,7 +122,6 @@ import { useLoadingStore } from "../../../stores/loading";
 import { useNotificationStore } from "../../../stores/notification";
 import { useCardSelection } from "../../../composables/useCardSelection";
 import { useSearch } from "../../../composables/useSearch";
-import { arrayFormatters } from "../../../utils/formatters";
 import BaseModal from "../../common/BaseModal.vue";
 import Card from "../../common/Card.vue";
 import LoadingSpinner from "../../common/LoadingSpinner.vue";
@@ -146,11 +145,9 @@ const cardsStore = useCardsStore();
 const loadingStore = useLoadingStore();
 const notificationStore = useNotificationStore();
 
-// Composables
 const cardSelection = useCardSelection();
 const search = useSearch({ debounceMs: 500 });
 
-// Estado local
 const initialLoading = ref(false);
 const currentPage = ref(1);
 const itemsPerPage = ref(12);
@@ -245,7 +242,7 @@ async function handleAddCards() {
     await cardsStore.addCardsToUser(cardSelection.selectedCards.value);
 
     notificationStore.show(
-      `${arrayFormatters.formatCount(cardSelection.selectedCount.value, 'carta')} adicionada com sucesso!`,
+      `${cardSelection.selectedCount.value} carta${cardSelection.selectedCount.value !== 1 ? 's' : ''} adicionada com sucesso!`,
       "success"
     );
 

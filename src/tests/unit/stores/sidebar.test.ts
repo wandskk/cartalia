@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { useSidebarStore } from '../../../stores/sidebar';
 
-// Mock do localStorage
+
 const localStorageMock = {
   getItem: vi.fn(),
   setItem: vi.fn(),
@@ -14,7 +14,7 @@ Object.defineProperty(window, 'localStorage', {
   value: localStorageMock
 });
 
-// Mock das constantes
+
 vi.mock('../../../constants', () => ({
   SIDEBAR: {
     STORAGE_KEY: 'sidebar-collapsed'

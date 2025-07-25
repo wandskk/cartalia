@@ -45,12 +45,12 @@ export function useSteps(options: UseStepsOptions) {
   function nextStep(): boolean {
     if (!canGoNext.value) return false;
 
-    // Validate current step if validator is provided
+
     if (validateStep && !validateStep(currentStep.value)) {
       return false;
     }
 
-    // Mark current step as completed
+
     completedSteps.value.add(currentStep.value);
     
     currentStep.value++;
@@ -67,7 +67,7 @@ export function useSteps(options: UseStepsOptions) {
   function goToStep(step: number): boolean {
     if (step < 0 || step >= totalSteps.value) return false;
     
-    // If going forward, validate all intermediate steps
+
     if (step > currentStep.value) {
       for (let i = currentStep.value; i < step; i++) {
         if (validateStep && !validateStep(i)) {
@@ -119,7 +119,7 @@ export function useSteps(options: UseStepsOptions) {
     return 'pending';
   }
 
-  // Get all steps with their current status
+
   const stepsWithStatus = computed(() => {
     return steps.map((step, index) => ({
       ...step,
@@ -131,11 +131,11 @@ export function useSteps(options: UseStepsOptions) {
   });
 
   return {
-    // State
+
     currentStep,
     completedSteps,
     
-    // Computed
+
     totalSteps,
     isFirstStep,
     isLastStep,
@@ -147,7 +147,7 @@ export function useSteps(options: UseStepsOptions) {
     prevStepData,
     stepsWithStatus,
     
-    // Methods
+
     nextStep,
     previousStep,
     goToStep,

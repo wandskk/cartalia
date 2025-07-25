@@ -10,9 +10,6 @@
   </div>
 </template>
 
-<script setup lang="ts">
-// Componente de logo
-</script>
 
 <style scoped lang="scss">
 @use "sass:color";
@@ -30,7 +27,11 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, $primary 0%, color.adjust($primary, $lightness: -10%) 100%);
+  background: linear-gradient(
+    135deg,
+    $primary 0%,
+    color.adjust($primary, $lightness: -10%) 100%
+  );
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba($primary, 0.3);
 }
@@ -74,4 +75,4 @@
     font-size: 0.6875rem;
   }
 }
-</style> 
+</style>

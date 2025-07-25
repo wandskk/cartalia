@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 import type { User, Card, Trade } from '../../types';
 
-// Mock stores
+
 export const mockAuthStore = {
   user: null as User | null,
   token: null as string | null,
@@ -9,14 +9,14 @@ export const mockAuthStore = {
   loading: false,
   error: null as string | null,
   
-  // Actions
+
   login: vi.fn(),
   register: vi.fn(),
   logout: vi.fn(),
   fetchUserProfile: vi.fn(),
   clearError: vi.fn(),
   
-  // Getters
+
   $state: {
     user: null,
     token: null,
@@ -38,14 +38,14 @@ export const mockCardsStore = {
     more: false
   },
   
-  // Actions
+
   fetchAllCards: vi.fn(),
   fetchUserCards: vi.fn(),
   fetchCardById: vi.fn(),
   addCardsToUser: vi.fn(),
   clearError: vi.fn(),
   
-  // Getters
+
   $state: {
     allCards: [],
     userCards: [],
@@ -71,14 +71,14 @@ export const mockTradesStore = {
     more: false
   },
   
-  // Actions
+
   fetchTrades: vi.fn(),
   fetchTradeById: vi.fn(),
   createTrade: vi.fn(),
   deleteTrade: vi.fn(),
   clearError: vi.fn(),
   
-  // Getters
+
   $state: {
     trades: [],
     loading: false,
@@ -96,14 +96,14 @@ export const mockLoadingStore = {
   isLoading: false,
   loadingStates: {} as Record<string, boolean>,
   
-  // Actions
+
   startLoading: vi.fn(),
   stopLoading: vi.fn(),
   setLoadingState: vi.fn(),
   clearLoadingState: vi.fn(),
   clearAllLoadingStates: vi.fn(),
   
-  // Getters
+
   $state: {
     isLoading: false,
     loadingStates: {}
@@ -113,12 +113,12 @@ export const mockLoadingStore = {
 export const mockNotificationStore = {
   notifications: [] as any[],
   
-  // Actions
+
   show: vi.fn(),
   hide: vi.fn(),
   clear: vi.fn(),
   
-  // Getters
+
   $state: {
     notifications: []
   }
@@ -127,12 +127,12 @@ export const mockNotificationStore = {
 export const mockErrorStore = {
   errors: [] as any[],
   
-  // Actions
+
   addError: vi.fn(),
   removeError: vi.fn(),
   clearErrors: vi.fn(),
   
-  // Getters
+
   $state: {
     errors: []
   }
@@ -141,12 +141,12 @@ export const mockErrorStore = {
 export const mockSidebarStore = {
   isOpen: false,
   
-  // Actions
+
   open: vi.fn(),
   close: vi.fn(),
   toggle: vi.fn(),
   
-  // Getters
+
   $state: {
     isOpen: false
   }
@@ -155,7 +155,7 @@ export const mockSidebarStore = {
 export const mockCacheStore = {
   cache: {} as Record<string, any>,
   
-  // Actions
+
   set: vi.fn(),
   get: vi.fn(),
   has: vi.fn(),
@@ -163,13 +163,13 @@ export const mockCacheStore = {
   clear: vi.fn(),
   invalidate: vi.fn(),
   
-  // Getters
+
   $state: {
     cache: {}
   }
 };
 
-// Helper para resetar todos os mocks das stores
+
 export function resetStoreMocks() {
   const stores = [
     mockAuthStore,
@@ -191,7 +191,7 @@ export function resetStoreMocks() {
   });
 }
 
-// Helper para configurar store com dados mock
+
 export function setupStoreWithData(storeName: string, data: any) {
   switch (storeName) {
     case 'auth':
@@ -225,7 +225,7 @@ export function setupStoreWithData(storeName: string, data: any) {
   }
 }
 
-// Helper para mock de Pinia
+
 export function createMockPinia() {
   return {
     install: vi.fn(),

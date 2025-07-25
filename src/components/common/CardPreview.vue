@@ -37,8 +37,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { textFormatters, dateFormatters } from '../../utils/formatters';
-import type { Card } from '../../types/cards';
+import { formatDate, truncateText } from '../../utils/formatters';
+import type { Card } from '../../types';
 
 interface Props {
   card: Card;
@@ -84,12 +84,12 @@ const imageHeight = computed(() => {
 
 const truncatedDescription = computed(() => {
   if (!props.showDescription) return '';
-  return textFormatters.truncate(props.card.description, props.maxDescriptionLength);
+  return truncateText(props.card.description, props.maxDescriptionLength);
 });
 
 const defaultMetaText = computed(() => {
   if (props.card.createdAt) {
-    return dateFormatters.formatRelativeDate(props.card.createdAt);
+    return formatDate(props.card.createdAt);
   }
   return '';
 });

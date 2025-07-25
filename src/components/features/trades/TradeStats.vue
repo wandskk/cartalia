@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { numberFormatters } from '../../../utils/formatters';
+import { formatNumber } from '../../../utils/formatters';
 import StatsGrid from '../../common/StatsGrid.vue';
 import type { Trade } from '../../../types';
 
@@ -42,25 +42,25 @@ const successRate = computed(() => {
 
 const tradeStats = computed(() => [
   {
-    number: numberFormatters.formatNumber(totalTrades.value),
+    number: formatNumber(totalTrades.value),
     label: 'Total de Trocas',
     icon: 'mdi-chart-line',
     variant: 'default' as const
   },
   {
-    number: numberFormatters.formatNumber(activeTrades.value),
+    number: formatNumber(activeTrades.value),
     label: 'Trocas Ativas',
     icon: 'mdi-sync',
     variant: 'default' as const
   },
   {
-    number: numberFormatters.formatNumber(thisMonthTrades.value),
+    number: formatNumber(thisMonthTrades.value),
     label: 'Este Mês',
     icon: 'mdi-trending-up',
     variant: 'default' as const
   },
   {
-    number: numberFormatters.formatPercentage(successRate.value / 100),
+    number: formatNumber(successRate.value / 100),
     label: 'Taxa de Sucesso',
     icon: 'mdi-target',
     variant: 'default' as const

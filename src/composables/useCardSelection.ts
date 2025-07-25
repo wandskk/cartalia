@@ -76,15 +76,10 @@ export function useCardSelection(options: UseCardSelectionOptions = {}) {
   }
 
   return {
-    // State
     selectedCards,
-    
-    // Computed
     selectedCount,
     hasSelection,
     isMaxReached,
-    
-    // Methods
     selectCard,
     toggleCard,
     isSelected,

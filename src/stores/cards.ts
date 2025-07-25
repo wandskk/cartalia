@@ -42,12 +42,12 @@ export const useCardsStore = defineStore('cards', () => {
     error.value = null;
     
     try {
-      // Se rpp é grande (1000+), carregar todas as cartas de uma vez
+
       if (rpp >= 1000) {
         const response: CardListResponse = await CardServices.getAllCards(1, 1000);
         allCards.value = response.list;
         
-        // Se ainda há mais cartas, continuar carregando
+
         let currentPage = 2;
         while (response.more) {
           const nextResponse: CardListResponse = await CardServices.getAllCards(currentPage, 1000);

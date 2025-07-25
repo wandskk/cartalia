@@ -7,7 +7,7 @@
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-card-title>
-      
+
       <v-card-text class="pa-0">
         <div class="d-flex flex-column max-height-80vh">
           <!-- Step Progress -->
@@ -24,14 +24,21 @@
                     :class="{
                       'step-active': steps.currentStep.value === index,
                       'step-completed': steps.currentStep.value > index,
-                      'step-pending': steps.currentStep.value < index
+                      'step-pending': steps.currentStep.value < index,
                     }"
                   >
-                    <v-icon v-if="steps.currentStep.value > index" size="16" color="white">mdi-check</v-icon>
+                    <v-icon
+                      v-if="steps.currentStep.value > index"
+                      size="16"
+                      color="white"
+                      >mdi-check</v-icon
+                    >
                     <span v-else class="text-caption">{{ index + 1 }}</span>
                   </div>
                   <span class="text-caption ml-2 mr-4">{{ step }}</span>
-                  <v-icon v-if="index < 2" size="16" color="grey">mdi-chevron-right</v-icon>
+                  <v-icon v-if="index < 2" size="16" color="grey"
+                    >mdi-chevron-right</v-icon
+                  >
                 </div>
               </div>
             </div>
@@ -111,14 +118,10 @@
           <div v-else></div>
 
           <div class="d-flex gap-3">
-            <v-btn
-              @click="closeModal"
-              variant="outlined"
-              color="grey"
-            >
+            <v-btn @click="closeModal" variant="outlined" color="grey">
               Cancelar
             </v-btn>
-            
+
             <v-btn
               v-if="steps.canGoNext && steps.currentStep.value < 2"
               @click="nextStep"
@@ -128,7 +131,7 @@
               Continuar
               <v-icon class="ml-2">mdi-arrow-right</v-icon>
             </v-btn>
-            
+
             <v-btn
               v-if="steps.currentStep.value === 2"
               @click="createTrade"
@@ -147,120 +150,147 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
-import { useCardsStore } from '../../../stores/cards';
-import { useTradesStore } from '../../../stores/trades';
-import { useLoadingStore } from '../../../stores/loading';
-import { useNotificationStore } from '../../../stores/notification';
-import { useSteps } from '../../../composables/useSteps';
-import { useSearch } from '../../../composables/useSearch';
+import { ref, computed, onMounted, watch } from "vue";
+import { useCardsStore } from "../../../stores/cards";
+import { useTradesStore } from "../../../stores/trades";
+import { useLoadingStore } from "../../../stores/loading";
+import { useNotificationStore } from "../../../stores/notification";
+import { useSteps } from "../../../composables/useSteps";
+import { useSearch } from "../../../composables/useSearch";
 
-import TradeStepCardSelection from './TradeStepCardSelection.vue';
-import TradePreviewStep from './TradePreviewStep.vue';
-import type { Card } from '../../../types/cards';
+import TradeStepCardSelection from "./TradeStepCardSelection.vue";
+import TradePreviewStep from "./TradePreviewStep.vue";
+import type { Card } from "../../../types/cards";
 
 interface Props {
   modelValue: boolean;
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: boolean): void;
-  (e: 'trade-created'): void;
+  (e: "update:modelValue", value: boolean): void;
+  (e: "trade-created"): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
-// Stores
 const cardsStore = useCardsStore();
 const tradesStore = useTradesStore();
 const loadingStore = useLoadingStore();
 const notificationStore = useNotificationStore();
 
-// Composables
 const steps = useSteps({
   steps: [
-    { id: 0, title: 'Oferecer', description: 'Selecione suas cartas', icon: 'mdi-export' },
-    { id: 1, title: 'Receber', description: 'Selecione cartas desejadas', icon: 'mdi-import' },
-    { id: 2, title: 'Revisar', description: 'Confirme a troca', icon: 'mdi-eye' }
+    {
+      id: 0,
+      title: "Oferecer",
+      description: "Selecione suas cartas",
+      icon: "mdi-export",
+    },
+    {
+      id: 1,
+      title: "Receber",
+      description: "Selecione cartas desejadas",
+      icon: "mdi-import",
+    },
+    {
+      id: 2,
+      title: "Revisar",
+      description: "Confirme a troca",
+      icon: "mdi-eye",
+    },
   ],
   validateStep: (step) => {
     if (step === 0) return selectedOfferingCards.value.length > 0;
     if (step === 1) return selectedReceivingCards.value.length > 0;
     return true;
-  }
+  },
 });
-
 
 const offeringSearch = useSearch({ debounceMs: 500 });
 const receivingSearch = useSearch({ debounceMs: 500 });
 
-// State
 const selectedOfferingCards = ref<string[]>([]);
 const selectedReceivingCards = ref<string[]>([]);
-const offeringSearchQuery = ref('');
-const receivingSearchQuery = ref('');
+const offeringSearchQuery = ref("");
+const receivingSearchQuery = ref("");
 
-// Pagination
 const userCardsPagination = ref({ page: 1, rpp: 12, total: 0 });
 const allCardsPagination = ref({ page: 1, rpp: 12, total: 0 });
 
-// Computed
 const isOpen = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
+  set: (value) => emit("update:modelValue", value),
 });
 
 const userCards = computed(() => cardsStore.userCards);
 const allCards = computed(() => cardsStore.allCards);
 
 const totalFilteredOfferingCards = computed(() => {
-  return offeringSearch.filterByQuery(userCards.value, ['name', 'description'], offeringSearch.debouncedQuery.value).length;
+  return offeringSearch.filterByQuery(
+    userCards.value,
+    ["name", "description"],
+    offeringSearch.debouncedQuery.value
+  ).length;
 });
 
 const totalFilteredReceivingCards = computed(() => {
-  return receivingSearch.filterByQuery(allCards.value, ['name', 'description'], receivingSearch.debouncedQuery.value).length;
+  return receivingSearch.filterByQuery(
+    allCards.value,
+    ["name", "description"],
+    receivingSearch.debouncedQuery.value
+  ).length;
 });
 
 const selectedOfferingCardsData = computed(() => {
-  return userCards.value.filter(card => selectedOfferingCards.value.includes(card.id));
+  return userCards.value.filter((card) =>
+    selectedOfferingCards.value.includes(card.id)
+  );
 });
 
 const selectedReceivingCardsData = computed(() => {
-  return allCards.value.filter(card => selectedReceivingCards.value.includes(card.id));
+  return allCards.value.filter((card) =>
+    selectedReceivingCards.value.includes(card.id)
+  );
 });
 
 const canProceedToNextStep = computed(() => {
-  if (steps.currentStep.value === 0) return selectedOfferingCards.value.length > 0;
-  if (steps.currentStep.value === 1) return selectedReceivingCards.value.length > 0;
+  if (steps.currentStep.value === 0)
+    return selectedOfferingCards.value.length > 0;
+  if (steps.currentStep.value === 1)
+    return selectedReceivingCards.value.length > 0;
   return true;
 });
 
 const canCreateTrade = computed(() => {
-  return selectedOfferingCards.value.length > 0 && selectedReceivingCards.value.length > 0;
+  return (
+    selectedOfferingCards.value.length > 0 &&
+    selectedReceivingCards.value.length > 0
+  );
 });
 
-// Lifecycle
 onMounted(() => {
   if (isOpen.value) {
     loadData();
   }
 });
 
-watch(() => isOpen.value, (isOpen) => {
-  if (isOpen) {
-    loadData();
-  } else {
-    resetForm();
+watch(
+  () => isOpen.value,
+  (isOpen) => {
+    if (isOpen) {
+      loadData();
+    } else {
+      resetForm();
+    }
   }
-});
+);
 
-// Methods
 async function loadData() {
   try {
     await Promise.all([loadUserCards(), loadAllCards()]);
   } catch (error) {
-    console.error('Erro ao carregar dados:', error);
+    console.error("Erro ao carregar dados:", error);
   }
 }
 
@@ -269,7 +299,7 @@ async function loadUserCards() {
     await cardsStore.fetchUserCards();
     userCardsPagination.value.total = totalFilteredOfferingCards.value;
   } catch (error) {
-    console.error('Erro ao carregar cartas do usuário:', error);
+    console.error("Erro ao carregar cartas do usuário:", error);
   }
 }
 
@@ -278,7 +308,7 @@ async function loadAllCards() {
     await cardsStore.fetchAllCards(1, 1000);
     allCardsPagination.value.total = totalFilteredReceivingCards.value;
   } catch (error) {
-    console.error('Erro ao carregar todas as cartas:', error);
+    console.error("Erro ao carregar todas as cartas:", error);
   }
 }
 
@@ -286,8 +316,8 @@ function resetForm() {
   steps.reset();
   selectedOfferingCards.value = [];
   selectedReceivingCards.value = [];
-  offeringSearchQuery.value = '';
-  receivingSearchQuery.value = '';
+  offeringSearchQuery.value = "";
+  receivingSearchQuery.value = "";
   userCardsPagination.value.page = 1;
   allCardsPagination.value.page = 1;
 }
@@ -301,10 +331,9 @@ function previousStep() {
 }
 
 function closeModal() {
-  emit('update:modelValue', false);
+  emit("update:modelValue", false);
 }
 
-// Card selection handlers
 function toggleOfferingCard(cardId: string) {
   const index = selectedOfferingCards.value.indexOf(cardId);
   if (index > -1) {
@@ -349,18 +378,16 @@ function handleReceivingCardSelect(card: Card, selected: boolean) {
   }
 }
 
-// Search handlers
 function handleOfferingSearchChange(query: string) {
   offeringSearchQuery.value = query;
-  userCardsPagination.value.page = 1; // Reset para primeira página
+  userCardsPagination.value.page = 1;
 }
 
 function handleReceivingSearchChange(query: string) {
   receivingSearchQuery.value = query;
-  allCardsPagination.value.page = 1; // Reset para primeira página
+  allCardsPagination.value.page = 1;
 }
 
-// Pagination handlers
 async function handleOfferingPageChange(page: number) {
   userCardsPagination.value.page = page;
 }
@@ -370,11 +397,9 @@ async function handleReceivingPageChange(page: number) {
 }
 
 function handleCardClick(card: Card) {
-  // Optional: Open card detail modal
-  console.log('Card clicked:', card);
+  console.log("Card clicked:", card);
 }
 
-// Create trade
 async function createTrade() {
   if (!canCreateTrade.value) return;
 
@@ -383,26 +408,26 @@ async function createTrade() {
   try {
     const tradeData = {
       cards: [
-        ...selectedOfferingCards.value.map(cardId => ({ cardId, type: 'OFFERING' as const })),
-        ...selectedReceivingCards.value.map(cardId => ({ cardId, type: 'RECEIVING' as const }))
-      ]
+        ...selectedOfferingCards.value.map((cardId) => ({
+          cardId,
+          type: "OFFERING" as const,
+        })),
+        ...selectedReceivingCards.value.map((cardId) => ({
+          cardId,
+          type: "RECEIVING" as const,
+        })),
+      ],
     };
 
     await tradesStore.createTrade(tradeData);
 
-    notificationStore.show(
-      'Troca criada com sucesso!',
-      'success'
-    );
+    notificationStore.show("Troca criada com sucesso!", "success");
 
-    emit('trade-created');
+    emit("trade-created");
     closeModal();
   } catch (error: any) {
-    console.error('Erro ao criar troca:', error);
-    notificationStore.show(
-      error.message || 'Erro ao criar troca',
-      'error'
-    );
+    console.error("Erro ao criar troca:", error);
+    notificationStore.show(error.message || "Erro ao criar troca", "error");
   } finally {
     loadingStore.stopLoading();
   }

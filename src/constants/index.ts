@@ -1,34 +1,35 @@
-// Configurações da aplicação
-export const APP_CONFIG = {
-  NAME: 'Cartalia',
-  VERSION: '1.0.0',
-  DESCRIPTION: 'Marketplace para troca de cartas',
+
+export const API_CONFIG = {
   API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'https://cards-marketplace-api-2fjj.onrender.com',
   ENVIRONMENT: import.meta.env.VITE_APP_ENVIRONMENT || 'development'
 } as const;
 
-// Configurações de paginação
-export const PAGINATION = {
-  DEFAULT_PAGE: 1,
-  DEFAULT_RPP: 10,
-  MAX_RPP: 50
+export const APP_CONFIG = {
+  NAME: 'Cartalia',
+  VERSION: '1.0.0',
+  DESCRIPTION: 'Marketplace para troca de cartas'
 } as const;
 
-// Configurações de cache
-export const CACHE = {
-  USER_CARDS_TTL: 5 * 60 * 1000, // 5 minutos
-  ALL_CARDS_TTL: 10 * 60 * 1000, // 10 minutos
-  TRADES_TTL: 2 * 60 * 1000 // 2 minutos
+export const PAGINATION_CONFIG = {
+  DEFAULT_PAGE_SIZE: 12,
+  MAX_PAGE_SIZE: 100,
+  PAGE_SIZE_OPTIONS: [12, 24, 48, 96]
 } as const;
 
-// Configurações de notificações
+export const CACHE_CONFIG = {
+  DEFAULT_TTL: 5 * 60 * 1000,
+  MAX_SIZE: 100,
+  CLEANUP_INTERVAL: 30 * 60 * 1000
+} as const;
+
+
 export const NOTIFICATION = {
   SUCCESS_DURATION: 5000,
   ERROR_DURATION: 8000,
   WARNING_DURATION: 6000
 } as const;
 
-// Configurações de validação
+
 export const VALIDATION = {
   MIN_PASSWORD_LENGTH: 6,
   MAX_PASSWORD_LENGTH: 50,
@@ -38,13 +39,13 @@ export const VALIDATION = {
   MIN_TRADE_CARDS: 2
 } as const;
 
-// Tipos de cartas
+
 export const CARD_TYPES = {
   OFFERING: 'OFFERING',
   RECEIVING: 'RECEIVING'
 } as const;
 
-// Status de loading
+
 export const LOADING_STATES = {
   IDLE: 'idle',
   LOADING: 'loading',
@@ -52,7 +53,7 @@ export const LOADING_STATES = {
   ERROR: 'error'
 } as const;
 
-// Rotas da aplicação
+
 export const ROUTES = {
   HOME: '/',
   LOGIN: '/login',
@@ -65,7 +66,7 @@ export const ROUTES = {
   CARD_DETAIL: '/card/:id'
 } as const;
 
-// Mensagens de erro
+
 export const ERROR_MESSAGES = {
   NETWORK_ERROR: 'Erro de conexão. Verifique sua internet.',
   UNAUTHORIZED: 'Sessão expirada. Faça login novamente.',
@@ -75,7 +76,7 @@ export const ERROR_MESSAGES = {
   UNKNOWN_ERROR: 'Erro inesperado. Tente novamente.'
 } as const;
 
-// Mensagens de sucesso
+
 export const SUCCESS_MESSAGES = {
   LOGIN: 'Login realizado com sucesso!',
   REGISTER: 'Cadastro realizado com sucesso!',
@@ -84,7 +85,7 @@ export const SUCCESS_MESSAGES = {
   CARDS_ADDED: 'Cartas adicionadas com sucesso!'
 } as const;
 
-// Configurações da sidebar
+
 export const SIDEBAR = {
   EXPANDED_WIDTH: 280,
   COLLAPSED_WIDTH: 60,
@@ -93,7 +94,7 @@ export const SIDEBAR = {
   STORAGE_KEY: 'sidebar-collapsed'
 } as const;
 
-// Itens de navegação da sidebar
+
 export const NAVIGATION_ITEMS = [
   {
     path: '/dashboard',
@@ -121,7 +122,7 @@ export const NAVIGATION_ITEMS = [
   },
 ] as const;
 
-// Textos da sidebar
+
 export const SIDEBAR_TEXTS = {
   TITLE: 'Navegação',
   EXPAND: 'Expandir',

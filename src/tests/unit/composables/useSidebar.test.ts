@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ref } from 'vue';
 import { useSidebar } from '../../../composables/useSidebar';
 
-// Mock da store
+
 vi.mock('../../../stores/sidebar', () => ({
   useSidebarStore: () => ({
     isCollapsed: ref(false),
@@ -34,7 +34,7 @@ describe('useSidebar', () => {
     it('should call store toggleCollapse method', () => {
       sidebar.toggleCollapse();
       
-      // Note: We can't easily test the store method call without exposing the store
+
       expect(typeof sidebar.toggleCollapse).toBe('function');
     });
   });

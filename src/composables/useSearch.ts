@@ -22,7 +22,7 @@ export function useSearch(options: UseSearchOptions = {}) {
 
   const isValidQuery = computed(() => {
     const query = searchQuery.value?.trim() || '';
-    // Empty query is valid when minLength is 0
+
     if (query.length === 0) {
       return minLength === 0;
     }
@@ -33,7 +33,7 @@ export function useSearch(options: UseSearchOptions = {}) {
 
   const isEmpty = computed(() => (searchQuery.value?.trim() || '').length === 0);
 
-  // Debounce search query
+
   watch(
     () => searchQuery.value,
     (newQuery) => {
@@ -73,7 +73,7 @@ export function useSearch(options: UseSearchOptions = {}) {
     stopSearch();
   }
 
-  // Filter function helper
+
   function filterByQuery<T>(
     items: T[],
     searchFields: (keyof T)[],
@@ -94,7 +94,7 @@ export function useSearch(options: UseSearchOptions = {}) {
     });
   }
 
-  // Async search helper
+
   async function performSearch<T>(
     searchFunction: (query: string) => Promise<T[]>,
     query: string = debouncedQuery.value
@@ -110,17 +110,17 @@ export function useSearch(options: UseSearchOptions = {}) {
   }
 
   return {
-    // State
+
     searchQuery,
     debouncedQuery,
     isSearching,
     
-    // Computed
+
     isValidQuery,
     hasQuery,
     isEmpty,
     
-    // Methods
+
     setQuery,
     clearQuery,
     updateQuery,

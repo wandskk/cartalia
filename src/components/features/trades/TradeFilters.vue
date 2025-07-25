@@ -15,8 +15,8 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, watch } from 'vue';
-import SearchWithPagination from '../../common/SearchWithPagination.vue';
+import { reactive, watch } from "vue";
+import SearchWithPagination from "../../common/SearchWithPagination.vue";
 
 interface Filters {
   search: string;
@@ -32,45 +32,51 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: { searchTerm: string }): void;
-  (e: 'filter', filters: { searchTerm: string }): void;
-  (e: 'filters-change', filters: Filters): void;
-  (e: 'page-change', page: number): void;
+  (e: "update:modelValue", value: { searchTerm: string }): void;
+  (e: "filter", filters: { searchTerm: string }): void;
+  (e: "filters-change", filters: Filters): void;
+  (e: "page-change", page: number): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  modelValue: () => ({ searchTerm: '' }),
+  modelValue: () => ({ searchTerm: "" }),
   loading: false,
   showPagination: false,
   totalItems: 0,
   itemsPerPage: 12,
-  currentPage: 1
+  currentPage: 1,
 });
 
 const emit = defineEmits<Emits>();
 
 const internalFilters = reactive<Filters>({
-  search: ''
+  search: "",
 });
 
 function handlePageChange(page: number) {
-  emit('page-change', page);
+  emit("page-change", page);
 }
 
-// Watch para sincronizar mudanças
-watch(() => props.modelValue?.searchTerm, (newValue) => {
-  if (newValue !== undefined) {
-    internalFilters.search = newValue;
-  }
-}, { immediate: true });
+watch(
+  () => props.modelValue?.searchTerm,
+  (newValue) => {
+    if (newValue !== undefined) {
+      internalFilters.search = newValue;
+    }
+  },
+  { immediate: true }
+);
 
-watch(internalFilters, (newFilters) => {
-  emit('filters-change', { ...newFilters });
-  
-  // Emit para interface antiga
-  emit('update:modelValue', { searchTerm: newFilters.search });
-  emit('filter', { searchTerm: newFilters.search });
-}, { deep: true });
+watch(
+  internalFilters,
+  (newFilters) => {
+    emit("filters-change", { ...newFilters });
+
+    emit("update:modelValue", { searchTerm: newFilters.search });
+    emit("filter", { searchTerm: newFilters.search });
+  },
+  { deep: true }
+);
 </script>
 
 <style scoped>
@@ -79,4 +85,4 @@ watch(internalFilters, (newFilters) => {
     margin-bottom: 16px !important;
   }
 }
-</style> 
+</style>

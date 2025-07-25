@@ -1,206 +1,194 @@
-/**
- * Utilitários para formatação de dados
- */
-
-// Formatação de datas
-export const dateFormatters = {
-  /**
-   * Formata data para exibição brasileira
-   */
-  formatDate(date: Date | string, options?: Intl.DateTimeFormatOptions): string {
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    
-    const defaultOptions: Intl.DateTimeFormatOptions = {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    };
-
-    return dateObj.toLocaleDateString('pt-BR', { ...defaultOptions, ...options });
-  },
-
-  /**
-   * Formata data apenas com data (sem hora)
-   */
-  formatDateOnly(date: Date | string): string {
-    return dateFormatters.formatDate(date, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  },
-
-  /**
-   * Formata data relativa (ex: "há 2 horas")
-   */
-  formatRelativeDate(date: Date | string): string {
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    const now = new Date();
-    const diffInMs = now.getTime() - dateObj.getTime();
-    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-
-    if (diffInMinutes < 1) {
-      return 'Agora mesmo';
-    } else if (diffInMinutes < 60) {
-      return `há ${diffInMinutes} minuto${diffInMinutes !== 1 ? 's' : ''}`;
-    } else if (diffInHours < 24) {
-      return `há ${diffInHours} hora${diffInHours !== 1 ? 's' : ''}`;
-    } else if (diffInDays < 7) {
-      return `há ${diffInDays} dia${diffInDays !== 1 ? 's' : ''}`;
-    } else {
-      return dateFormatters.formatDateOnly(date);
-    }
-  },
-
-  /**
-   * Verifica se uma data é hoje
-   */
-  isToday(date: Date | string): boolean {
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    const today = new Date();
-    
-    return dateObj.toDateString() === today.toDateString();
-  },
-
-  /**
-   * Verifica se uma data é recente (últimos 7 dias)
-   */
-  isRecent(date: Date | string): boolean {
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    const now = new Date();
-    const diffInDays = Math.floor((now.getTime() - dateObj.getTime()) / (1000 * 60 * 60 * 24));
-    
-    return diffInDays <= 7;
+export function formatDate(date: string | Date, options?: Intl.DateTimeFormatOptions): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  
+  if (isNaN(dateObj.getTime())) {
+    return 'Data inválida';
   }
-};
 
-// Formatação de números
-export const numberFormatters = {
-  /**
-   * Formata número com separadores de milhares
-   */
-  formatNumber(num: number): string {
-    return num.toLocaleString('pt-BR');
-  },
+  const defaultOptions: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    ...options
+  };
 
-  /**
-   * Formata número como porcentagem
-   */
-  formatPercentage(num: number, decimals: number = 1): string {
-    return `${(num * 100).toFixed(decimals)}%`;
-  },
+  return new Intl.DateTimeFormat('pt-BR', defaultOptions).format(dateObj);
+}
 
-  /**
-   * Formata número compacto (ex: 1.2K, 1.5M)
-   */
-  formatCompactNumber(num: number): string {
-    if (num < 1000) return num.toString();
-    if (num < 1000000) return `${(num / 1000).toFixed(1)}K`;
-    if (num < 1000000000) return `${(num / 1000000).toFixed(1)}M`;
-    return `${(num / 1000000000).toFixed(1)}B`;
+export function formatDateTime(date: string | Date): string {
+  return formatDate(date, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
+export function formatRelativeTime(date: string | Date): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - dateObj.getTime()) / 1000);
+
+  if (diffInSeconds < 60) {
+    return 'agora mesmo';
   }
-};
 
-// Formatação de texto
-export const textFormatters = {
-  /**
-   * Capitaliza primeira letra de cada palavra
-   */
-  capitalize(text: string): string {
-    return text.replace(/\b\w/g, (char) => char.toUpperCase());
-  },
-
-  /**
-   * Trunca texto com ellipsis
-   */
-  truncate(text: string, maxLength: number, suffix: string = '...'): string {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength - suffix.length) + suffix;
-  },
-
-  /**
-   * Remove acentos de texto
-   */
-  removeAccents(text: string): string {
-    return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  },
-
-  /**
-   * Converte para slug (URL-friendly)
-   */
-  toSlug(text: string): string {
-    return textFormatters.removeAccents(text)
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .trim();
-  },
-
-  /**
-   * Formata ID para exibição (primeiros 8 caracteres)
-   */
-  formatId(id: string, length: number = 8): string {
-    return `#${id.slice(0, length)}`;
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
+  if (diffInMinutes < 60) {
+    return `${diffInMinutes} minuto${diffInMinutes > 1 ? 's' : ''} atrás`;
   }
-};
 
-// Formatação de arrays
-export const arrayFormatters = {
-  /**
-   * Formata lista de itens com vírgulas
-   */
-  formatList(items: string[], conjunction: string = 'e'): string {
-    if (items.length === 0) return '';
-    if (items.length === 1) return items[0];
-    if (items.length === 2) return `${items[0]} ${conjunction} ${items[1]}`;
-    
-    const last = items.pop();
-    return `${items.join(', ')} ${conjunction} ${last}`;
-  },
-
-  /**
-   * Formata contagem de itens
-   */
-  formatCount(count: number, singular: string, plural?: string): string {
-    const pluralForm = plural || `${singular}s`;
-    return `${count} ${count === 1 ? singular : pluralForm}`;
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours < 24) {
+    return `${diffInHours} hora${diffInHours > 1 ? 's' : ''} atrás`;
   }
-};
 
-// Formatação de status
-export const statusFormatters = {
-  /**
-   * Formata status de troca
-   */
-  formatTradeStatus(status: string): string {
-    const statusMap: Record<string, string> = {
-      'active': 'Ativa',
-      'completed': 'Concluída',
-      'expired': 'Expirada',
-      'pending': 'Pendente',
-      'cancelled': 'Cancelada'
-    };
-    
-    return statusMap[status] || status;
-  },
-
-  /**
-   * Retorna cor do status
-   */
-  getStatusColor(status: string): string {
-    const colorMap: Record<string, string> = {
-      'active': 'success',
-      'completed': 'primary',
-      'expired': 'error',
-      'pending': 'warning',
-      'cancelled': 'grey'
-    };
-    
-    return colorMap[status] || 'grey';
+  const diffInDays = Math.floor(diffInHours / 24);
+  if (diffInDays < 7) {
+    return `${diffInDays} dia${diffInDays > 1 ? 's' : ''} atrás`;
   }
-}; 
+
+  const diffInWeeks = Math.floor(diffInDays / 7);
+  if (diffInWeeks < 4) {
+    return `${diffInWeeks} semana${diffInWeeks > 1 ? 's' : ''} atrás`;
+  }
+
+  const diffInMonths = Math.floor(diffInDays / 30);
+  if (diffInMonths < 12) {
+    return `${diffInMonths} mês${diffInMonths > 1 ? 'es' : ''} atrás`;
+  }
+
+  const diffInYears = Math.floor(diffInDays / 365);
+  return `${diffInYears} ano${diffInYears > 1 ? 's' : ''} atrás`;
+}
+
+export function formatCurrency(value: number, currency = 'BRL'): string {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency
+  }).format(value);
+}
+
+export function formatNumber(value: number, options?: Intl.NumberFormatOptions): string {
+  return new Intl.NumberFormat('pt-BR', options).format(value);
+}
+
+export function formatPercentage(value: number, decimals = 1): string {
+  return `${value.toFixed(decimals)}%`;
+}
+
+export function formatFileSize(bytes: number): string {
+  if (bytes === 0) return '0 Bytes';
+
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+export function formatPhoneNumber(phone: string): string {
+  const cleaned = phone.replace(/\D/g, '');
+  
+  if (cleaned.length === 11) {
+    return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7)}`;
+  }
+  
+  if (cleaned.length === 10) {
+    return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6)}`;
+  }
+  
+  return phone;
+}
+
+export function formatCPF(cpf: string): string {
+  const cleaned = cpf.replace(/\D/g, '');
+  return cleaned.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+}
+
+export function formatCNPJ(cnpj: string): string {
+  const cleaned = cnpj.replace(/\D/g, '');
+  return cleaned.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+}
+
+export function formatCEP(cep: string): string {
+  const cleaned = cep.replace(/\D/g, '');
+  return cleaned.replace(/(\d{5})(\d{3})/, '$1-$2');
+}
+
+export function truncateText(text: string, maxLength: number, suffix = '...'): string {
+  if (text.length <= maxLength) {
+    return text;
+  }
+  
+  return text.substring(0, maxLength - suffix.length) + suffix;
+}
+
+export function capitalizeFirst(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+}
+
+export function capitalizeWords(text: string): string {
+  return text.split(' ').map(word => capitalizeFirst(word)).join(' ');
+}
+
+export function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
+}
+
+export function formatArray(array: any[], separator = ', ', maxItems?: number): string {
+  if (!array || array.length === 0) {
+    return '';
+  }
+
+  if (maxItems && array.length > maxItems) {
+    const visibleItems = array.slice(0, maxItems);
+    const remainingCount = array.length - maxItems;
+    return `${visibleItems.join(separator)} e mais ${remainingCount}`;
+  }
+
+  return array.join(separator);
+}
+
+export function formatList(array: any[], itemFormatter?: (item: any) => string): string {
+  if (!array || array.length === 0) {
+    return '';
+  }
+
+  const formattedItems = itemFormatter 
+    ? array.map(itemFormatter)
+    : array.map(item => String(item));
+
+  if (formattedItems.length === 1) {
+    return formattedItems[0];
+  }
+
+  const lastItem = formattedItems.pop();
+  return `${formattedItems.join(', ')} e ${lastItem}`;
+}
+
+export function formatStatus(status: string, statusMap?: Record<string, string>): string {
+  const defaultMap: Record<string, string> = {
+    active: 'Ativo',
+    inactive: 'Inativo',
+    pending: 'Pendente',
+    approved: 'Aprovado',
+    rejected: 'Rejeitado',
+    completed: 'Concluído',
+    cancelled: 'Cancelado',
+    draft: 'Rascunho',
+    published: 'Publicado',
+    archived: 'Arquivado'
+  };
+
+  const map = statusMap || defaultMap;
+  return map[status.toLowerCase()] || status;
+} 

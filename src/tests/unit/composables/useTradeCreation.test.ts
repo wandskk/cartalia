@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-// Mock do vue-router
+
 const mockRouter = {
   push: vi.fn()
 };
@@ -9,7 +9,7 @@ vi.mock('vue-router', () => ({
   useRouter: () => mockRouter
 }));
 
-// Mock das stores
+
 const mockCardsStore = {
   userCards: [],
   allCards: [],

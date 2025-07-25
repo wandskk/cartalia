@@ -5,12 +5,10 @@ import "./style.scss";
 import router from './router'
 import { useCacheStore } from './stores/cache';
 
-// Vuetify
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
-import '@mdi/font/css/materialdesignicons.css'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 
 const vuetify = createVuetify({
@@ -32,7 +30,6 @@ app.use(pinia);
 app.use(router);
 app.use(vuetify);
 
-// Initialize cache
 const cacheStore = useCacheStore(pinia);
 cacheStore.initializeCache();
 

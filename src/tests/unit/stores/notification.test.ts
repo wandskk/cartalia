@@ -69,7 +69,7 @@ describe('Notification Store', () => {
     notificationStore.show('Auto-clear test', 'success');
     expect(notificationStore.message).toBe('Auto-clear test');
     
-    // Fast-forward time by 3 seconds
+
     vi.advanceTimersByTime(3000);
     await vi.runAllTimersAsync();
     
@@ -86,7 +86,7 @@ describe('Notification Store', () => {
     notificationStore.show('Test message', 'error');
     expect(notificationStore.message).toBe('Test message');
     
-    // Fast-forward time by 5 seconds (more than 3 seconds)
+
     vi.advanceTimersByTime(5000);
     await vi.runAllTimersAsync();
     

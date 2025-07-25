@@ -49,7 +49,6 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false
 });
 
-// Use props in template
 const { placeholder, disabled, showPagination, totalItems, itemsPerPage, currentPage, loading } = props;
 
 const emit = defineEmits<Emits>();

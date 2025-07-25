@@ -9,7 +9,7 @@ export const useNotificationStore = defineStore('notification', () => {
     message.value = msg;
     type.value = msgType;
     
-    // Only auto-clear success and info messages
+
     if (msgType !== 'error') {
       setTimeout(() => clear(), 3000);
     }

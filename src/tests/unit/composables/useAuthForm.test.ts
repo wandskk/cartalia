@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-// Mock do vue-router
+
 const mockRouter = {
   push: vi.fn()
 };
@@ -9,7 +9,7 @@ vi.mock('vue-router', () => ({
   useRouter: () => mockRouter
 }));
 
-// Mock das stores
+
 const mockAuthStore = {
   login: vi.fn(),
   register: vi.fn()
@@ -36,7 +36,7 @@ vi.mock('../../../stores/notification', () => ({
   useNotificationStore: () => mockNotificationStore
 }));
 
-// Mock da utility
+
 vi.mock('../../../utils/parseApiError', () => ({
   parseApiError: vi.fn()
 }));
@@ -108,7 +108,7 @@ describe('useAuthForm', () => {
         const mockAuth = useAuthStore();
         vi.mocked(mockAuth.login).mockResolvedValue(undefined);
         
-        // Set initial error
+
         loginForm.error.value = 'Previous error';
         
         const values = { email: 'test@example.com', password: 'password123' };
@@ -208,7 +208,7 @@ describe('useAuthForm', () => {
         const mockAuth = useAuthStore();
         vi.mocked(mockAuth.register).mockResolvedValue(undefined);
         
-        // Set initial error
+
         registerForm.error.value = 'Previous error';
         
         const values = { 

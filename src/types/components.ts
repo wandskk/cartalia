@@ -1,72 +1,57 @@
-// Tipos específicos para componentes
-
-// Props base para componentes
 export interface BaseComponentProps {
   class?: string;
   id?: string;
-  'data-testid'?: string;
 }
 
-// Props para componentes de loading
 export interface LoadingProps extends BaseComponentProps {
   loading?: boolean;
-  size?: 'sm' | 'md' | 'lg';
   text?: string;
 }
 
-// Props para componentes de erro
 export interface ErrorProps extends BaseComponentProps {
   error?: string | null;
-  showIcon?: boolean;
-  retry?: () => void;
+  onRetry?: () => void;
 }
 
-// Props para componentes de lista
 export interface ListProps<T> extends BaseComponentProps {
   items: T[];
   loading?: boolean;
   error?: string | null;
   emptyMessage?: string;
-  renderItem: (item: T, index: number) => any;
-  keyExtractor?: (item: T, index: number) => string | number;
+  onRetry?: () => void;
 }
 
-// Props para componentes de formulário
 export interface FormProps extends BaseComponentProps {
-  onSubmit: (data: any) => void;
-  onCancel?: () => void;
   loading?: boolean;
-  disabled?: boolean;
+  error?: string | null;
+  onSubmit?: (data: any) => void;
+  onCancel?: () => void;
 }
 
-// Props para componentes de modal
 export interface ModalProps extends BaseComponentProps {
-  isOpen: boolean;
-  onClose: () => void;
+  modelValue: boolean;
   title?: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
-  closeOnOverlayClick?: boolean;
-  showCloseButton?: boolean;
+  loading?: boolean;
+  error?: string | null;
+  onClose?: () => void;
 }
 
-// Props para componentes de card
 export interface CardProps extends BaseComponentProps {
   title?: string;
   subtitle?: string;
-  actions?: any[];
-  hoverable?: boolean;
-  clickable?: boolean;
+  image?: string;
+  loading?: boolean;
+  error?: string | null;
   onClick?: () => void;
 }
 
-// Props para componentes de tabela
 export interface TableProps<T> extends BaseComponentProps {
   data: T[];
   columns: TableColumn<T>[];
   loading?: boolean;
-  emptyMessage?: string;
+  error?: string | null;
   sortable?: boolean;
-  onSort?: (column: keyof T, direction: 'asc' | 'desc') => void;
+  onSort?: (column: keyof T, order: 'asc' | 'desc') => void;
 }
 
 export interface TableColumn<T> {
@@ -74,88 +59,86 @@ export interface TableColumn<T> {
   label: string;
   sortable?: boolean;
   width?: string;
-  render?: (value: any, item: T) => any;
+  align?: 'left' | 'center' | 'right';
 }
 
-// Props para componentes de paginação
 export interface PaginationProps extends BaseComponentProps {
   currentPage: number;
   totalPages: number;
   totalItems: number;
   itemsPerPage: number;
-  onPageChange: (page: number) => void;
-  showInfo?: boolean;
+  onPageChange?: (page: number) => void;
+  onItemsPerPageChange?: (itemsPerPage: number) => void;
 }
 
-// Props para componentes de filtro
 export interface FilterProps extends BaseComponentProps {
   filters: FilterOption[];
-  values: Record<string, any>;
-  onChange: (filters: Record<string, any>) => void;
-  onClear?: () => void;
+  selectedFilters: Record<string, any>;
+  onFilterChange?: (filters: Record<string, any>) => void;
+  onClearFilters?: () => void;
 }
 
 export interface FilterOption {
   key: string;
   label: string;
-  type: 'text' | 'select' | 'checkbox' | 'date';
-  options?: { value: any; label: string }[];
+  type: 'text' | 'select' | 'multiselect' | 'date' | 'range';
+  options?: FilterOptionValue[];
   placeholder?: string;
 }
 
-// Props para componentes de busca
+export interface FilterOptionValue {
+  value: string | number;
+  label: string;
+}
+
 export interface SearchProps extends BaseComponentProps {
   value: string;
-  onChange: (value: string) => void;
-  onSearch?: (value: string) => void;
   placeholder?: string;
-  debounce?: number;
-  clearable?: boolean;
+  loading?: boolean;
+  onSearch?: (query: string) => void;
+  onClear?: () => void;
 }
 
-// Props para componentes de seleção
-export interface SelectProps<T> extends BaseComponentProps {
-  value: T | null;
-  options: SelectOption<T>[];
-  onChange: (value: T | null) => void;
-  placeholder?: string;
-  disabled?: boolean;
+export interface SelectionProps<T> extends BaseComponentProps {
+  items: T[];
+  selectedItems: T[];
   multiple?: boolean;
-  searchable?: boolean;
+  loading?: boolean;
+  error?: string | null;
+  onSelectionChange?: (items: T[]) => void;
+  itemKey?: keyof T;
+  itemLabel?: keyof T | ((item: T) => string);
 }
 
-export interface SelectOption<T> {
-  value: T;
-  label: string;
+export interface SelectionItem<T> {
+  item: T;
+  selected: boolean;
   disabled?: boolean;
 }
 
-// Props para componentes de sidebar
 export interface SidebarProps extends BaseComponentProps {
   collapsed?: boolean;
-  onToggleCollapse?: () => void;
+  onToggle?: () => void;
 }
 
-// Props para itens de navegação
-export interface NavigationItem {
-  path: string;
+export interface NavItem {
   label: string;
-  icon: string;
-  requiresAuth: boolean;
+  icon?: string;
+  to?: string;
+  children?: NavItem[];
 }
 
-// Props para componente de navegação
 export interface NavigationProps extends BaseComponentProps {
-  items: NavigationItem[];
-  activePath: string;
-  collapsed?: boolean;
+  items: NavItem[];
+  activeItem?: string;
+  onItemClick?: (item: NavItem) => void;
 }
 
-// Props para componente de usuário
-export interface UserInfoProps extends BaseComponentProps {
-  user: {
-    name?: string;
-    email?: string;
-  } | null;
-  collapsed?: boolean;
+export interface UserProps extends BaseComponentProps {
+  user?: {
+    name: string;
+    email: string;
+    avatar?: string;
+  };
+  onLogout?: () => void;
 } 

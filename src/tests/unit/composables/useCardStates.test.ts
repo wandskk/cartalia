@@ -119,30 +119,30 @@ describe('useCardStates', () => {
     });
 
     it('should update reactively when state changes', () => {
-      // Initial state: not loading, no error, no cards
+
       expect(cardStates.isEmpty.value).toBe(true);
       
-      // Add cards
+
       cards.value = [{ id: '1', name: 'Card 1' }];
       expect(cardStates.isEmpty.value).toBe(false);
       
-      // Remove cards
+
       cards.value = [];
       expect(cardStates.isEmpty.value).toBe(true);
       
-      // Set loading
+
       loading.value = true;
       expect(cardStates.isEmpty.value).toBe(false);
       
-      // Stop loading
+
       loading.value = false;
       expect(cardStates.isEmpty.value).toBe(true);
       
-      // Set error
+
       error.value = 'Test error';
       expect(cardStates.isEmpty.value).toBe(false);
       
-      // Clear error
+
       error.value = null;
       expect(cardStates.isEmpty.value).toBe(true);
     });
@@ -180,27 +180,27 @@ describe('useCardStates', () => {
 
   describe('computed properties reactivity', () => {
     it('should maintain reactivity across all properties', () => {
-      // Test all properties update when loading changes
+
       loading.value = true;
       expect(cardStates.isLoading.value).toBe(true);
       expect(cardStates.hasError.value).toBe(false);
       expect(cardStates.isEmpty.value).toBe(false);
       
-      // Test all properties update when error changes
+
       loading.value = false;
       error.value = 'Error occurred';
       expect(cardStates.isLoading.value).toBe(false);
       expect(cardStates.hasError.value).toBe(true);
       expect(cardStates.isEmpty.value).toBe(false);
       
-      // Test all properties update when cards change
+
       error.value = null;
       cards.value = [{ id: '1' }];
       expect(cardStates.isLoading.value).toBe(false);
       expect(cardStates.hasError.value).toBe(false);
       expect(cardStates.isEmpty.value).toBe(false);
       
-      // Test empty state
+
       cards.value = [];
       expect(cardStates.isLoading.value).toBe(false);
       expect(cardStates.hasError.value).toBe(false);

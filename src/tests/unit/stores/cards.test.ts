@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { useCardsStore } from '../../../stores/cards';
 
-// Mock dos serviços
+
 vi.mock('../../../services/modules/cards', () => ({
   CardServices: {
     getAllCards: vi.fn(),

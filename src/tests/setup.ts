@@ -3,14 +3,14 @@ import { createPinia, setActivePinia } from 'pinia';
 import { VueWrapper, mount, config } from '@vue/test-utils';
 import type { ComponentMountingOptions } from '@vue/test-utils';
 
-// Polyfills para Node.js
+
 if (typeof globalThis.TextEncoder === 'undefined') {
   const { TextEncoder, TextDecoder } = require('util');
   globalThis.TextEncoder = TextEncoder;
   globalThis.TextDecoder = TextDecoder;
 }
 
-// Stubs globais para componentes do Vuetify
+
 config.global = config.global || {};
 config.global.stubs = {
   ...(config.global.stubs || {}),
@@ -28,7 +28,7 @@ config.global.stubs = {
   }
 };
 
-// Mock do localStorage
+
 const localStorageMock = {
   _data: {} as Record<string, string>,
   getItem: vi.fn((key: string) => localStorageMock._data[key] || null),
@@ -48,7 +48,7 @@ Object.defineProperty(window, 'localStorage', {
   value: localStorageMock
 });
 
-// Mock do sessionStorage
+
 const sessionStorageMock = {
   getItem: vi.fn(),
   setItem: vi.fn(),
@@ -61,24 +61,24 @@ Object.defineProperty(window, 'sessionStorage', {
   value: sessionStorageMock
 });
 
-// Mock do fetch
+
 global.fetch = vi.fn();
 
-// Mock do IntersectionObserver
+
 global.IntersectionObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn()
 }));
 
-// Mock do ResizeObserver
+
 global.ResizeObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn()
 }));
 
-// Mock do matchMedia
+
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: vi.fn().mockImplementation(query => ({
@@ -93,14 +93,14 @@ Object.defineProperty(window, 'matchMedia', {
   }))
 });
 
-// Setup Pinia para testes
+
 export function createTestPinia() {
   const pinia = createPinia();
   setActivePinia(pinia);
   return pinia;
 }
 
-// Helper para montar componentes com Pinia
+
 export function mountWithPinia<T>(
   component: T,
   options: ComponentMountingOptions<T> = {}
@@ -119,7 +119,7 @@ export function mountWithPinia<T>(
   });
 }
 
-// Helper para limpar mocks
+
 export function clearAllMocks() {
   vi.clearAllMocks();
   localStorageMock.getItem.mockClear();
@@ -132,7 +132,7 @@ export function clearAllMocks() {
   sessionStorageMock.clear.mockClear();
 }
 
-// Helper para mock de timers
+
 export function useFakeTimers() {
   vi.useFakeTimers();
 }
@@ -141,7 +141,7 @@ export function useRealTimers() {
   vi.useRealTimers();
 }
 
-// Helper para mock de console
+
 export function mockConsole() {
   const originalConsole = { ...console };
   
@@ -160,7 +160,7 @@ export function mockConsole() {
   });
 }
 
-// Setup global
+
 beforeEach(() => {
   clearAllMocks();
   createTestPinia();

@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue';
+import { ref, computed } from "vue";
 
 interface LoadingState {
   isLoading: boolean;
@@ -9,9 +9,9 @@ interface LoadingState {
 export function useLoadingState(initialState: Partial<LoadingState> = {}) {
   const loadingState = ref<LoadingState>({
     isLoading: false,
-    message: '',
+    message: "",
     progress: 0,
-    ...initialState
+    ...initialState,
   });
 
   const isLoading = computed(() => loadingState.value.isLoading);
@@ -21,16 +21,16 @@ export function useLoadingState(initialState: Partial<LoadingState> = {}) {
   function startLoading(message?: string) {
     loadingState.value = {
       isLoading: true,
-      message: message || 'Carregando...',
-      progress: 0
+      message: message || "Carregando...",
+      progress: 0,
     };
   }
 
   function stopLoading() {
     loadingState.value = {
       isLoading: false,
-      message: '',
-      progress: 0
+      message: "",
+      progress: 0,
     };
   }
 
@@ -49,13 +49,12 @@ export function useLoadingState(initialState: Partial<LoadingState> = {}) {
     }
   }
 
-  // Async wrapper for automatic loading state
   async function withLoading<T>(
     operation: () => Promise<T>,
     loadingMessage?: string
   ): Promise<T> {
     startLoading(loadingMessage);
-    
+
     try {
       const result = await operation();
       return result;
@@ -64,13 +63,14 @@ export function useLoadingState(initialState: Partial<LoadingState> = {}) {
     }
   }
 
-  // Progress-based loading
   async function withProgress<T>(
-    operation: (updateProgress: (progress: number, message?: string) => void) => Promise<T>,
+    operation: (
+      updateProgress: (progress: number, message?: string) => void
+    ) => Promise<T>,
     loadingMessage?: string
   ): Promise<T> {
     startLoading(loadingMessage);
-    
+
     try {
       const result = await operation(updateProgress);
       return result;
@@ -80,18 +80,16 @@ export function useLoadingState(initialState: Partial<LoadingState> = {}) {
   }
 
   return {
-    // State
     loadingState,
     isLoading,
     message,
     progress,
-    
-    // Methods
+
     startLoading,
     stopLoading,
     updateProgress,
     setMessage,
     withLoading,
-    withProgress
+    withProgress,
   };
-} 
+}

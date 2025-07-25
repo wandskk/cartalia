@@ -66,7 +66,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import LoadingSpinner from './LoadingSpinner.vue';
-import { textFormatters } from '../../utils/formatters';
+import { truncateText, capitalizeFirst } from '../../utils/formatters';
 import type { Card as CardType } from '../../types';
 
 interface Props {
@@ -112,14 +112,14 @@ const imageHeight = computed(() => {
 });
 
 const formattedName = computed(() => {
-  return textFormatters.capitalize(props.card.name);
+  return capitalizeFirst(props.card.name);
 });
 
 const formattedDescription = computed(() => {
   if (!props.showDescription) return '';
   
   const description = props.card.description;
-  return textFormatters.truncate(description, props.maxDescriptionLength);
+  return truncateText(description, props.maxDescriptionLength);
 });
 
 function handleClick() {

@@ -94,11 +94,11 @@ const tradesStore = useTradesStore();
 const authStore = useAuthStore();
 const notification = useNotificationStore();
 
-// Store computed properties
+
 const error = computed(() => tradesStore.error);
 const userTrades = computed(() => tradesStore.userTrades);
 
-// Composables
+
 const { isLoading: loading, withLoading } = useLoadingState();
 const pagination = usePagination({
   initialItemsPerPage: 12
@@ -106,7 +106,7 @@ const pagination = usePagination({
 
 const { filteredTrades, updateFilters } = useTradeFilters(userTrades);
 
-// Local state
+
 const viewMode = ref<"grid" | "list">("grid");
 const showCreateModal = ref(false);
 const showDeleteModal = ref(false);
@@ -128,9 +128,9 @@ const paginatedTradesList = computed(() => {
 });
 
 function handleFiltersChange(newFilters: { search: string }) {
-  // Converter para o formato esperado pelo useTradeFilters
+
   updateFilters({ searchTerm: newFilters.search });
-  // Reset para primeira página quando filtrar
+
   pagination.firstPage();
 }
 
@@ -148,7 +148,7 @@ onMounted(() => {
 
 async function fetchUserTrades() {
   await withLoading(async () => {
-    // Carregar mais trades da API para ter dados suficientes para filtragem
+
     await tradesStore.fetchAllTrades(1, 50, true); // Carregar 50 trades de uma vez
   }, "Carregando suas trades...");
 }

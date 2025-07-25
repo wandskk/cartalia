@@ -43,7 +43,7 @@ Vitest (Test Runner)
 Framework de testes principal, escolhido por sua integração nativa com Vite e performance superior.
 
 ```typescript
-// vitest.config.ts
+
 import { defineConfig } from 'vitest/config';
 import vue from '@vitejs/plugin-vue';
 
@@ -89,11 +89,11 @@ const submitButton = getByRole('button', { name: /entrar/i });
 Ambiente DOM para testes de componentes Vue.
 
 ```typescript
-// src/test/setup.ts
+
 import { config } from '@vue/test-utils';
 import { vi } from 'vitest';
 
-// Mock localStorage
+
 const localStorageMock = {
   getItem: vi.fn(),
   setItem: vi.fn(),
@@ -146,7 +146,7 @@ Testes isolados de funções, métodos e componentes individuais.
 #### 📝 Exemplo: Teste de Utilitário
 
 ```typescript
-// src/utils/__tests__/validation.test.ts
+
 import { describe, it, expect } from 'vitest';
 import { validateEmail, validatePassword } from '../validation';
 
@@ -180,7 +180,7 @@ describe('Validation Utils', () => {
 #### 📝 Exemplo: Teste de Store
 
 ```typescript
-// src/stores/__tests__/auth.test.ts
+
 import { setActivePinia, createPinia } from 'pinia';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useAuthStore } from '../auth';
@@ -240,7 +240,7 @@ Testes de componentes Vue isolados, verificando props, eventos e renderização.
 #### 📝 Exemplo: Teste de Componente Base
 
 ```typescript
-// src/components/common/__tests__/BaseButton.test.ts
+
 import { mount } from '@vue/test-utils';
 import { describe, it, expect } from 'vitest';
 import BaseButton from '../BaseButton.vue';
@@ -299,7 +299,7 @@ describe('BaseButton', () => {
 #### 📝 Exemplo: Teste de Componente Complexo
 
 ```typescript
-// src/components/features/auth/__tests__/LoginForm.test.ts
+
 import { mount } from '@vue/test-utils';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
@@ -326,13 +326,13 @@ describe('LoginForm', () => {
     const emailInput = wrapper.find('input[type="email"]');
     const passwordInput = wrapper.find('input[type="password"]');
 
-    // Test invalid email
+
     await emailInput.setValue('invalid-email');
     await wrapper.find('form').trigger('submit');
 
     expect(wrapper.text()).toContain('Email inválido');
 
-    // Test valid inputs
+
     await emailInput.setValue('test@example.com');
     await passwordInput.setValue('password123');
     
@@ -381,7 +381,7 @@ Testes que verificam a interação entre múltiplos componentes ou módulos.
 #### 📝 Exemplo: Teste de Integração
 
 ```typescript
-// src/components/features/cards/__tests__/CardList.integration.test.ts
+
 import { mount } from '@vue/test-utils';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
@@ -441,7 +441,7 @@ describe('CardList Integration', () => {
 Testes que simulam o comportamento real do usuário na aplicação.
 
 ```typescript
-// src/tests/e2e/login.e2e.test.ts
+
 import { test, expect } from '@playwright/test';
 
 test('user can login successfully', async ({ page }) => {
@@ -473,15 +473,15 @@ test('shows error for invalid credentials', async ({ page }) => {
 ```typescript
 describe('UserService', () => {
   it('should create user successfully', async () => {
-    // Arrange
+
     const userData = { name: 'John', email: 'john@example.com' };
     const mockResponse = { id: '1', ...userData };
     vi.mocked(api.post).mockResolvedValue({ data: mockResponse });
 
-    // Act
+
     const result = await UserService.createUser(userData);
 
-    // Assert
+
     expect(result).toEqual(mockResponse);
     expect(api.post).toHaveBeenCalledWith('/users', userData);
   });
@@ -491,7 +491,7 @@ describe('UserService', () => {
 ### 🎭 Test Doubles (Mocks, Stubs, Spies)
 
 ```typescript
-// Mock de serviço
+
 vi.mock('../../services/api', () => ({
   api: {
     get: vi.fn(),
@@ -501,10 +501,10 @@ vi.mock('../../services/api', () => ({
   }
 }));
 
-// Spy de função
+
 const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-// Stub de localStorage
+
 const localStorageStub = {
   getItem: vi.fn().mockReturnValue('mock-token'),
   setItem: vi.fn(),
@@ -518,18 +518,18 @@ Object.defineProperty(window, 'localStorage', { value: localStorageStub });
 ```typescript
 describe('Component Tests', () => {
   beforeEach(() => {
-    // Setup antes de cada teste
+
     setActivePinia(createPinia());
     vi.clearAllMocks();
   });
 
   afterEach(() => {
-    // Cleanup após cada teste
+
     vi.restoreAllMocks();
   });
 
   afterAll(() => {
-    // Cleanup após todos os testes
+
     vi.clearAllTimers();
   });
 });
@@ -540,11 +540,11 @@ describe('Component Tests', () => {
 ### 📝 Setup Global
 
 ```typescript
-// src/test/setup.ts
+
 import { config } from '@vue/test-utils';
 import { vi } from 'vitest';
 
-// Mock localStorage
+
 const localStorageMock = {
   getItem: vi.fn(),
   setItem: vi.fn(),
@@ -555,16 +555,16 @@ const localStorageMock = {
 } as Storage;
 global.localStorage = localStorageMock;
 
-// Mock console.error para evitar logs nos testes
+
 global.console.error = vi.fn();
 
-// Configuração global do Vue Test Utils
+
 config.global.stubs = {
   'router-link': true,
   'router-view': true
 };
 
-// Mock do vue-router
+
 vi.mock('vue-router', () => ({
   useRouter: () => ({
     push: vi.fn(),
@@ -582,7 +582,7 @@ vi.mock('vue-router', () => ({
 ### 📝 Helpers de Teste
 
 ```typescript
-// src/test/helpers/index.ts
+
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import type { ComponentMountingOptions } from '@vue/test-utils';
@@ -634,7 +634,7 @@ export function createMockCard(overrides = {}) {
 ### 🎯 Configuração de Cobertura
 
 ```typescript
-// vitest.config.ts
+
 export default defineConfig({
   test: {
     coverage: {

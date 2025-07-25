@@ -1,8 +1,8 @@
-import { computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuthStore } from '../stores/auth';
-import { useCardsStore } from '../stores/cards';
-import { useTradesStore } from '../stores/trades';
+import { computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "../stores/auth";
+import { useCardsStore } from "../stores/cards";
+import { useTradesStore } from "../stores/trades";
 
 export function useDashboard() {
   const router = useRouter();
@@ -37,7 +37,7 @@ export function useDashboard() {
 
   async function fetchData() {
     await Promise.all([
-      authStore.fetchUserProfile(), // Sincroniza dados do usuário
+      authStore.fetchUserProfile(),
       cardsStore.fetchUserCards(),
       tradesStore.fetchAllTrades(),
     ]);
@@ -54,6 +54,6 @@ export function useDashboard() {
     userTrades,
     marketplaceTrades,
     uniqueCards,
-    fetchData
+    fetchData,
   };
-} 
+}

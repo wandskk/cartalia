@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// Schemas básicos reutilizáveis
+
 export const emailSchema = z
   .string({ required_error: "O e-mail é obrigatório" })
   .email({ message: "E-mail inválido" });
@@ -19,7 +19,7 @@ export const uuidSchema = z
   .string()
   .uuid({ message: "ID inválido" });
 
-// Funções de validação utilitárias
+
 export function validateEmail(email: string): string | null {
   try {
     emailSchema.parse(email);

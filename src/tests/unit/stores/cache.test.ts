@@ -37,7 +37,7 @@ describe('Cache Store', () => {
     
     cacheStore.set('test-key', data, 1); // 1ms TTL
     
-    // Wait for expiration
+
     await new Promise(resolve => setTimeout(resolve, 10));
     
     const result = cacheStore.get('test-key');
@@ -83,7 +83,7 @@ describe('Cache Store', () => {
     cacheStore.set('test-key', { data: 1 }, 1); // 1ms TTL
     expect(cacheStore.has('test-key')).toBe(true);
     
-    // Advance time by 10ms to trigger expiration
+
     vi.advanceTimersByTime(10);
     
     expect(cacheStore.has('test-key')).toBe(false);
@@ -106,7 +106,7 @@ describe('Cache Store', () => {
     
     expect(cacheStore.isFull).toBe(false);
     
-    // Fill cache to max size (100 by default)
+
     for (let i = 0; i < 100; i++) {
       cacheStore.set(`key${i}`, { data: i });
     }
@@ -120,7 +120,7 @@ describe('Cache Store', () => {
     cacheStore.set('expired-key', { data: 1 }, 1); // 1ms TTL
     cacheStore.set('valid-key', { data: 2 }, 60000); // 1 minute TTL
     
-    // Wait for expiration
+
     setTimeout(() => {
       cacheStore.cleanupExpired();
       
@@ -138,10 +138,10 @@ describe('Cache Store', () => {
       }
     };
     
-    // Set up localStorage data
+
     localStorage.setItem('cartalia-cache', JSON.stringify(mockData));
     
-    // Create a new cache store instance and initialize manually
+
     const newCacheStore = useCacheStore();
     newCacheStore.initializeCache();
     

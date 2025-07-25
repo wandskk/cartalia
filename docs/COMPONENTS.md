@@ -109,7 +109,7 @@ const isLoading = ref(false);
 
 const handleSubmit = () => {
   isLoading.value = true;
-  // Lógica de submit
+
 };
 </script>
 ```
@@ -216,7 +216,7 @@ import { useErrorStore } from '@/stores/error';
 const errorStore = useErrorStore();
 
 const handleRetry = () => {
-  // Lógica de retry
+
 };
 </script>
 ```
@@ -386,7 +386,7 @@ const error = ref<string | null>(null);
 const hasMore = ref(false);
 
 const loadMoreCards = async () => {
-  // Lógica para carregar mais cartas
+
 };
 
 const handleCardClick = (card: Card) => {
@@ -437,7 +437,7 @@ import CardItem from '@/components/features/cards/CardItem.vue';
 const isSelected = ref(false);
 
 const handleClick = (card: Card) => {
-  // Navegar para detalhes da carta
+
 };
 
 const handleSelect = (card: Card, selected: boolean) => {
@@ -577,11 +577,11 @@ const loading = ref(false);
 const error = ref<string | null>(null);
 
 const handleTradeClick = (trade: Trade) => {
-  // Ver detalhes da troca
+
 };
 
 const handleDeleteTrade = async (tradeId: string) => {
-  // Deletar troca
+
 };
 </script>
 ```
@@ -736,43 +736,43 @@ ComponentName.vue
 
 ```vue
 <script setup lang="ts">
-// 1. Imports externos
+
 import { ref, computed } from 'vue';
 
-// 2. Imports internos
+
 import BaseButton from '../common/BaseButton.vue';
 
-// 3. Types e interfaces
+
 interface Props {
   title: string;
   loading?: boolean;
 }
 
-// 4. Props e emits
+
 const props = defineProps<Props>();
 const emit = defineEmits<{
   submit: [data: any];
 }>();
 
-// 5. Composables
+
 const router = useRouter();
 
-// 6. Refs e reactive
+
 const formData = ref({});
 
-// 7. Computed
+
 const isValid = computed(() => {
-  // ...
+
 });
 
-// 8. Methods
+
 function handleSubmit() {
-  // ...
+
 }
 
-// 9. Lifecycle hooks
+
 onMounted(() => {
-  // ...
+
 });
 </script>
 ```
@@ -784,18 +784,18 @@ onMounted(() => {
 @use '../../styles/_variables.scss' as *;
 
 .component-name {
-  // Estilos do componente
+
 }
 
-// Estados
+
 .component-name--loading {
-  // Estado de loading
+
 }
 
-// Responsividade
+
 @media (max-width: $breakpoint-md) {
   .component-name {
-    // Estilos mobile
+
   }
 }
 </style>
@@ -816,7 +816,7 @@ src/components/
 ### 🔧 Exemplo de Teste
 
 ```typescript
-// src/components/common/__tests__/BaseButton.test.ts
+
 import { mount } from '@vue/test-utils';
 import { describe, it, expect } from 'vitest';
 import BaseButton from '../BaseButton.vue';

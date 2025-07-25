@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 
-// Mock the error store
+
 const mockErrorStore = {
   addApiError: vi.fn()
 };
@@ -12,7 +12,7 @@ vi.mock('../../../stores/error', () => ({
 
 import { useApi } from '../../../composables/useApi';
 
-// Mock da store de erro
+
 vi.mock('../../../stores/error', () => ({
   useErrorStore: () => ({
     errors: [],
@@ -163,8 +163,8 @@ describe('useApi', () => {
     });
   });
 
-  // Note: Error store integration test is skipped due to module-level import mocking limitations
-  // The error store integration is tested in the error store tests themselves
+
+
   describe.skip('error store integration', () => {
     it('should add API error to error store', async () => {
       setActivePinia(createPinia()); // garante que useApi e o teste compartilham a mesma store
