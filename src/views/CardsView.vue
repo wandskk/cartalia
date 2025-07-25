@@ -62,18 +62,13 @@ const {
   searchQuery,
   currentFilter,
   viewMode,
-  filteredCards,
-  setFilter,
-  setSearchQuery,
-  setViewMode,
-  clearFilters
+  filteredCards
 } = useCardFilters(computed(() => cardsStore.userCards));
 
 // Paginação
 const itemsPerPage = 12;
 const {
   currentPage,
-  totalItemsCount,
   setPage,
   setTotalItems,
   paginateItems
