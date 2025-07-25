@@ -64,8 +64,8 @@ withDefaults(defineProps<Props>(), {
     { value: 'recent', label: 'Recentes' }
   ],
   viewModes: () => [
-    { value: 'grid', icon: '⊞', title: 'Visualização em grade' },
-    { value: 'list', icon: '☰', title: 'Visualização em lista' }
+    { value: 'grid', icon: 'mdi-view-grid', title: 'Visualização em grade' },
+    { value: 'list', icon: 'mdi-view-list', title: 'Visualização em lista' }
   ]
 });
 

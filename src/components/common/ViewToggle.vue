@@ -11,7 +11,7 @@
       :aria-label="view.title"
       class="text-none"
     >
-      <v-icon size="16">{{ view.icon }}</v-icon>
+      <v-icon :icon="view.icon" size="16"></v-icon>
     </v-btn>
   </div>
 </template>
@@ -42,38 +42,4 @@ const emit = defineEmits<Emits>();
 function handleViewChange(view: 'grid' | 'list') {
   emit('update:modelValue', view);
 }
-</script>
-
-<style scoped lang="scss">
-@use '../../styles/_variables.scss' as *;
-
-.view-toggle {
-  display: flex;
-  gap: 4px;
-  background: $gray-100;
-  border-radius: 8px;
-  padding: 4px;
-
-  .view-btn {
-    padding: 8px 12px;
-    border: none;
-    background: transparent;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    color: $gray-600;
-    font-size: 16px;
-
-    &.active {
-      background: $white;
-      color: $primary;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    &:hover:not(.active) {
-      background: rgba($primary, 0.1);
-      color: $primary;
-    }
-  }
-}
-</style> 
+</script> 
