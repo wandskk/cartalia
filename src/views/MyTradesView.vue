@@ -6,37 +6,39 @@
         subtitle="Gerencie suas solicitações de troca e crie novas propostas"
       >
         <template #actions>
-          <BaseButton
+          <v-btn
             @click="showCreateModal = true"
             color="primary"
-            class="create-btn"
+            variant="elevated"
+            class="d-flex align-center ga-2"
           >
-            <span class="btn-icon">+</span>
+            <v-icon>mdi-plus</v-icon>
             Nova Troca
-          </BaseButton>
+          </v-btn>
         </template>
       </PageHeader>
 
       <TradeStats :trades="userTrades" />
 
-      <div class="trades-section">
-        <div class="section-header">
-          <TradeFilters v-model="filters" @filter="handleFiltersChange" />
+      <v-card class="trades-section" elevation="2">
+        <v-card-text class="pa-6">
+          <div class="d-flex justify-space-between align-end flex-wrap ga-4">
+            <TradeFilters v-model="filters" @filter="handleFiltersChange" />
+          </div>
 
-        </div>
-
-        <div class="trades-content">
-          <MyTradeList
-            :trades="filteredTrades"
-            :loading="loading"
-            :error="error"
-            :view-mode="viewMode"
-            @retry="fetchUserTrades"
-            @delete="handleDeleteTrade"
-            @edit="handleEditTrade"
-          />
-        </div>
-      </div>
+          <div class="trades-content">
+            <MyTradeList
+              :trades="filteredTrades"
+              :loading="loading"
+              :error="error"
+              :view-mode="viewMode"
+              @retry="fetchUserTrades"
+              @delete="handleDeleteTrade"
+              @edit="handleEditTrade"
+            />
+          </div>
+        </v-card-text>
+      </v-card>
     </Container>
 
     <!-- Modal de Criação de Troca -->
@@ -63,7 +65,6 @@ import { useAuthStore } from "../stores/auth";
 import { useNotificationStore } from "../stores/notification";
 import { useTradeFilters } from "../composables/useTradeFilters";
 import Container from "../components/common/Container.vue";
-import BaseButton from "../components/common/BaseButton.vue";
 import PageHeader from "../components/common/PageHeader.vue";
 import MyTradeList from "../components/features/trades/MyTradeList.vue";
 import CreateTradeModal from "../components/features/trades/CreateTradeModal.vue";
@@ -137,54 +138,14 @@ function handleTradeCreated() {
 }
 </script>
 
-<style scoped lang="scss">
-@use "../styles/_variables.scss" as *;
-
+<style scoped>
 .my-trades-view {
   min-height: 100vh;
-  background: linear-gradient(135deg, $gray-50 0%, $white 100%);
+  background: linear-gradient(135deg, rgb(var(--v-theme-grey-lighten-5)) 0%, white 100%);
+}
 
-  .create-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    font-weight: 600;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba($primary, 0.3);
-    transition: all 0.3s ease;
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba($primary, 0.4);
-    }
-
-    .btn-icon {
-      font-size: 18px;
-      font-weight: bold;
-    }
-  }
-
-  .trades-section {
-    background: $white;
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba($primary, 0.1);
-
-    .section-header {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      flex-wrap: wrap;
-      gap: 16px;
-
-
-      & .trade-filters {
-        width: 100%;
-      }
-    }
-  }
+.trades-section {
+  border-radius: 16px;
+  border: 1px solid rgba(var(--v-theme-primary), 0.1);
 }
 </style>

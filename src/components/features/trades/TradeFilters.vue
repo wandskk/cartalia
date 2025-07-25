@@ -1,5 +1,5 @@
 <template>
-  <div class="trade-filters">
+  <div class="mb-6">
     <div class="search-section">
       <SearchInput
         v-model="filters.search"
@@ -37,25 +37,19 @@ watch(filters, (newFilters) => {
 }, { deep: true });
 </script>
 
-<style scoped lang="scss">
-@use '../../../styles/_variables.scss' as *;
-
-.trade-filters {
-  margin-bottom: 24px;
-
-  .search-section {
-    width: 100%;
-    max-width: 400px;
-  }
+<style scoped>
+.search-section {
+  width: 100%;
+  max-width: 400px;
 }
 
 @media (max-width: 768px) {
-  .trade-filters {
-    margin-bottom: 16px;
-
-    .search-section {
-      max-width: 100%;
-    }
+  .mb-6 {
+    margin-bottom: 16px !important;
+  }
+  
+  .search-section {
+    max-width: 100%;
   }
 }
 </style> 
