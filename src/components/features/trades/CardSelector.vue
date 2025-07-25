@@ -14,9 +14,8 @@
     </div>
 
     <div class="cards-section">
-      <div v-if="loading" class="loading-state">
-        <div class="loading-spinner"></div>
-        <p>Carregando cartas...</p>
+      <div v-if="loading" class="d-flex flex-column align-center justify-center py-10 text-grey">
+        <LoadingSpinner text="Carregando cartas..." />
       </div>
 
       <div v-else-if="error" class="error-state">
@@ -77,6 +76,7 @@
 import { ref, computed } from 'vue';
 import BaseInput from '../../common/BaseInput.vue';
 import BaseButton from '../../common/BaseButton.vue';
+import LoadingSpinner from '../../common/LoadingSpinner.vue';
 import type { Card } from '../../../types';
 
 interface Props {

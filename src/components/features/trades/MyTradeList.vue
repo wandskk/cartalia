@@ -1,8 +1,7 @@
 <template>
   <div class="my-trade-list">
-    <div v-if="loading && trades.length === 0" class="loading-state">
-      <div class="loading-spinner"></div>
-      <p>Carregando suas trocas...</p>
+    <div v-if="loading && trades.length === 0" class="d-flex flex-column align-center justify-center py-10 text-grey">
+      <LoadingSpinner text="Carregando suas trocas..." />
     </div>
 
     <div v-else-if="error && trades.length === 0" class="error-state">
@@ -47,6 +46,7 @@
 <script setup lang="ts">
 import BaseButton from "../../common/BaseButton.vue";
 import TradeItem from "./TradeItem.vue";
+import LoadingSpinner from "../../common/LoadingSpinner.vue";
 import type { Trade } from "../../../types";
 
 interface Props {

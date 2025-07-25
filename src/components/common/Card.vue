@@ -31,8 +31,8 @@
         />
       </div>
 
-      <div v-if="loading" class="card-loading-overlay">
-        <div class="loading-spinner"></div>
+      <div v-if="loading" class="card-loading-overlay d-flex align-center justify-center">
+        <LoadingSpinner size="32" />
       </div>
     </div>
 
@@ -56,6 +56,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import LoadingSpinner from './LoadingSpinner.vue';
 import type { Card as CardType } from '../../types';
 
 interface Props {

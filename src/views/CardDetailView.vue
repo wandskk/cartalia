@@ -1,9 +1,8 @@
 <template>
   <div class="card-detail-view">
     <Container>
-      <div v-if="loading" class="loading-state">
-        <div class="loading-spinner"></div>
-        <p>Carregando detalhes da carta...</p>
+      <div v-if="loading" class="d-flex flex-column align-center justify-center py-10 text-grey">
+        <LoadingSpinner text="Carregando detalhes da carta..." />
       </div>
 
       <div v-else-if="error" class="error-state">
@@ -73,6 +72,7 @@ import { useAuthStore } from "../stores/auth";
 import { useNotificationStore } from "../stores/notification";
 import Container from "../components/common/Container.vue";
 import BaseButton from "../components/common/BaseButton.vue";
+import LoadingSpinner from "../components/common/LoadingSpinner.vue";
 
 const route = useRoute();
 const router = useRouter();

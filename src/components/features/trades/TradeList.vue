@@ -1,8 +1,7 @@
 <template>
   <div class="trade-list">
     <div v-if="loading && trades.length === 0" class="d-flex flex-column align-center justify-center py-10 text-grey">
-      <v-progress-circular indeterminate color="primary" size="48" class="mb-4" />
-      <p>Carregando trocas...</p>
+      <LoadingSpinner text="Carregando trocas..." />
     </div>
 
     <div v-else-if="error && trades.length === 0" class="d-flex flex-column align-center justify-center py-10 text-center">
@@ -55,8 +54,7 @@
     </div>
 
     <div v-if="loading && trades.length > 0" class="d-flex flex-column align-center justify-center py-6 text-grey">
-      <v-progress-circular indeterminate color="primary" size="32" class="mb-2" />
-      <p>Carregando mais trocas...</p>
+      <LoadingSpinner text="Carregando mais trocas..." size="32" />
     </div>
   </div>
 </template>

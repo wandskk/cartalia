@@ -7,9 +7,8 @@
       </BaseButton>
     </div>
 
-    <div v-if="loading" class="loading-state">
-      <div class="loading-spinner"></div>
-      <p>Carregando atividades...</p>
+    <div v-if="loading" class="d-flex flex-column align-center justify-center py-10 text-grey">
+      <LoadingSpinner text="Carregando atividades..." />
     </div>
 
     <div v-else-if="error" class="error-state">
@@ -50,6 +49,7 @@
 import { computed } from "vue";
 import { useRouter } from "vue-router";
 import BaseButton from "../../common/BaseButton.vue";
+import LoadingSpinner from "../../common/LoadingSpinner.vue";
 import type { Trade } from '../../../types';
 import type { Card } from '../../../types';
 
