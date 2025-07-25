@@ -1,34 +1,18 @@
 <template>
-  <div class="container">
+  <v-container class="container" max-width="1200">
     <slot />
-  </div>
+  </v-container>
 </template>
 
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
-<style scoped lang="scss">
-@use '../../styles/_variables.scss' as *;
-
+<style scoped>
 .container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
-  box-sizing: border-box;
   overflow-x: hidden;
+  padding: 2rem !important;
 
-  @media (max-width: 1024px) {
-    max-width: 100%;
-    padding: 0 1.5rem;
-  }
-
-  @media (max-width: 768px) {
-    padding: 0 1.25rem;
-  }
-
-  @media (max-width: 480px) {
-    padding: 0 1rem;
+  @media screen and (max-width: 768px) {
+    padding-top: 5rem !important;
   }
 }
-</style> 
+</style>

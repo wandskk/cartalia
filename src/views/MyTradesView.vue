@@ -143,7 +143,6 @@ function handleTradeCreated() {
 .my-trades-view {
   min-height: 100vh;
   background: linear-gradient(135deg, $gray-50 0%, $white 100%);
-  padding: 24px 0;
 
   .create-btn {
     display: flex;

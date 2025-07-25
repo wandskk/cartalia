@@ -1,7 +1,7 @@
 <template>
   <div class="marketplace-view">
     <Container>
-      <PageHeader 
+      <PageHeader
         title="Marketplace de Cartas"
         subtitle="Explore as trocas disponíveis e encontre as cartas que você procura"
       >
@@ -11,7 +11,7 @@
               Criar Nova Troca
             </BaseButton>
           </div>
-        
+
           <div v-else class="header-actions">
             <BaseButton @click="goToLogin" color="primary">
               Fazer Login
@@ -25,15 +25,12 @@
 
       <div class="marketplace-content">
         <div class="stats-section">
-          <StatCard
-            :number="filteredTradesCount"
-            label="Trocas Disponíveis"
-          />
+          <StatCard :number="filteredTradesCount" label="Trocas Disponíveis" />
         </div>
 
         <div class="trades-section">
           <TradeFilters @filters-change="handleFiltersChange" />
-          
+
           <TradeList
             :trades="filteredTradesList"
             :loading="loading"
@@ -51,17 +48,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { useTradesStore } from '../stores/trades';
-import { useAuthStore } from '../stores/auth';
-import { useMarketplaceFilters } from '../composables/useMarketplaceFilters';
-import Container from '../components/common/Container.vue';
-import BaseButton from '../components/common/BaseButton.vue';
-import PageHeader from '../components/common/PageHeader.vue';
-import TradeList from '../components/features/trades/TradeList.vue';
-import TradeFilters from '../components/features/trades/TradeFilters.vue';
-import StatCard from '../components/common/StatCard.vue';
+import { computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useTradesStore } from "../stores/trades";
+import { useAuthStore } from "../stores/auth";
+import { useMarketplaceFilters } from "../composables/useMarketplaceFilters";
+import Container from "../components/common/Container.vue";
+import BaseButton from "../components/common/BaseButton.vue";
+import PageHeader from "../components/common/PageHeader.vue";
+import TradeList from "../components/features/trades/TradeList.vue";
+import TradeFilters from "../components/features/trades/TradeFilters.vue";
+import StatCard from "../components/common/StatCard.vue";
 
 const router = useRouter();
 const tradesStore = useTradesStore();
@@ -104,25 +101,24 @@ function handleFiltersChange(newFilters: any) {
 }
 
 function goToCreateTrade() {
-  router.push('/my-trades');
+  router.push("/my-trades");
 }
 
 function goToLogin() {
-  router.push('/login');
+  router.push("/login");
 }
 
 function goToRegister() {
-  router.push('/register');
+  router.push("/register");
 }
 </script>
 
 <style scoped lang="scss">
-@use '../styles/_variables.scss' as *;
+@use "../styles/_variables.scss" as *;
 
 .marketplace-view {
   min-height: 100vh;
   background: $gray-50;
-  padding: 24px 0;
 
   .marketplace-content {
     display: flex;
@@ -156,8 +152,6 @@ function goToRegister() {
 
 @media (max-width: 768px) {
   .marketplace-view {
-    padding: 16px 0;
-
     .marketplace-content {
       gap: 16px;
     }
@@ -167,4 +161,4 @@ function goToRegister() {
     }
   }
 }
-</style> 
+</style>
