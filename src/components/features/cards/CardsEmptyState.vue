@@ -1,19 +1,17 @@
 <template>
-  <div class="cards-empty-state">
-    <div class="empty-content">
-      <div class="empty-icon">🃏</div>
-      <h3>{{ title }}</h3>
-      <p>{{ description }}</p>
-      <BaseButton @click="$emit('add-cards')" color="primary">
+  <div class="d-flex align-center justify-center py-10">
+    <div class="text-center" style="max-width: 400px;">
+      <div class="mb-4" style="font-size: 64px;">🃏</div>
+      <h3 class="text-h5 font-weight-bold mb-4">{{ title }}</h3>
+      <p class="text-body-1 text-grey mb-6">{{ description }}</p>
+      <v-btn @click="$emit('add-cards')" color="primary" variant="elevated">
         {{ buttonText }}
-      </BaseButton>
+      </v-btn>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import BaseButton from '../../common/BaseButton.vue';
-
 interface Props {
   title?: string;
   description?: string;

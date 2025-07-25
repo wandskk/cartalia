@@ -1,19 +1,27 @@
 <template>
-  <div 
-    class="stat-card" 
+  <v-card 
     :class="[
+      'stat-card',
       variant,
       { 'with-icon': icon }
     ]"
+    elevation="2"
+    class="pa-6 d-flex align-center ga-4"
   >
-    <div v-if="icon" class="stat-icon">
-      <span class="icon">{{ icon }}</span>
+    <v-avatar 
+      v-if="icon" 
+      size="48" 
+      color="primary" 
+      class="flex-shrink-0"
+    >
+      <span style="font-size: 24px;">{{ icon }}</span>
+    </v-avatar>
+    
+    <div class="flex-grow-1">
+      <div class="text-h4 font-weight-bold mb-1">{{ number }}</div>
+      <div class="text-caption text-grey text-uppercase font-weight-medium letter-spacing-1">{{ label }}</div>
     </div>
-    <div class="stat-content">
-      <span class="stat-number">{{ number }}</span>
-      <span class="stat-label">{{ label }}</span>
-    </div>
-  </div>
+  </v-card>
 </template>
 
 <script setup lang="ts">
@@ -29,128 +37,72 @@ withDefaults(defineProps<Props>(), {
 });
 </script>
 
-<style scoped lang="scss">
-@use '../../styles/_variables.scss' as *;
-
+<style scoped>
 .stat-card {
-  background: $white;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba($primary, 0.1);
   transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 16px;
+  border: 1px solid rgba(var(--v-theme-primary), 0.1);
+}
 
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-    border-color: rgba($primary, 0.2);
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12) !important;
+  border-color: rgba(var(--v-theme-primary), 0.2);
+}
+
+.stat-card.primary {
+  background: linear-gradient(135deg, rgb(var(--v-theme-primary)) 0%, rgba(var(--v-theme-primary), 0.9) 100%) !important;
+  color: white;
+}
+
+.stat-card.primary .text-h4,
+.stat-card.primary .text-caption {
+  color: white !important;
+}
+
+.stat-card.primary .v-avatar {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.stat-card.secondary {
+  background: linear-gradient(135deg, rgb(var(--v-theme-grey-lighten-4)) 0%, white 100%) !important;
+  border: 1px solid rgb(var(--v-theme-grey-lighten-2));
+}
+
+.stat-card.default {
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 768px) {
+  .stat-card {
+    padding: 20px !important;
+    gap: 12px !important;
   }
-
-  &.primary {
-    background: linear-gradient(
-      135deg,
-      $primary 0%,
-      color-mix(in srgb, $primary 90%, black) 100%
-    );
-    color: $white;
-
-    .stat-number {
-      color: $white;
-    }
-
-    .stat-label {
-      color: rgba(255, 255, 255, 0.9);
-    }
-
-    .stat-icon {
-      background: rgba(255, 255, 255, 0.2);
-    }
+  
+  .stat-card .v-avatar {
+    width: 40px !important;
+    height: 40px !important;
   }
-
-  &.secondary {
-    background: linear-gradient(135deg, $gray-100 0%, $white 100%);
-    border: 1px solid $gray-200;
+  
+  .stat-card .text-h4 {
+    font-size: 24px !important;
   }
+}
 
-  &.default {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+@media (max-width: 480px) {
+  .stat-card {
+    padding: 16px !important;
+    gap: 10px !important;
   }
-
-  .stat-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, $primary 0%, color-mix(in srgb, $primary 85%, white) 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-
-    .icon {
-      font-size: 24px;
-    }
+  
+  .stat-card .v-avatar {
+    width: 36px !important;
+    height: 36px !important;
   }
-
-  .stat-content {
-    flex: 1;
-
-    .stat-number {
-      display: block;
-      font-size: 32px;
-      font-weight: 700;
-      color: $black;
-      line-height: 1;
-      margin-bottom: 4px;
-    }
-
-    .stat-label {
-      font-size: 14px;
-      color: $gray-600;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-  }
-
-  @media (max-width: 768px) {
-    padding: 20px;
-    gap: 12px;
-
-    .stat-icon {
-      width: 40px;
-      height: 40px;
-
-      .icon {
-        font-size: 20px;
-      }
-    }
-
-    .stat-content .stat-number {
-      font-size: 24px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    padding: 16px;
-    gap: 10px;
-
-    .stat-icon {
-      width: 36px;
-      height: 36px;
-
-      .icon {
-        font-size: 18px;
-      }
-    }
-
-    .stat-content .stat-number {
-      font-size: 20px;
-    }
+  
+  .stat-card .text-h4 {
+    font-size: 20px !important;
   }
 }
 </style> 
