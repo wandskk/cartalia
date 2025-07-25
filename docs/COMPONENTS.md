@@ -25,6 +25,7 @@ O projeto Cartalia utiliza uma arquitetura baseada em componentes Vue 3 com Comp
 ```
 Vue 3 (Composition API)
 ├── TypeScript
+├── Vuetify 3
 ├── SASS/SCSS
 ├── Props Validation (Zod)
 ├── Event Emitting
@@ -36,48 +37,77 @@ Vue 3 (Composition API)
 ```
 src/components/
 ├── common/              # Componentes base reutilizáveis
-│   ├── BaseButton.vue
-│   ├── BaseInput.vue
+│   ├── BaseModal.vue
+│   ├── Card.vue
+│   ├── CardPreview.vue
+│   ├── Container.vue
+│   ├── ErrorBoundary.vue
 │   ├── ErrorModal.vue
-│   └── UserAvatar.vue
+│   ├── Loading.vue
+│   ├── LoadingOverlay.vue
+│   ├── LoadingSpinner.vue
+│   ├── Logo.vue
+│   ├── NavMenu.vue
+│   ├── Notification.vue
+│   ├── PageHeader.vue
+│   ├── Pagination.vue
+│   ├── SearchInput.vue
+│   ├── SearchWithPagination.vue
+│   ├── SimplePagination.vue
+│   ├── StatCard.vue
+│   ├── StatsGrid.vue
+│   └── ViewToggle.vue
 ├── features/            # Componentes específicos
 │   ├── auth/           # Autenticação
 │   │   ├── LoginForm.vue
 │   │   └── RegisterForm.vue
 │   ├── cards/          # Gerenciamento de cartas
+│   │   ├── AddCardModal.vue
+│   │   ├── CardDetailModal.vue
 │   │   ├── CardList.vue
-│   │   ├── CardItem.vue
-│   │   ├── CardDetail.vue
-│   │   └── AddCardForm.vue
+│   │   ├── CardsEmptyState.vue
+│   │   ├── CardsErrorState.vue
+│   │   ├── CardsFilters.vue
+│   │   ├── CardsHeader.vue
+│   │   ├── CardsNoResults.vue
+│   │   └── CardStats.vue
 │   ├── dashboard/      # Dashboard
+│   │   ├── DashboardHeader.vue
 │   │   ├── DashboardStats.vue
 │   │   ├── QuickActions.vue
 │   │   └── RecentActivity.vue
 │   └── trades/         # Sistema de trocas
-│       ├── TradeList.vue
+│       ├── CreateTradeModal.vue
+│       ├── DeleteConfirmationModal.vue
+│       ├── MyTradeList.vue
+│       ├── TradeFilters.vue
 │       ├── TradeItem.vue
-│       ├── CreateTradeForm.vue
-│       └── CardSelector.vue
+│       ├── TradeList.vue
+│       ├── TradePreviewStep.vue
+│       ├── TradeStats.vue
+│       └── TradeStepCardSelection.vue
 └── layout/             # Componentes de layout
     ├── Header.vue
-    ├── Footer.vue
-    └── Container.vue
+    ├── MainLayout.vue
+    └── Sidebar.vue
 ```
 
 ## 🔧 Componentes Base
 
-### BaseButton
+### BaseModal
 
-Componente de botão reutilizável com diferentes variantes e estados.
+Componente base para todos os modais da aplicação.
 
 #### 📝 Props
 
 ```typescript
 interface Props {
-  type?: 'button' | 'submit' | 'reset';
-  disabled?: boolean;
+  modelValue: boolean;
+  title?: string;
+  width?: string | number;
+  persistent?: boolean;
+  closeOnOverlay?: boolean;
   loading?: boolean;
-  color?: 'primary' | 'secondary' | 'accent' | 'success' | 'error' | 'warning' | 'info';
 }
 ```
 
@@ -85,7 +115,9 @@ interface Props {
 
 ```typescript
 interface Emits {
-  click: [event: MouseEvent];
+  'update:modelValue': [value: boolean];
+  close: [];
+  confirm: [];
 }
 ```
 
@@ -93,54 +125,195 @@ interface Emits {
 
 ```vue
 <template>
-  <BaseButton 
-    color="primary" 
-    :loading="isLoading"
-    @click="handleSubmit"
+  <BaseModal
+    v-model="showModal"
+    title="Confirmação"
+    width="500"
+    :persistent="true"
+    @confirm="handleConfirm"
   >
-    Salvar
-  </BaseButton>
+    <p>Tem certeza que deseja continuar?</p>
+  </BaseModal>
 </template>
 
 <script setup lang="ts">
-import BaseButton from '@/components/common/BaseButton.vue';
+import { ref } from 'vue';
+import BaseModal from '@/components/common/BaseModal.vue';
 
-const isLoading = ref(false);
+const showModal = ref(false);
 
-const handleSubmit = () => {
-  isLoading.value = true;
-
+const handleConfirm = () => {
+  // Lógica de confirmação
+  showModal.value = false;
 };
 </script>
 ```
 
-#### 🎨 Variantes de Cor
+### Card
 
-| Cor | Descrição | Uso |
-|-----|-----------|-----|
-| `primary` | Azul principal | Ações principais |
-| `secondary` | Cinza | Ações secundárias |
-| `accent` | Destaque | Ações especiais |
-| `success` | Verde | Confirmações |
-| `error` | Vermelho | Exclusões/erros |
-| `warning` | Amarelo | Avisos |
-| `info` | Azul claro | Informações |
+Componente para exibição de cartas com informações básicas.
 
-### BaseInput
+#### 📝 Props
 
-Componente de input reutilizável com validação integrada.
+```typescript
+interface Props {
+  card: Card;
+  selectable?: boolean;
+  selected?: boolean;
+  showDetails?: boolean;
+  loading?: boolean;
+}
+```
+
+#### 🎯 Eventos
+
+```typescript
+interface Emits {
+  select: [card: Card];
+  click: [card: Card];
+}
+```
+
+#### 📝 Exemplo de Uso
+
+```vue
+<template>
+  <Card
+    :card="card"
+    :selectable="true"
+    :selected="isSelected"
+    @select="handleCardSelect"
+  />
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+import Card from '@/components/common/Card.vue';
+import type { Card as CardType } from '@/types';
+
+const card = ref<CardType>({
+  id: '1',
+  name: 'Blue-Eyes White Dragon',
+  description: 'This legendary dragon...',
+  image: '/images/card.jpg',
+  rarity: 'legendary',
+  type: 'monster',
+  attack: 3000,
+  defense: 2500
+});
+
+const isSelected = ref(false);
+
+const handleCardSelect = (selectedCard: CardType) => {
+  isSelected.value = !isSelected.value;
+};
+</script>
+```
+
+### LoadingOverlay
+
+Componente para exibir loading sobre outros elementos.
+
+#### 📝 Props
+
+```typescript
+interface Props {
+  loading: boolean;
+  message?: string;
+  overlay?: boolean;
+}
+```
+
+#### 📝 Exemplo de Uso
+
+```vue
+<template>
+  <div class="relative">
+    <LoadingOverlay
+      :loading="isLoading"
+      message="Carregando cartas..."
+    />
+    <CardList :cards="cards" />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+import LoadingOverlay from '@/components/common/LoadingOverlay.vue';
+
+const isLoading = ref(false);
+const cards = ref([]);
+</script>
+```
+
+### Pagination
+
+Componente de paginação reutilizável.
+
+#### 📝 Props
+
+```typescript
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  itemsPerPage: number;
+  showInfo?: boolean;
+  showFirstLast?: boolean;
+}
+```
+
+#### 🎯 Eventos
+
+```typescript
+interface Emits {
+  'update:currentPage': [page: number];
+  'change': [page: number];
+}
+```
+
+#### 📝 Exemplo de Uso
+
+```vue
+<template>
+  <Pagination
+    v-model:current-page="currentPage"
+    :total-pages="totalPages"
+    :total-items="totalItems"
+    :items-per-page="itemsPerPage"
+    @change="handlePageChange"
+  />
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+import Pagination from '@/components/common/Pagination.vue';
+
+const currentPage = ref(1);
+const totalPages = ref(10);
+const totalItems = ref(100);
+const itemsPerPage = ref(10);
+
+const handlePageChange = (page: number) => {
+  // Carregar dados da nova página
+  loadCards(page);
+};
+</script>
+```
+
+### SearchInput
+
+Componente de busca com debounce.
 
 #### 📝 Props
 
 ```typescript
 interface Props {
   modelValue: string;
-  type?: 'text' | 'email' | 'password' | 'number';
   placeholder?: string;
-  label?: string;
-  required?: boolean;
-  disabled?: boolean;
-  error?: string;
+  debounce?: number;
+  clearable?: boolean;
+  loading?: boolean;
 }
 ```
 
@@ -149,8 +322,8 @@ interface Props {
 ```typescript
 interface Emits {
   'update:modelValue': [value: string];
-  'blur': [event: FocusEvent];
-  'focus': [event: FocusEvent];
+  search: [query: string];
+  clear: [];
 }
 ```
 
@@ -158,33 +331,46 @@ interface Emits {
 
 ```vue
 <template>
-  <BaseInput
-    v-model="email"
-    type="email"
-    label="Email"
-    placeholder="Digite seu email"
-    :error="emailError"
-    required
+  <SearchInput
+    v-model="searchQuery"
+    placeholder="Buscar cartas..."
+    :debounce="300"
+    :loading="isSearching"
+    @search="handleSearch"
   />
 </template>
 
 <script setup lang="ts">
-import BaseInput from '@/components/common/BaseInput.vue';
+import { ref } from 'vue';
+import SearchInput from '@/components/common/SearchInput.vue';
 
-const email = ref('');
-const emailError = ref('');
+const searchQuery = ref('');
+const isSearching = ref(false);
+
+const handleSearch = (query: string) => {
+  isSearching.value = true;
+  // Lógica de busca
+  searchCards(query).finally(() => {
+    isSearching.value = false;
+  });
+};
 </script>
 ```
 
-### ErrorModal
+## 🎨 Componentes de Features
 
-Modal para exibição de erros globais da aplicação.
+### 🔐 Autenticação
+
+#### LoginForm
+
+Formulário de login com validação.
 
 #### 📝 Props
 
 ```typescript
 interface Props {
-  isOpen: boolean;
+  loading?: boolean;
+  error?: string;
 }
 ```
 
@@ -192,9 +378,8 @@ interface Props {
 
 ```typescript
 interface Emits {
-  close: [];
-  retry: [];
-  'go-to-login': [];
+  submit: [credentials: LoginCredentials];
+  register: [];
 }
 ```
 
@@ -202,146 +387,51 @@ interface Emits {
 
 ```vue
 <template>
-  <ErrorModal 
-    :is-open="errorStore.isErrorModalOpen"
-    @close="errorStore.closeErrorModal"
-    @retry="handleRetry"
+  <LoginForm
+    :loading="isLoading"
+    :error="error"
+    @submit="handleLogin"
+    @register="goToRegister"
   />
 </template>
 
 <script setup lang="ts">
-import ErrorModal from '@/components/common/ErrorModal.vue';
-import { useErrorStore } from '@/stores/error';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import LoginForm from '@/components/features/auth/LoginForm.vue';
+import { useAuthStore } from '@/stores/auth';
 
-const errorStore = useErrorStore();
+const router = useRouter();
+const authStore = useAuthStore();
 
-const handleRetry = () => {
+const isLoading = ref(false);
+const error = ref('');
 
+const handleLogin = async (credentials: LoginCredentials) => {
+  isLoading.value = true;
+  error.value = '';
+  
+  try {
+    await authStore.login(credentials);
+    router.push('/dashboard');
+  } catch (err) {
+    error.value = 'Credenciais inválidas';
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const goToRegister = () => {
+  router.push('/register');
 };
 </script>
 ```
 
-### UserAvatar
-
-Componente para exibição de avatar do usuário.
-
-#### 📝 Props
-
-```typescript
-interface Props {
-  src: string;
-  alt?: string;
-  size?: 'small' | 'medium' | 'large';
-}
-```
-
-#### 📝 Exemplo de Uso
-
-```vue
-<template>
-  <UserAvatar 
-    :src="user.avatar" 
-    :alt="user.name"
-    size="medium"
-  />
-</template>
-
-<script setup lang="ts">
-import UserAvatar from '@/components/common/UserAvatar.vue';
-</script>
-```
-
-## 🎨 Componentes de Features
-
-### Auth Components
-
-#### LoginForm
-
-Formulário de login com validação.
-
-```vue
-<template>
-  <form @submit.prevent="handleSubmit">
-    <BaseInput
-      v-model="form.email"
-      type="email"
-      label="Email"
-      :error="errors.email"
-      required
-    />
-    <BaseInput
-      v-model="form.password"
-      type="password"
-      label="Senha"
-      :error="errors.password"
-      required
-    />
-    <BaseButton 
-      type="submit" 
-      :loading="loading"
-      color="primary"
-    >
-      Entrar
-    </BaseButton>
-  </form>
-</template>
-
-<script setup lang="ts">
-import { useAuthForm } from '@/composables/useAuthForm';
-
-const { form, errors, loading, handleSubmit } = useAuthForm('login');
-</script>
-```
-
-#### RegisterForm
-
-Formulário de registro com validação.
-
-```vue
-<template>
-  <form @submit.prevent="handleSubmit">
-    <BaseInput
-      v-model="form.name"
-      label="Nome"
-      :error="errors.name"
-      required
-    />
-    <BaseInput
-      v-model="form.email"
-      type="email"
-      label="Email"
-      :error="errors.email"
-      required
-    />
-    <BaseInput
-      v-model="form.password"
-      type="password"
-      label="Senha"
-      :error="errors.password"
-      required
-    />
-    <BaseButton 
-      type="submit" 
-      :loading="loading"
-      color="primary"
-    >
-      Cadastrar
-    </BaseButton>
-  </form>
-</template>
-
-<script setup lang="ts">
-import { useAuthForm } from '@/composables/useAuthForm';
-
-const { form, errors, loading, handleSubmit } = useAuthForm('register');
-</script>
-```
-
-### Cards Components
+### 🃏 Gerenciamento de Cartas
 
 #### CardList
 
-Lista de cartas com paginação.
+Lista de cartas com paginação e filtros.
 
 #### 📝 Props
 
@@ -349,8 +439,11 @@ Lista de cartas com paginação.
 interface Props {
   cards: Card[];
   loading?: boolean;
-  error?: string | null;
-  hasMore?: boolean;
+  error?: string;
+  selectable?: boolean;
+  selectedCards?: Card[];
+  showFilters?: boolean;
+  showPagination?: boolean;
 }
 ```
 
@@ -358,8 +451,10 @@ interface Props {
 
 ```typescript
 interface Emits {
-  'load-more': [];
-  'card-click': [card: Card];
+  'card-select': [card: Card];
+  'cards-select': [cards: Card[]];
+  'page-change': [page: number];
+  'filter-change': [filters: CardFilters];
 }
 ```
 
@@ -371,41 +466,74 @@ interface Emits {
     :cards="cards"
     :loading="loading"
     :error="error"
-    :has-more="hasMore"
-    @load-more="loadMoreCards"
-    @card-click="handleCardClick"
+    :selectable="true"
+    :selected-cards="selectedCards"
+    :show-filters="true"
+    :show-pagination="true"
+    @card-select="handleCardSelect"
+    @page-change="handlePageChange"
+    @filter-change="handleFilterChange"
   />
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import CardList from '@/components/features/cards/CardList.vue';
+import { useCardsStore } from '@/stores/cards';
 
-const cards = ref<Card[]>([]);
+const cardsStore = useCardsStore();
+
+const cards = ref([]);
 const loading = ref(false);
-const error = ref<string | null>(null);
-const hasMore = ref(false);
+const error = ref('');
+const selectedCards = ref([]);
 
-const loadMoreCards = async () => {
-
+const handleCardSelect = (card: Card) => {
+  const index = selectedCards.value.findIndex(c => c.id === card.id);
+  if (index > -1) {
+    selectedCards.value.splice(index, 1);
+  } else {
+    selectedCards.value.push(card);
+  }
 };
 
-const handleCardClick = (card: Card) => {
-  router.push(`/cards/${card.id}`);
+const handlePageChange = (page: number) => {
+  loadCards(page);
 };
+
+const handleFilterChange = (filters: CardFilters) => {
+  loadCards(1, filters);
+};
+
+const loadCards = async (page = 1, filters = {}) => {
+  loading.value = true;
+  try {
+    const response = await cardsStore.fetchCards({ page, ...filters });
+    cards.value = response.data;
+  } catch (err) {
+    error.value = 'Erro ao carregar cartas';
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(() => {
+  loadCards();
+});
 </script>
 ```
 
-#### CardItem
+#### AddCardModal
 
-Item individual de carta.
+Modal para adicionar cartas à coleção.
 
 #### 📝 Props
 
 ```typescript
 interface Props {
-  card: Card;
-  selectable?: boolean;
-  selected?: boolean;
+  modelValue: boolean;
+  availableCards: Card[];
+  loading?: boolean;
 }
 ```
 
@@ -413,8 +541,8 @@ interface Props {
 
 ```typescript
 interface Emits {
-  click: [card: Card];
-  select: [card: Card, selected: boolean];
+  'update:modelValue': [value: boolean];
+  'card-add': [cardId: string];
 }
 ```
 
@@ -422,114 +550,38 @@ interface Emits {
 
 ```vue
 <template>
-  <CardItem
-    :card="card"
-    :selectable="true"
-    :selected="isSelected"
-    @click="handleClick"
-    @select="handleSelect"
+  <AddCardModal
+    v-model="showAddModal"
+    :available-cards="availableCards"
+    :loading="isAdding"
+    @card-add="handleAddCard"
   />
 </template>
 
 <script setup lang="ts">
-import CardItem from '@/components/features/cards/CardItem.vue';
+import { ref } from 'vue';
+import AddCardModal from '@/components/features/cards/AddCardModal.vue';
 
-const isSelected = ref(false);
+const showAddModal = ref(false);
+const availableCards = ref([]);
+const isAdding = ref(false);
 
-const handleClick = (card: Card) => {
-
+const handleAddCard = async (cardId: string) => {
+  isAdding.value = true;
+  try {
+    await cardsStore.addCard(cardId);
+    showAddModal.value = false;
+    // Recarregar lista de cartas
+  } catch (error) {
+    console.error('Erro ao adicionar carta:', error);
+  } finally {
+    isAdding.value = false;
+  }
 };
-
-const handleSelect = (card: Card, selected: boolean) => {
-  isSelected.value = selected;
-};
 </script>
 ```
 
-### Dashboard Components
-
-#### DashboardStats
-
-Estatísticas do dashboard.
-
-#### 📝 Props
-
-```typescript
-interface Props {
-  stats: {
-    totalCards: number;
-    totalTrades: number;
-    activeTrades: number;
-  };
-}
-```
-
-#### 📝 Exemplo de Uso
-
-```vue
-<template>
-  <DashboardStats :stats="stats" />
-</template>
-
-<script setup lang="ts">
-import DashboardStats from '@/components/features/dashboard/DashboardStats.vue';
-
-const stats = ref({
-  totalCards: 0,
-  totalTrades: 0,
-  activeTrades: 0
-});
-</script>
-```
-
-#### QuickActions
-
-Ações rápidas do dashboard.
-
-#### 📝 Exemplo de Uso
-
-```vue
-<template>
-  <QuickActions />
-</template>
-
-<script setup lang="ts">
-import QuickActions from '@/components/features/dashboard/QuickActions.vue';
-</script>
-```
-
-#### RecentActivity
-
-Atividades recentes do usuário.
-
-#### 📝 Props
-
-```typescript
-interface Props {
-  activities: Activity[];
-  loading?: boolean;
-}
-```
-
-#### 📝 Exemplo de Uso
-
-```vue
-<template>
-  <RecentActivity 
-    :activities="activities" 
-    :loading="loading" 
-  />
-</template>
-
-<script setup lang="ts">
-import RecentActivity from '@/components/features/dashboard/RecentActivity.vue';
-
-const activities = ref<Activity[]>([]);
-const loading = ref(false);
-</script>
-```
-
-### Trades Components
+### 🔄 Sistema de Trocas
 
 #### TradeList
 
@@ -541,8 +593,10 @@ Lista de trocas disponíveis.
 interface Props {
   trades: Trade[];
   loading?: boolean;
-  error?: string | null;
-  showUserTrades?: boolean;
+  error?: string;
+  showFilters?: boolean;
+  showPagination?: boolean;
+  userTrades?: boolean;
 }
 ```
 
@@ -550,8 +604,11 @@ interface Props {
 
 ```typescript
 interface Emits {
-  'trade-click': [trade: Trade];
-  'delete-trade': [tradeId: string];
+  'trade-select': [trade: Trade];
+  'trade-accept': [tradeId: string];
+  'trade-reject': [tradeId: string];
+  'trade-delete': [tradeId: string];
+  'page-change': [page: number];
 }
 ```
 
@@ -563,62 +620,75 @@ interface Emits {
     :trades="trades"
     :loading="loading"
     :error="error"
-    :show-user-trades="true"
-    @trade-click="handleTradeClick"
-    @delete-trade="handleDeleteTrade"
+    :show-filters="true"
+    :user-trades="false"
+    @trade-accept="handleAcceptTrade"
+    @trade-reject="handleRejectTrade"
+    @page-change="handlePageChange"
   />
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import TradeList from '@/components/features/trades/TradeList.vue';
+import { useTradesStore } from '@/stores/trades';
 
-const trades = ref<Trade[]>([]);
+const tradesStore = useTradesStore();
+
+const trades = ref([]);
 const loading = ref(false);
-const error = ref<string | null>(null);
+const error = ref('');
 
-const handleTradeClick = (trade: Trade) => {
-
+const handleAcceptTrade = async (tradeId: string) => {
+  try {
+    await tradesStore.acceptTrade(tradeId);
+    // Recarregar lista
+    loadTrades();
+  } catch (error) {
+    console.error('Erro ao aceitar troca:', error);
+  }
 };
 
-const handleDeleteTrade = async (tradeId: string) => {
-
+const handleRejectTrade = async (tradeId: string) => {
+  try {
+    await tradesStore.rejectTrade(tradeId);
+    // Recarregar lista
+    loadTrades();
+  } catch (error) {
+    console.error('Erro ao rejeitar troca:', error);
+  }
 };
+
+const loadTrades = async () => {
+  loading.value = true;
+  try {
+    const response = await tradesStore.fetchTrades();
+    trades.value = response.data;
+  } catch (err) {
+    error.value = 'Erro ao carregar trocas';
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(() => {
+  loadTrades();
+});
 </script>
 ```
 
-#### CreateTradeForm
+#### CreateTradeModal
 
-Formulário para criar nova troca.
-
-#### 📝 Exemplo de Uso
-
-```vue
-<template>
-  <CreateTradeForm @trade-created="handleTradeCreated" />
-</template>
-
-<script setup lang="ts">
-import CreateTradeForm from '@/components/features/trades/CreateTradeForm.vue';
-
-const handleTradeCreated = (tradeId: string) => {
-  notification.show('Troca criada com sucesso!', 'success');
-  router.push('/my-trades');
-};
-</script>
-```
-
-#### CardSelector
-
-Seletor de cartas para trocas.
+Modal para criar novas trocas.
 
 #### 📝 Props
 
 ```typescript
 interface Props {
+  modelValue: boolean;
   userCards: Card[];
   availableCards: Card[];
-  selectedOffering: string[];
-  selectedReceiving: string[];
+  loading?: boolean;
 }
 ```
 
@@ -626,8 +696,8 @@ interface Props {
 
 ```typescript
 interface Emits {
-  'update:selectedOffering': [cards: string[]];
-  'update:selectedReceiving': [cards: string[]];
+  'update:modelValue': [value: boolean];
+  'trade-create': [tradeData: CreateTradeData];
 }
 ```
 
@@ -635,21 +705,74 @@ interface Emits {
 
 ```vue
 <template>
-  <CardSelector
+  <CreateTradeModal
+    v-model="showCreateModal"
     :user-cards="userCards"
     :available-cards="availableCards"
-    v-model:selected-offering="selectedOffering"
-    v-model:selected-receiving="selectedReceiving"
+    :loading="isCreating"
+    @trade-create="handleCreateTrade"
   />
 </template>
 
 <script setup lang="ts">
-import CardSelector from '@/components/features/trades/CardSelector.vue';
+import { ref } from 'vue';
+import CreateTradeModal from '@/components/features/trades/CreateTradeModal.vue';
 
-const userCards = ref<Card[]>([]);
-const availableCards = ref<Card[]>([]);
-const selectedOffering = ref<string[]>([]);
-const selectedReceiving = ref<string[]>([]);
+const showCreateModal = ref(false);
+const userCards = ref([]);
+const availableCards = ref([]);
+const isCreating = ref(false);
+
+const handleCreateTrade = async (tradeData: CreateTradeData) => {
+  isCreating.value = true;
+  try {
+    await tradesStore.createTrade(tradeData);
+    showCreateModal.value = false;
+    // Recarregar lista de trocas
+  } catch (error) {
+    console.error('Erro ao criar troca:', error);
+  } finally {
+    isCreating.value = false;
+  }
+};
+</script>
+```
+
+### 📊 Dashboard
+
+#### DashboardStats
+
+Estatísticas do dashboard.
+
+#### 📝 Props
+
+```typescript
+interface Props {
+  stats: DashboardStats;
+  loading?: boolean;
+}
+```
+
+#### 📝 Exemplo de Uso
+
+```vue
+<template>
+  <DashboardStats
+    :stats="stats"
+    :loading="loading"
+  />
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import DashboardStats from '@/components/features/dashboard/DashboardStats.vue';
+import { useDashboard } from '@/composables/useDashboard';
+
+const { stats, loading, loadStats } = useDashboard();
+
+onMounted(() => {
+  loadStats();
+});
 </script>
 ```
 
@@ -657,46 +780,24 @@ const selectedReceiving = ref<string[]>([]);
 
 ### Header
 
-Cabeçalho da aplicação com navegação.
-
-#### 📝 Exemplo de Uso
-
-```vue
-<template>
-  <Header />
-</template>
-
-<script setup lang="ts">
-import Header from '@/components/layout/Header.vue';
-</script>
-```
-
-### Footer
-
-Rodapé da aplicação.
-
-#### 📝 Exemplo de Uso
-
-```vue
-<template>
-  <Footer />
-</template>
-
-<script setup lang="ts">
-import Footer from '@/components/layout/Footer.vue';
-</script>
-```
-
-### Container
-
-Container responsivo para conteúdo.
+Cabeçalho principal da aplicação.
 
 #### 📝 Props
 
 ```typescript
 interface Props {
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl';
-  padding?: boolean;
+  title?: string;
+  showBack?: boolean;
+  showMenu?: boolean;
+}
+```
+
+#### 🎯 Eventos
+
+```typescript
+interface Emits {
+  'menu-toggle': [];
+  'back': [];
 }
 ```
 
@@ -704,13 +805,124 @@ interface Props {
 
 ```vue
 <template>
-  <Container max-width="lg" :padding="true">
-    <h1>Conteúdo da página</h1>
-  </Container>
+  <Header
+    title="Cartalia"
+    :show-menu="true"
+    @menu-toggle="toggleSidebar"
+  />
 </template>
 
 <script setup lang="ts">
-import Container from '@/components/layout/Container.vue';
+import Header from '@/components/layout/Header.vue';
+import { useSidebarStore } from '@/stores/sidebar';
+
+const sidebarStore = useSidebarStore();
+
+const toggleSidebar = () => {
+  sidebarStore.toggle();
+};
+</script>
+```
+
+### MainLayout
+
+Layout principal da aplicação.
+
+#### 📝 Props
+
+```typescript
+interface Props {
+  showSidebar?: boolean;
+  sidebarCollapsed?: boolean;
+}
+```
+
+#### 🎯 Eventos
+
+```typescript
+interface Emits {
+  'sidebar-toggle': [collapsed: boolean];
+}
+```
+
+#### 📝 Exemplo de Uso
+
+```vue
+<template>
+  <MainLayout
+    :show-sidebar="true"
+    :sidebar-collapsed="sidebarCollapsed"
+    @sidebar-toggle="handleSidebarToggle"
+  >
+    <router-view />
+  </MainLayout>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+import MainLayout from '@/components/layout/MainLayout.vue';
+
+const sidebarCollapsed = ref(false);
+
+const handleSidebarToggle = (collapsed: boolean) => {
+  sidebarCollapsed.value = collapsed;
+};
+</script>
+```
+
+### Sidebar
+
+Barra lateral da aplicação.
+
+#### 📝 Props
+
+```typescript
+interface Props {
+  modelValue: boolean;
+  collapsed?: boolean;
+  items: MenuItem[];
+}
+```
+
+#### 🎯 Eventos
+
+```typescript
+interface Emits {
+  'update:modelValue': [value: boolean];
+  'item-click': [item: MenuItem];
+}
+```
+
+#### 📝 Exemplo de Uso
+
+```vue
+<template>
+  <Sidebar
+    v-model="showSidebar"
+    :collapsed="collapsed"
+    :items="menuItems"
+    @item-click="handleMenuItemClick"
+  />
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import Sidebar from '@/components/layout/Sidebar.vue';
+
+const router = useRouter();
+const showSidebar = ref(true);
+const collapsed = ref(false);
+
+const menuItems = ref([
+  { id: 'dashboard', label: 'Dashboard', icon: 'mdi-view-dashboard', route: '/dashboard' },
+  { id: 'cards', label: 'Cartas', icon: 'mdi-cards', route: '/cards' },
+  { id: 'trades', label: 'Trocas', icon: 'mdi-swap-horizontal', route: '/trades' }
+]);
+
+const handleMenuItemClick = (item: MenuItem) => {
+  router.push(item.route);
+};
 </script>
 ```
 
@@ -718,157 +930,110 @@ import Container from '@/components/layout/Container.vue';
 
 ### 🎯 Nomenclatura
 
-- **Componentes**: PascalCase (`BaseButton.vue`)
-- **Props**: camelCase (`isLoading`, `userData`)
-- **Eventos**: kebab-case (`@card-click`, `@update:model-value`)
-- **Slots**: kebab-case (`<slot name="header">`)
+- **Componentes**: PascalCase (ex: `CardList.vue`)
+- **Props**: camelCase (ex: `cardList`)
+- **Eventos**: kebab-case (ex: `card-select`)
+- **Slots**: kebab-case (ex: `card-content`)
 
-### 📁 Organização de Arquivos
+### 📁 Organização
 
-```
-ComponentName.vue
-├── <template>     # Template primeiro
-├── <script setup> # Script com setup
-└── <style scoped> # Estilos por último
-```
-
-### 🔧 Estrutura de Script
-
-```vue
-<script setup lang="ts">
-
-import { ref, computed } from 'vue';
-
-
-import BaseButton from '../common/BaseButton.vue';
-
-
-interface Props {
-  title: string;
-  loading?: boolean;
-}
-
-
-const props = defineProps<Props>();
-const emit = defineEmits<{
-  submit: [data: any];
-}>();
-
-
-const router = useRouter();
-
-
-const formData = ref({});
-
-
-const isValid = computed(() => {
-
-});
-
-
-function handleSubmit() {
-
-}
-
-
-onMounted(() => {
-
-});
-</script>
-```
+- **Um componente por arquivo**
+- **Nome do arquivo igual ao nome do componente**
+- **Agrupamento por funcionalidade**
+- **Componentes base em `common/`**
 
 ### 🎨 Estilos
 
-```vue
-<style scoped lang="scss">
-@use '../../styles/_variables.scss' as *;
+- **Scoped styles** por padrão
+- **SASS/SCSS** para estilos
+- **Variáveis CSS** para temas
+- **Responsive design** obrigatório
 
-.component-name {
+### 🔧 Props e Eventos
 
-}
-
-
-.component-name--loading {
-
-}
-
-
-@media (max-width: $breakpoint-md) {
-  .component-name {
-
-  }
-}
-</style>
-```
+- **Props obrigatórias** primeiro
+- **Props opcionais** com valores padrão
+- **Eventos** sempre tipados
+- **Validação** com Zod quando necessário
 
 ## 🧪 Testes
 
 ### 📝 Estrutura de Testes
 
 ```
-src/components/
-├── __tests__/           # Testes dos componentes
-│   ├── common/         # Testes dos componentes base
-│   ├── features/       # Testes dos componentes de features
-│   └── layout/         # Testes dos componentes de layout
+src/tests/
+├── components/
+│   ├── common/
+│   │   ├── Card.test.ts
+│   │   ├── LoadingOverlay.test.ts
+│   │   └── Pagination.test.ts
+│   └── features/
+│       ├── auth/
+│       ├── cards/
+│       └── trades/
+└── setup.ts
 ```
 
-### 🔧 Exemplo de Teste
+### 🎯 Exemplo de Teste
 
 ```typescript
-
+// tests/components/common/Card.test.ts
 import { mount } from '@vue/test-utils';
 import { describe, it, expect } from 'vitest';
-import BaseButton from '../BaseButton.vue';
+import Card from '@/components/common/Card.vue';
 
-describe('BaseButton', () => {
-  it('renders correctly', () => {
-    const wrapper = mount(BaseButton, {
-      slots: {
-        default: 'Click me'
-      }
+describe('Card', () => {
+  const mockCard = {
+    id: '1',
+    name: 'Test Card',
+    description: 'Test description',
+    image: '/test.jpg',
+    rarity: 'common',
+    type: 'monster'
+  };
+
+  it('renders card information correctly', () => {
+    const wrapper = mount(Card, {
+      props: { card: mockCard }
     });
 
-    expect(wrapper.text()).toContain('Click me');
-    expect(wrapper.find('button').exists()).toBe(true);
+    expect(wrapper.text()).toContain('Test Card');
+    expect(wrapper.text()).toContain('Test description');
   });
 
-  it('emits click event', async () => {
-    const wrapper = mount(BaseButton);
-    
-    await wrapper.find('button').trigger('click');
-    
-    expect(wrapper.emitted('click')).toBeTruthy();
-  });
-
-  it('applies correct classes based on props', () => {
-    const wrapper = mount(BaseButton, {
-      props: {
-        color: 'primary',
-        loading: true
-      }
+  it('emits select event when clicked', async () => {
+    const wrapper = mount(Card, {
+      props: { card: mockCard, selectable: true }
     });
 
-    expect(wrapper.classes()).toContain('primary');
-    expect(wrapper.classes()).toContain('loading');
+    await wrapper.trigger('click');
+    
+    expect(wrapper.emitted('select')).toBeTruthy();
+    expect(wrapper.emitted('select')?.[0]).toEqual([mockCard]);
   });
 });
 ```
 
-### 🎯 Cobertura de Testes
+### 🔧 Configuração de Testes
 
-- ✅ **Props**: Validação de props
-- ✅ **Events**: Emissão de eventos
-- ✅ **Slots**: Renderização de slots
-- ✅ **Classes**: Aplicação de classes CSS
-- ✅ **States**: Estados do componente
-- ✅ **User Interactions**: Interações do usuário
+```typescript
+// vitest.config.ts
+import { defineConfig } from 'vitest/config';
+import vue from '@vitejs/plugin-vue';
 
----
+export default defineConfig({
+  plugins: [vue()],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/tests/setup.ts']
+  }
+});
+```
 
-## 📚 Referências
+### 📊 Cobertura de Testes
 
-- [Vue 3 Components](https://vuejs.org/guide/essentials/component-basics.html)
-- [Vue Test Utils](https://test-utils.vuejs.org/)
-- [Vue Style Guide](https://vuejs.org/style-guide/)
-- [TypeScript with Vue](https://vuejs.org/guide/typescript/overview.html) 
+- **Componentes base**: 100% de cobertura
+- **Componentes de features**: 80% de cobertura
+- **Eventos e props**: Testados
+- **Integração**: Testes de fluxo completo 

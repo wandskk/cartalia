@@ -1,16 +1,16 @@
-# 📖 Manual do Usuário - Cartalia
+# 📖 Guia do Usuário - Cartalia
 
-Este manual fornece instruções detalhadas sobre como usar o Cartalia, o marketplace de cartas colecionáveis.
+Este documento é o guia completo para usuários do Cartalia, explicando todas as funcionalidades e como utilizá-las.
 
 ## 📋 Índice
 
 - [🎯 Sobre o Cartalia](#-sobre-o-cartalia)
 - [🚀 Primeiros Passos](#-primeiros-passos)
-- [👤 Conta e Perfil](#-conta-e-perfil)
+- [🔐 Conta e Autenticação](#-conta-e-autenticação)
 - [🃏 Gerenciando Cartas](#-gerenciando-cartas)
 - [🔄 Sistema de Trocas](#-sistema-de-trocas)
 - [📊 Dashboard](#-dashboard)
-- [🔍 Marketplace](#-marketplace)
+- [🔍 Busca e Filtros](#-busca-e-filtros)
 - [📱 Recursos Mobile](#-recursos-mobile)
 - [❓ FAQ](#-faq)
 - [🆘 Suporte](#-suporte)
@@ -19,26 +19,28 @@ Este manual fornece instruções detalhadas sobre como usar o Cartalia, o market
 
 O **Cartalia** é um marketplace moderno para troca de cartas colecionáveis. Aqui você pode:
 
-- ✅ **Cadastrar-se** e criar sua conta
-- ✅ **Adicionar cartas** à sua coleção
-- ✅ **Criar trocas** com outros usuários
-- ✅ **Explorar** o marketplace de cartas
-- ✅ **Gerenciar** suas trocas ativas
+- 📚 **Gerenciar sua coleção** de cartas
+- 🔄 **Criar e participar** de trocas
+- 👥 **Conectar** com outros colecionadores
+- 📊 **Acompanhar** suas atividades
+- 🔍 **Buscar** cartas específicas
 
 ### ✨ Funcionalidades Principais
 
-- **Coleção Pessoal**: Gerencie suas cartas favoritas
-- **Sistema de Trocas**: Troque cartas com outros colecionadores
-- **Marketplace**: Explore milhares de cartas disponíveis
-- **Dashboard**: Acompanhe suas atividades
-- **PWA**: Use como app no seu celular
+- **Autenticação Segura**: Login e registro com JWT
+- **Gerenciamento de Cartas**: Adicione e organize sua coleção
+- **Sistema de Trocas**: Crie e participe de negociações
+- **Dashboard Intuitivo**: Visualize suas estatísticas
+- **Busca Avançada**: Encontre cartas facilmente
+- **Interface Responsiva**: Funciona em qualquer dispositivo
+- **PWA**: Instale como app no seu celular
 
 ## 🚀 Primeiros Passos
 
 ### 1. Criando sua Conta
 
-1. **Acesse** o site do Cartalia
-2. **Clique** em "Cadastrar" no menu superior
+1. **Acesse** o Cartalia em `https://cartalia.vercel.app`
+2. **Clique** em "Registrar" no canto superior direito
 3. **Preencha** os dados:
    - Nome completo
    - Email válido
@@ -48,330 +50,333 @@ O **Cartalia** é um marketplace moderno para troca de cartas colecionáveis. Aq
 
 ### 2. Fazendo Login
 
-1. **Acesse** a página de login
+1. **Clique** em "Entrar" no canto superior direito
 2. **Digite** seu email e senha
 3. **Clique** em "Entrar"
 4. **Aguarde** o redirecionamento para o dashboard
 
-### 3. Configurando seu Perfil
+### 3. Explorando a Interface
 
-Após o primeiro login:
+Após o login, você verá:
 
-1. **Verifique** seus dados pessoais
-2. **Adicione** uma foto de perfil (opcional)
-3. **Configure** suas preferências
-4. **Explore** as funcionalidades disponíveis
+- **Header**: Navegação principal e menu do usuário
+- **Sidebar**: Menu lateral com as principais seções
+- **Área Principal**: Conteúdo da página atual
+- **Footer**: Informações e links úteis
 
-## 👤 Conta e Perfil
+## 🔐 Conta e Autenticação
 
-### 📝 Gerenciando Dados Pessoais
+### 👤 Perfil do Usuário
 
-#### Alterando Informações Básicas
+Para acessar seu perfil:
 
-1. **Acesse** o menu do usuário (canto superior direito)
-2. **Clique** em "Meu Perfil"
-3. **Edite** os campos desejados:
+1. **Clique** no seu nome no header
+2. **Selecione** "Meu Perfil"
+3. **Edite** suas informações:
    - Nome
    - Email
    - Senha
-4. **Salve** as alterações
+   - Preferências
 
-#### Configurações de Privacidade
+### 🔒 Segurança
 
-- **Perfil Público**: Outros usuários podem ver suas cartas
-- **Perfil Privado**: Apenas você vê suas informações
-- **Notificações**: Configure alertas de trocas
+#### Alterando a Senha
 
-### 🔐 Segurança da Conta
+1. **Vá** para "Meu Perfil"
+2. **Clique** em "Alterar Senha"
+3. **Digite** a senha atual
+4. **Digite** a nova senha
+5. **Confirme** a nova senha
+6. **Clique** em "Salvar"
 
-#### Boas Práticas
+#### Logout
 
-- ✅ Use uma senha forte (letras, números, símbolos)
-- ✅ Não compartilhe suas credenciais
-- ✅ Faça logout em dispositivos públicos
-- ✅ Mantenha seu email atualizado
+1. **Clique** no seu nome no header
+2. **Selecione** "Sair"
+3. **Confirme** a ação
 
-#### Recuperação de Senha
+### ⚙️ Configurações
 
-1. **Acesse** a página de login
-2. **Clique** em "Esqueci minha senha"
-3. **Digite** seu email cadastrado
-4. **Siga** as instruções enviadas por email
+#### Notificações
+
+Configure como receber notificações:
+
+- **Email**: Notificações por email
+- **Push**: Notificações no navegador
+- **SMS**: Notificações por SMS (futuro)
+
+#### Privacidade
+
+Controle sua privacidade:
+
+- **Perfil Público**: Outros usuários podem ver seu perfil
+- **Coleção Pública**: Outros podem ver suas cartas
+- **Atividade Pública**: Outros podem ver suas atividades
 
 ## 🃏 Gerenciando Cartas
 
-### 📚 Explorando o Catálogo
+### 📚 Visualizando Cartas
 
-#### Navegando pelas Cartas
+#### Lista de Cartas
 
-1. **Acesse** "Cartas" no menu principal
-2. **Use** os filtros disponíveis:
-   - Busca por nome
-   - Filtro por tipo
-   - Ordenação (nome, data, popularidade)
-3. **Clique** em uma carta para ver detalhes
+1. **Clique** em "Cartas" no menu lateral
+2. **Veja** todas as cartas disponíveis
+3. **Use** os filtros para encontrar cartas específicas
+4. **Navegue** pelas páginas usando a paginação
 
-#### Visualizando Detalhes da Carta
+#### Detalhes da Carta
 
-Cada carta exibe:
-- **Imagem** da carta
-- **Nome** e descrição
-- **Informações** técnicas
-- **Data** de criação
-- **Botão** para adicionar à coleção
+1. **Clique** em uma carta para ver os detalhes
+2. **Veja** informações como:
+   - Nome e descrição
+   - Raridade e tipo
+   - Ataque e defesa (se aplicável)
+   - Imagem da carta
 
 ### ➕ Adicionando Cartas à Coleção
 
-#### Método 1: Pela Lista de Cartas
+#### Método 1: Modal de Adição
+
+1. **Clique** no botão "Adicionar Carta" no header
+2. **Selecione** a carta desejada da lista
+3. **Clique** em "Adicionar"
+4. **Confirme** a ação
+
+#### Método 2: Pela Lista de Cartas
 
 1. **Navegue** até a carta desejada
-2. **Clique** no botão "Adicionar à Coleção"
+2. **Clique** no botão "Adicionar" na carta
 3. **Confirme** a ação
-4. **Verifique** na sua coleção pessoal
 
-#### Método 2: Pela Página de Detalhes
+### 🗂️ Organizando sua Coleção
 
-1. **Clique** na carta para abrir detalhes
-2. **Clique** em "Adicionar à Minha Coleção"
-3. **Aguarde** a confirmação
-4. **Acesse** "Minhas Cartas" para verificar
+#### Visualizando sua Coleção
 
-### 📖 Visualizando sua Coleção
-
-#### Acessando sua Coleção
-
-1. **Clique** em "Minhas Cartas" no menu
-2. **Visualize** todas as suas cartas
+1. **Clique** em "Minhas Cartas" no menu lateral
+2. **Veja** todas as cartas da sua coleção
 3. **Use** filtros para organizar:
-   - Busca por nome
-   - Ordenação alfabética
-   - Filtro por data
+   - Por raridade
+   - Por tipo
+   - Por nome
+   - Por data de adição
 
-#### Gerenciando sua Coleção
+#### Estatísticas da Coleção
 
-- **Remover** cartas da coleção
-- **Organizar** por categorias
-- **Marcar** cartas favoritas
-- **Exportar** lista de cartas
+No dashboard, você pode ver:
+
+- **Total de cartas**: Quantidade total
+- **Por raridade**: Distribuição por raridade
+- **Por tipo**: Distribuição por tipo
+- **Valor estimado**: Valor total da coleção
 
 ## 🔄 Sistema de Trocas
 
-### 🆕 Criando uma Troca
+### 📝 Criando uma Troca
 
-#### Passo a Passo
+#### Passo 1: Selecionar Cartas
 
-1. **Acesse** "Criar Troca" no menu
-2. **Selecione** cartas para oferecer:
-   - Clique nas cartas da sua coleção
+1. **Clique** em "Nova Troca" no header
+2. **Selecione** as cartas que você quer oferecer:
+   - Clique em "Selecionar Cartas"
+   - Escolha da sua coleção
    - Confirme a seleção
-3. **Selecione** cartas para receber:
-   - Explore o catálogo disponível
-   - Escolha as cartas desejadas
-4. **Revise** a proposta de troca
-5. **Clique** em "Criar Troca"
 
-#### Dicas para Trocas Bem-sucedidas
+#### Passo 2: Escolher Cartas Desejadas
 
-- ✅ Ofereça cartas de valor similar
-- ✅ Seja específico sobre o que deseja
-- ✅ Responda rapidamente às propostas
-- ✅ Mantenha comunicação clara
+1. **Selecione** as cartas que você quer receber:
+   - Escolha das cartas disponíveis
+   - Pode ser de diferentes usuários
+   - Confirme a seleção
 
-### 📋 Gerenciando suas Trocas
+#### Passo 3: Finalizar Troca
 
-#### Visualizando Trocas Ativas
+1. **Adicione** uma descrição (opcional)
+2. **Revise** os detalhes da troca
+3. **Clique** em "Criar Troca"
+4. **Confirme** a ação
 
-1. **Acesse** "Minhas Trocas" no menu
-2. **Veja** todas as suas trocas:
-   - Trocas criadas por você
-   - Propostas recebidas
-   - Trocas em andamento
-   - Trocas finalizadas
+### 👀 Visualizando Trocas
 
-#### Ações Disponíveis
+#### Todas as Trocas
 
-- **Editar** troca (apenas suas)
-- **Cancelar** troca
-- **Aceitar** proposta
-- **Recusar** proposta
-- **Contatar** o outro usuário
-
-### 🔍 Explorando Trocas Disponíveis
-
-#### Navegando no Marketplace
-
-1. **Acesse** "Marketplace" no menu
+1. **Clique** em "Trocas" no menu lateral
 2. **Veja** todas as trocas disponíveis
-3. **Use** filtros para encontrar:
-   - Cartas específicas
-   - Usuários específicos
-   - Trocas recentes
+3. **Use** filtros para encontrar trocas específicas:
+   - Por status
+   - Por usuário
+   - Por tipo de carta
 
-#### Interagindo com Trocas
+#### Minhas Trocas
 
-- **Ver detalhes** da troca
-- **Fazer contraproposta**
-- **Contatar** o criador
-- **Favoritar** troca interessante
+1. **Clique** em "Minhas Trocas" no menu lateral
+2. **Veja** suas trocas criadas e participações
+3. **Gerencie** suas trocas ativas
+
+### ✅ Participando de Trocas
+
+#### Aceitando uma Troca
+
+1. **Encontre** uma troca interessante
+2. **Clique** em "Ver Detalhes"
+3. **Revise** as cartas oferecidas e solicitadas
+4. **Clique** em "Aceitar Troca"
+5. **Confirme** a ação
+
+#### Rejeitando uma Troca
+
+1. **Clique** em "Ver Detalhes" na troca
+2. **Clique** em "Rejeitar Troca"
+3. **Adicione** um motivo (opcional)
+4. **Confirme** a ação
+
+### 🗑️ Gerenciando suas Trocas
+
+#### Cancelando uma Troca
+
+1. **Vá** para "Minhas Trocas"
+2. **Encontre** a troca que deseja cancelar
+3. **Clique** em "Cancelar Troca"
+4. **Confirme** a ação
+
+#### Editando uma Troca
+
+1. **Vá** para "Minhas Trocas"
+2. **Encontre** a troca que deseja editar
+3. **Clique** em "Editar Troca"
+4. **Faça** as alterações necessárias
+5. **Salve** as mudanças
 
 ## 📊 Dashboard
 
-### 🎯 Visão Geral
+### 📈 Estatísticas Gerais
 
-O dashboard é sua central de controle, mostrando:
+O dashboard mostra:
 
-- **Estatísticas** da sua conta
-- **Atividades** recentes
-- **Ações rápidas**
-- **Notificações** importantes
-
-### 📈 Estatísticas
-
-#### Métricas Exibidas
-
-- **Total de Cartas**: Quantas cartas você possui
-- **Trocas Ativas**: Trocas em andamento
-- **Trocas Concluídas**: Histórico de sucessos
-- **Reputação**: Avaliação da comunidade
-
-#### Interpretando os Dados
-
-- **Crescimento** da coleção ao longo do tempo
-- **Eficiência** nas trocas
-- **Participação** na comunidade
-- **Metas** pessoais
-
-### ⚡ Ações Rápidas
-
-#### Funcionalidades Disponíveis
-
-- **Adicionar Carta**: Acesso rápido ao catálogo
-- **Criar Troca**: Iniciar nova proposta
-- **Ver Notificações**: Mensagens e alertas
-- **Explorar Marketplace**: Novas oportunidades
+- **Total de Cartas**: Quantidade na sua coleção
+- **Total de Trocas**: Trocas criadas e participadas
+- **Taxa de Sucesso**: Porcentagem de trocas bem-sucedidas
+- **Avaliação Média**: Sua avaliação pelos outros usuários
 
 ### 📅 Atividades Recentes
 
-#### Histórico de Ações
+Veja suas atividades mais recentes:
 
-- **Cartas adicionadas** à coleção
-- **Trocas criadas** ou aceitas
-- **Interações** com outros usuários
-- **Atualizações** do sistema
+- **Cartas adicionadas**
+- **Trocas criadas**
+- **Trocas aceitas/rejeitadas**
+- **Avaliações recebidas**
 
-## 🔍 Marketplace
+### ⚡ Ações Rápidas
 
-### 🌐 Explorando o Marketplace
+Acesse rapidamente:
 
-#### Navegação Principal
+- **Adicionar Carta**: Modal para adicionar nova carta
+- **Nova Troca**: Criar nova troca
+- **Ver Cartas**: Ir para lista de cartas
+- **Ver Trocas**: Ir para lista de trocas
 
-1. **Acesse** "Marketplace" no menu
-2. **Explore** as diferentes seções:
-   - Trocas em Destaque
-   - Trocas Recentes
-   - Trocas por Categoria
-   - Usuários Ativos
+## 🔍 Busca e Filtros
 
-#### Filtros e Busca
+### 🔎 Busca por Nome
 
-- **Busca por texto**: Nome de carta ou usuário
-- **Filtro por categoria**: Tipo de carta
-- **Ordenação**: Data, popularidade, valor
-- **Localização**: Proximidade geográfica
+1. **Digite** o nome da carta na barra de busca
+2. **Pressione** Enter ou clique na lupa
+3. **Veja** os resultados filtrados
 
-### 🎯 Encontrando Trocas Específicas
+### 🎯 Filtros Avançados
 
-#### Busca Avançada
+#### Filtros de Carta
 
-1. **Use** a barra de busca
-2. **Aplique** filtros específicos
-3. **Salve** buscas favoritas
-4. **Configure** alertas para novas trocas
+- **Raridade**: Comum, Incomum, Rara, Épica, Lendária
+- **Tipo**: Monstro, Magia, Armadilha
+- **Ataque**: Valor mínimo e máximo
+- **Defesa**: Valor mínimo e máximo
 
-#### Dicas de Busca
+#### Filtros de Troca
 
-- Use nomes exatos das cartas
-- Combine múltiplos filtros
-- Explore categorias relacionadas
-- Verifique trocas similares
+- **Status**: Pendente, Aceita, Rejeitada, Cancelada
+- **Usuário**: Filtrar por usuário específico
+- **Data**: Período de criação
 
-### 👥 Interagindo com Usuários
+### 💾 Salvando Filtros
 
-#### Perfis de Usuários
+1. **Configure** os filtros desejados
+2. **Clique** em "Salvar Filtro"
+3. **Digite** um nome para o filtro
+4. **Clique** em "Salvar"
 
-- **Visualizar** coleção pública
-- **Ver** histórico de trocas
-- **Avaliar** reputação
-- **Contatar** diretamente
+Para usar um filtro salvo:
 
-#### Comunicação
-
-- **Mensagens** privadas
-- **Comentários** em trocas
-- **Avaliações** após trocas
-- **Denúncias** se necessário
+1. **Clique** em "Filtros Salvos"
+2. **Selecione** o filtro desejado
+3. **Aplique** automaticamente
 
 ## 📱 Recursos Mobile
 
-### 📱 Aplicativo PWA
+### 📱 PWA (Progressive Web App)
 
 #### Instalando o App
 
-1. **Acesse** o site no seu celular
-2. **Clique** em "Instalar App" (se disponível)
-3. **Confirme** a instalação
-4. **Acesse** pelo ícone do app
+**Android (Chrome)**:
+1. **Acesse** o Cartalia no Chrome
+2. **Clique** no menu (três pontos)
+3. **Selecione** "Adicionar à tela inicial"
+4. **Confirme** a instalação
 
-#### Funcionalidades Mobile
+**iOS (Safari)**:
+1. **Acesse** o Cartalia no Safari
+2. **Clique** no botão de compartilhar
+3. **Selecione** "Adicionar à tela inicial"
+4. **Confirme** a instalação
 
-- **Interface otimizada** para touch
-- **Navegação por gestos**
-- **Notificações push**
-- **Funcionamento offline**
+#### Funcionalidades do App
 
-### 📱 Experiência Mobile
+- **Funciona offline**: Acesse dados salvos
+- **Notificações push**: Receba atualizações
+- **Interface nativa**: Experiência de app
+- **Sincronização**: Dados sempre atualizados
 
-#### Recursos Específicos
+### 📱 Interface Responsiva
 
-- **Camera**: Fotos de cartas
-- **GPS**: Localização para trocas
-- **Compartilhamento**: Links de trocas
-- **Sincronização**: Dados em nuvem
+#### Navegação Mobile
 
-#### Otimizações
+- **Menu hambúrguer**: Menu lateral colapsável
+- **Gestos touch**: Navegação por gestos
+- **Botões otimizados**: Tamanho adequado para touch
+- **Scroll suave**: Navegação fluida
 
-- **Carregamento rápido**
-- **Menos uso de dados**
-- **Bateria otimizada**
-- **Interface responsiva**
+#### Otimizações Mobile
+
+- **Carregamento rápido**: Otimizado para conexões móveis
+- **Imagens responsivas**: Adaptadas para diferentes telas
+- **Texto legível**: Tamanho adequado para leitura
+- **Toque preciso**: Áreas de toque otimizadas
 
 ## ❓ FAQ
 
-### 🤔 Perguntas Frequentes
+### 🔐 Conta e Segurança
 
-#### 📝 Conta e Cadastro
+**Q: Como recuperar minha senha?**
+A: Clique em "Esqueci minha senha" na tela de login e siga as instruções enviadas por email.
 
-**Q: Como posso recuperar minha senha?**
-A: Acesse a página de login, clique em "Esqueci minha senha" e siga as instruções enviadas por email.
+**Q: Posso usar a mesma conta em vários dispositivos?**
+A: Sim, você pode fazer login em quantos dispositivos quiser.
 
-**Q: Posso alterar meu email?**
-A: Sim, acesse "Meu Perfil" e edite suas informações pessoais.
+**Q: Como alterar meu email?**
+A: Vá para "Meu Perfil" > "Editar Perfil" e altere o email.
 
-**Q: Como deletar minha conta?**
-A: Entre em contato com o suporte para solicitar a exclusão da conta.
-
-#### 🃏 Cartas e Coleção
+### 🃏 Cartas
 
 **Q: Quantas cartas posso ter na minha coleção?**
 A: Não há limite para o número de cartas na sua coleção.
 
-**Q: Posso adicionar cartas que não estão no catálogo?**
-A: Atualmente, apenas cartas do catálogo oficial podem ser adicionadas.
+**Q: Posso adicionar cartas duplicadas?**
+A: Sim, você pode adicionar múltiplas cópias da mesma carta.
 
 **Q: Como remover uma carta da minha coleção?**
-A: Acesse "Minhas Cartas", encontre a carta e clique em "Remover".
+A: Vá para "Minhas Cartas", encontre a carta e clique em "Remover".
 
-#### 🔄 Trocas
+### 🔄 Trocas
 
 **Q: Quantas trocas posso ter ativas?**
 A: Não há limite para o número de trocas ativas.
@@ -379,50 +384,52 @@ A: Não há limite para o número de trocas ativas.
 **Q: Posso cancelar uma troca depois de criada?**
 A: Sim, você pode cancelar suas próprias trocas a qualquer momento.
 
-**Q: O que acontece se a troca não for aceita?**
-A: A troca permanece ativa até ser aceita, recusada ou cancelada.
+**Q: O que acontece se eu rejeitar uma troca?**
+A: A troca é marcada como rejeitada e as cartas voltam aos seus donos originais.
 
-**Q: Como funciona a avaliação após uma troca?**
-A: Após a conclusão, ambos os usuários podem avaliar a experiência.
+**Q: Como funciona a avaliação de usuários?**
+A: Após uma troca ser concluída, ambos os usuários podem avaliar um ao outro.
 
-#### 💰 Valor e Preços
+### 📱 App e Dispositivos
 
-**Q: Como é determinado o valor das cartas?**
-A: O valor é baseado em fatores como raridade, condição e demanda do mercado.
+**Q: O app funciona offline?**
+A: Sim, você pode visualizar dados já carregados offline.
 
-**Q: Posso negociar o valor de uma troca?**
-A: Sim, você pode fazer contrapropostas e negociar diretamente com o outro usuário.
+**Q: Posso usar o app em tablets?**
+A: Sim, a interface se adapta automaticamente para tablets.
 
-**Q: Há taxas para usar o Cartalia?**
-A: O Cartalia é gratuito para uso básico. Funcionalidades premium podem ter custos.
+**Q: Como ativar notificações push?**
+A: O navegador solicitará permissão automaticamente na primeira visita.
 
-#### 🔒 Segurança
+### 💰 Preços e Pagamentos
 
-**Q: Meus dados estão seguros?**
-A: Sim, utilizamos criptografia e seguimos as melhores práticas de segurança.
+**Q: O Cartalia é gratuito?**
+A: Sim, o uso básico é totalmente gratuito.
 
-**Q: Como denunciar um usuário?**
-A: Use o botão "Denunciar" no perfil do usuário ou entre em contato com o suporte.
+**Q: Há funcionalidades premium?**
+A: Atualmente não, mas estamos planejando funcionalidades premium futuras.
 
-**Q: O que fazer se uma troca der errado?**
-A: Entre em contato com o suporte e forneça detalhes da situação.
+**Q: Como funciona o valor das cartas?**
+A: Os valores são baseados em dados de mercado e podem variar.
 
 ## 🆘 Suporte
 
-### 📞 Canais de Atendimento
+### 📞 Como Obter Ajuda
 
-#### Suporte Técnico
+#### 1. Centro de Ajuda
+- **Acesse** a seção de ajuda no site
+- **Consulte** artigos e tutoriais
+- **Encontre** respostas para perguntas comuns
 
-- **Email**: suporte@cartalia.com
-- **Chat**: Disponível no site
-- **FAQ**: Perguntas frequentes
-- **Documentação**: Guias detalhados
+#### 2. Contato por Email
+- **Envie** um email para `suporte@cartalia.com`
+- **Descreva** seu problema detalhadamente
+- **Inclua** screenshots se necessário
 
-#### Horário de Atendimento
-
-- **Segunda a Sexta**: 9h às 18h
-- **Sábados**: 9h às 14h
-- **Domingos**: Fechado
+#### 3. Comunidade
+- **Participe** do fórum da comunidade
+- **Faça** perguntas para outros usuários
+- **Compartilhe** experiências e dicas
 
 ### 🐛 Reportando Problemas
 
@@ -430,47 +437,31 @@ A: Entre em contato com o suporte e forneça detalhes da situação.
 
 Ao reportar um problema, inclua:
 
-- **Descrição** detalhada do problema
-- **Passos** para reproduzir
-- **Screenshot** (se aplicável)
-- **Navegador** e versão
-- **Dispositivo** utilizado
+- **Descrição**: O que aconteceu
+- **Passos**: Como reproduzir o problema
+- **Dispositivo**: Tipo de dispositivo e navegador
+- **Screenshots**: Imagens do problema
+- **Logs**: Mensagens de erro (se houver)
 
 #### Tipos de Problemas
 
-- **Erros técnicos**: Bugs e falhas
-- **Problemas de usabilidade**: Interface confusa
-- **Questões de segurança**: Vulnerabilidades
-- **Sugestões**: Melhorias desejadas
+- **Bug**: Funcionalidade não funciona como esperado
+- **Sugestão**: Ideia para nova funcionalidade
+- **Melhoria**: Sugestão para funcionalidade existente
+- **Segurança**: Problema de segurança
 
-### 📚 Recursos de Ajuda
+### 📚 Recursos Adicionais
 
 #### Documentação
-
-- **Manual do usuário** (este documento)
-- **Vídeos tutoriais**
-- **Guias passo a passo**
-- **FAQ interativo**
+- **API Docs**: Documentação técnica
+- **Guia do Desenvolvedor**: Para contribuidores
+- **Changelog**: Histórico de mudanças
 
 #### Comunidade
-
-- **Fórum** de usuários
-- **Grupos** no Discord
-- **Redes sociais**
-- **Blog** com dicas
+- **Discord**: Chat em tempo real
+- **Reddit**: Discussões e notícias
+- **Twitter**: Atualizações e anúncios
 
 ---
 
-## 📞 Contato
-
-**Email**: contato@cartalia.com
-**WhatsApp**: (11) 99999-9999
-**Discord**: [Link do servidor]
-**Instagram**: @cartalia_app
-
-**Horário de Atendimento**: Segunda a Sexta, 9h às 18h
-
----
-
-*Última atualização: Julho 2024*
-*Versão do manual: 1.0.0* 
+*Este guia é atualizado regularmente. Para a versão mais recente, visite o site oficial.* 

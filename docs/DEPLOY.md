@@ -1,124 +1,239 @@
 # 🚀 Guia de Deploy
 
-Este documento explica como fazer o deploy do Cartalia no Vercel e configurar o CI/CD.
+Este documento descreve o processo de deploy do projeto Cartalia, incluindo configurações, ambientes e boas práticas.
 
 ## 📋 Índice
 
 - [🎯 Visão Geral](#-visão-geral)
-- [🔧 Configuração do Vercel](#-configuração-do-vercel)
-- [🔑 Configurando Secrets](#-configurando-secrets)
-- [⚙️ GitHub Actions](#️-github-actions)
-- [🌍 Variáveis de Ambiente](#-variáveis-de-ambiente)
-- [📱 PWA Deploy](#-pwa-deploy)
-- [🔍 Troubleshooting](#-troubleshooting)
+- [🌍 Ambientes](#-ambientes)
+- [🔧 Configuração](#-configuração)
+- [📦 Build](#-build)
+- [🚀 Deploy](#-deploy)
+- [🔍 Monitoramento](#-monitoramento)
+- [🛡️ Segurança](#-segurança)
+- [📊 Performance](#-performance)
 
 ## 🎯 Visão Geral
 
-O Cartalia está configurado para deploy automático no **Vercel** através do **GitHub Actions**. O processo inclui:
+O Cartalia utiliza **Vercel** como plataforma principal de deploy, oferecendo:
 
-- ✅ **Build automático** a cada push
-- ✅ **Testes** antes do deploy
-- ✅ **Deploy de preview** para Pull Requests
-- ✅ **Deploy de produção** para main
-- ✅ **PWA** configurada automaticamente
+- **Deploy Automático**: Integração com GitHub
+- **Preview Deployments**: Deploy automático para Pull Requests
+- **Edge Functions**: Performance global
+- **Analytics**: Métricas de performance
+- **HTTPS**: Certificados SSL automáticos
 
-## 🔧 Configuração do Vercel
+### 🎨 Stack de Deploy
 
-### 1. Criando Conta no Vercel
+```
+GitHub Repository
+├── Vercel (Platform)
+├── GitHub Actions (CI/CD)
+├── Vite (Build Tool)
+└── Edge Network (CDN)
+```
 
-1. **Acesse** [vercel.com](https://vercel.com)
-2. **Faça login** com sua conta GitHub
-3. **Autorize** o Vercel a acessar seus repositórios
+## 🌍 Ambientes
 
-### 2. Importando o Projeto
+### 🏭 Produção
 
-1. **Clique** em "New Project"
-2. **Selecione** o repositório `cartalia`
-3. **Configure** as opções:
-   - **Framework Preset**: Vite
-   - **Root Directory**: `./`
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `dist`
-4. **Clique** em "Deploy"
+- **URL**: `https://cartalia.vercel.app`
+- **Branch**: `main`
+- **Deploy**: Automático
+- **Cache**: Ativo
 
-### 3. Configuração Inicial
+### 🧪 Preview
 
-O Vercel detectará automaticamente:
-- ✅ Framework Vue.js
-- ✅ Build tool Vite
-- ✅ Configurações do `vercel.json`
+- **URL**: `https://cartalia-git-feature-branch.vercel.app`
+- **Branch**: `feature/*`
+- **Deploy**: Automático para PRs
+- **Cache**: Limitado
 
-## 🔑 Configurando Secrets
+### 🔧 Desenvolvimento
 
-### Secrets Necessários
+- **URL**: `http://localhost:5173`
+- **Comando**: `npm run dev`
+- **Hot Reload**: Ativo
+- **Source Maps**: Ativo
 
-Para o GitHub Actions funcionar, você precisa configurar estes secrets no repositório:
+## 🔧 Configuração
 
-#### 1. VERCEL_TOKEN
+### 📦 Variáveis de Ambiente
 
-1. **Acesse** [vercel.com/account/tokens](https://vercel.com/account/tokens)
-2. **Clique** em "Create Token"
-3. **Configure**:
-   - **Name**: `GitHub Actions`
-   - **Expiration**: `No Expiration`
-   - **Scope**: `Full Account`
-4. **Copie** o token gerado
-5. **Adicione** no GitHub:
-   - Vá para `Settings > Secrets and variables > Actions`
-   - Clique em "New repository secret"
-   - **Name**: `VERCEL_TOKEN`
-   - **Value**: Cole o token
+#### Produção
 
-#### 2. VERCEL_ORG_ID
+```env
+# .env.production
+VITE_API_BASE_URL=https://cards-marketplace-api-2fjj.onrender.com
+VITE_APP_NAME=Cartalia
+VITE_APP_VERSION=1.0.0
+VITE_APP_ENVIRONMENT=production
+VITE_ANALYTICS_ID=G-XXXXXXXXXX
+```
 
-1. **Acesse** [vercel.com/account](https://vercel.com/account)
-2. **Copie** o "Team ID" (se tiver) ou "Personal Account ID"
-3. **Adicione** no GitHub:
-   - **Name**: `VERCEL_ORG_ID`
-   - **Value**: Cole o ID
+#### Desenvolvimento
 
-#### 3. VERCEL_PROJECT_ID
+```env
+# .env.development
+VITE_API_BASE_URL=https://cards-marketplace-api-2fjj.onrender.com
+VITE_APP_NAME=Cartalia (Dev)
+VITE_APP_VERSION=1.0.0
+VITE_APP_ENVIRONMENT=development
+VITE_ANALYTICS_ID=G-XXXXXXXXXX
+```
 
-1. **Acesse** o projeto no Vercel
-2. **Vá** para `Settings > General`
-3. **Copie** o "Project ID"
-4. **Adicione** no GitHub:
-   - **Name**: `VERCEL_PROJECT_ID`
-   - **Value**: Cole o ID
+### ⚙️ Configuração do Vite
 
-### Como Adicionar Secrets no GitHub
+```typescript
+// vite.config.ts
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import { resolve } from 'path'
 
-1. **Acesse** seu repositório no GitHub
-2. **Vá** para `Settings > Secrets and variables > Actions`
-3. **Clique** em "New repository secret"
-4. **Preencha**:
-   - **Name**: Nome do secret
-   - **Value**: Valor do secret
-5. **Clique** em "Add secret"
+export default defineConfig({
+  plugins: [vue()],
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src')
+    }
+  },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `@use "sass:math"; @use "@/styles/_variables.scss" as *;`
+      }
+    }
+  },
+  build: {
+    target: 'es2015',
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: false,
+    minify: 'esbuild',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['vue', 'vue-router', 'pinia', 'vuetify']
+        }
+      }
+    }
+  }
+})
+```
 
-## ⚙️ GitHub Actions
+### 🎯 Configuração do Vercel
 
-### Workflows Disponíveis
+```json
+// vercel.json
+{
+  "version": 2,
+  "name": "cartalia",
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/assets/(.*)",
+      "dest": "/assets/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    }
+  ],
+  "functions": {
+    "app/api/**/*.ts": {
+      "runtime": "nodejs18.x"
+    }
+  }
+}
+```
 
-#### 1. `deploy.yml` (Completo)
-- Build e testes
-- Deploy separado para preview e produção
-- Upload de artifacts
+## 📦 Build
 
-#### 2. `deploy-simple.yml` (Simplificado)
-- Build, testes e deploy em um job
-- Mais simples de configurar
+### 🔧 Scripts de Build
 
-### Configurando o Workflow
+```json
+{
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "deploy": "npm run build && vercel --prod",
+    "deploy:preview": "npm run build && vercel",
+    "analyze": "vite build --mode analyze",
+    "lighthouse": "lighthouse http://localhost:4173 --output html --output-path ./lighthouse-report.html"
+  }
+}
+```
 
-1. **Escolha** um dos workflows
-2. **Renomeie** para `deploy.yml` (se necessário)
-3. **Configure** os secrets (conforme seção anterior)
-4. **Faça push** para ativar
+### 🎯 Processo de Build
 
-### Estrutura do Workflow
+1. **Type Checking**: `vue-tsc -b`
+2. **Bundle**: `vite build`
+3. **Optimization**: Minificação e tree shaking
+4. **Assets**: Processamento de imagens e CSS
+5. **Output**: Geração dos arquivos finais
+
+### 📊 Análise do Bundle
+
+```bash
+# Analisar tamanho do bundle
+npm run analyze
+
+# Verificar dependências
+npm ls --depth=0
+
+# Otimizar dependências
+npm audit fix
+```
+
+## 🚀 Deploy
+
+### 🔄 Deploy Automático
+
+#### GitHub Actions
 
 ```yaml
+# .github/workflows/deploy.yml
 name: Deploy
 
 on:
@@ -128,163 +243,431 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
-    # Build e testes
   deploy:
-    # Deploy para Vercel
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run tests
+      run: npm run test:run
+    
+    - name: Build
+      run: npm run build
+      env:
+        VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+        VITE_APP_NAME: ${{ secrets.VITE_APP_NAME }}
+        VITE_APP_VERSION: ${{ secrets.VITE_APP_VERSION }}
+    
+    - name: Deploy to Vercel
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        vercel-args: ${{ github.ref == 'refs/heads/main' && '--prod' || '' }}
 ```
 
-## 🌍 Variáveis de Ambiente
+#### Vercel CLI
 
-### Configuração no Vercel
+```bash
+# Instalar Vercel CLI
+npm i -g vercel
 
-1. **Acesse** o projeto no Vercel
-2. **Vá** para `Settings > Environment Variables`
-3. **Adicione** as variáveis:
+# Login no Vercel
+vercel login
 
-| Variável | Valor | Ambiente |
-|----------|-------|----------|
-| `VITE_API_BASE_URL` | `https://cards-marketplace-api-2fjj.onrender.com` | Production, Preview |
-| `VITE_APP_NAME` | `Cartalia` | Production, Preview |
-| `VITE_APP_VERSION` | `1.0.0` | Production, Preview |
-| `VITE_APP_ENVIRONMENT` | `production` | Production |
-| `VITE_APP_ENVIRONMENT` | `preview` | Preview |
+# Deploy de preview
+vercel
 
-### Configuração no GitHub Actions
-
-As variáveis são definidas no workflow:
-
-```yaml
-- name: Build
-  run: npm run build
-  env:
-    VITE_API_BASE_URL: https://cards-marketplace-api-2fjj.onrender.com
-    VITE_APP_ENVIRONMENT: production
+# Deploy de produção
+vercel --prod
 ```
 
-## 📱 PWA Deploy
+### 📝 Deploy Manual
 
-### Configuração Automática
+```bash
+# 1. Build do projeto
+npm run build
 
-O PWA é configurado automaticamente através do:
+# 2. Verificar arquivos gerados
+ls -la dist/
 
-- **`public/manifest.json`**: Configuração do app
-- **`public/sw.js`**: Service Worker
-- **`vercel.json`**: Headers e configurações
+# 3. Deploy para Vercel
+vercel --prod
 
-### Verificando o PWA
+# 4. Verificar deploy
+vercel ls
+```
 
-1. **Acesse** o site deployado
-2. **Abra** DevTools (F12)
-3. **Vá** para aba "Application"
-4. **Verifique**:
-   - Manifest
-   - Service Worker
-   - Cache Storage
+### 🔧 Configuração de Domínio
 
-### Testando Instalação
+```bash
+# Adicionar domínio customizado
+vercel domains add cartalia.com
 
-1. **Acesse** o site no Chrome
-2. **Procure** pelo ícone de instalação na barra de endereços
-3. **Clique** em "Instalar"
-4. **Teste** o app instalado
+# Configurar DNS
+# A: 76.76.19.19
+# CNAME: www -> cartalia.vercel.app
+```
 
-## 🔍 Troubleshooting
+## 🔍 Monitoramento
 
-### Erros Comuns
+### 📊 Analytics
 
-#### 1. "Input required and not supplied: vercel-token"
+#### Google Analytics
 
-**Problema**: Secret do Vercel não configurado
+```typescript
+// src/utils/analytics.ts
+export const initAnalytics = () => {
+  if (import.meta.env.PROD) {
+    gtag('config', import.meta.env.VITE_ANALYTICS_ID, {
+      page_title: document.title,
+      page_location: window.location.href
+    });
+  }
+};
 
-**Solução**:
-1. Verifique se o `VERCEL_TOKEN` está configurado
-2. Confirme se o token é válido
-3. Regenere o token se necessário
+export const trackEvent = (action: string, category: string, label?: string) => {
+  if (import.meta.env.PROD) {
+    gtag('event', action, {
+      event_category: category,
+      event_label: label
+    });
+  }
+};
+```
 
-#### 2. "Build failed"
+#### Vercel Analytics
 
-**Problema**: Erro durante o build
+```typescript
+// src/main.ts
+import { injectSpeedInsights } from '@vercel/speed-insights';
 
-**Solução**:
-1. Teste localmente: `npm run build`
-2. Verifique logs do Vercel
-3. Confirme variáveis de ambiente
+// Injetar analytics de performance
+injectSpeedInsights();
+```
 
-#### 3. "Deploy failed"
+### 🚨 Error Tracking
 
-**Problema**: Falha no deploy
+```typescript
+// src/utils/errorHandler.ts
+export const trackError = (error: Error, context: string) => {
+  if (import.meta.env.PROD) {
+    // Enviar para serviço de tracking
+    console.error(`[${context}] Error:`, error);
+    
+    // Analytics
+    trackEvent('error', 'application', context);
+  }
+};
+```
 
-**Solução**:
-1. Verifique todos os secrets
-2. Confirme configuração do projeto
-3. Teste deploy manual no Vercel
+### 📈 Métricas de Performance
 
-### Logs e Debug
+```typescript
+// src/utils/performance.ts
+export const trackPerformance = () => {
+  if ('performance' in window) {
+    window.addEventListener('load', () => {
+      const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+      
+      const metrics = {
+        dns: navigation.domainLookupEnd - navigation.domainLookupStart,
+        tcp: navigation.connectEnd - navigation.connectStart,
+        ttfb: navigation.responseStart - navigation.requestStart,
+        domLoad: navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart,
+        windowLoad: navigation.loadEventEnd - navigation.loadEventStart
+      };
+      
+      trackEvent('performance', 'metrics', JSON.stringify(metrics));
+    });
+  }
+};
+```
 
-#### GitHub Actions
+## 🛡️ Segurança
 
-1. **Acesse** a aba "Actions" no GitHub
-2. **Clique** no workflow falhado
-3. **Analise** os logs de cada step
+### 🔒 Headers de Segurança
 
-#### Vercel
+```typescript
+// vercel.json
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://cards-marketplace-api-2fjj.onrender.com https://www.google-analytics.com;"
+        }
+      ]
+    }
+  ]
+}
+```
 
-1. **Acesse** o projeto no Vercel
-2. **Vá** para aba "Deployments"
-3. **Clique** no deploy falhado
-4. **Analise** os logs
+### 🔐 Variáveis Sensíveis
 
-### Deploy Manual
+```bash
+# Configurar no Vercel Dashboard
+VITE_API_BASE_URL=https://cards-marketplace-api-2fjj.onrender.com
+VITE_ANALYTICS_ID=G-XXXXXXXXXX
+VERCEL_TOKEN=your-vercel-token
+VERCEL_ORG_ID=your-org-id
+VERCEL_PROJECT_ID=your-project-id
+```
 
-Se o CI/CD falhar, você pode fazer deploy manual:
+### 🛡️ Validação de Entrada
 
-1. **Acesse** o Vercel
-2. **Clique** em "Deploy"
-3. **Selecione** o branch
-4. **Aguarde** o deploy
+```typescript
+// src/utils/validation.ts
+import { z } from 'zod';
 
-## 📊 Monitoramento
+export const validateInput = <T>(schema: z.ZodSchema<T>, data: unknown): T => {
+  try {
+    return schema.parse(data);
+  } catch (error) {
+    throw new Error(`Validation failed: ${error}`);
+  }
+};
+```
 
-### Métricas de Deploy
+## 📊 Performance
 
-- **Tempo de build**: < 2 minutos
-- **Tempo de deploy**: < 1 minuto
-- **Taxa de sucesso**: > 95%
+### 🚀 Otimizações
 
-### Alertas
+#### Code Splitting
 
-Configure alertas para:
-- Deploy falhado
-- Build falhado
-- Testes falhados
-- Performance degradada
+```typescript
+// src/router/index.ts
+const routes = [
+  {
+    path: '/',
+    component: () => import('@/views/DashboardView.vue')
+  },
+  {
+    path: '/cards',
+    component: () => import('@/views/CardsView.vue')
+  },
+  {
+    path: '/trades',
+    component: () => import('@/views/TradesView.vue')
+  }
+];
+```
 
-## 🔄 Atualizações
+#### Lazy Loading
 
-### Atualizando Configuração
+```typescript
+// src/components/features/cards/CardList.vue
+const CardDetailModal = defineAsyncComponent(() => 
+  import('./CardDetailModal.vue')
+);
+```
 
-1. **Edite** o `vercel.json`
-2. **Faça commit** das mudanças
-3. **Push** para main
-4. **Aguarde** deploy automático
+#### Bundle Optimization
 
-### Rollback
+```typescript
+// vite.config.ts
+export default defineConfig({
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['vue', 'vue-router', 'pinia', 'vuetify'],
+          utils: ['axios', 'zod', 'vee-validate']
+        }
+      }
+    }
+  }
+});
+```
 
-Para fazer rollback:
+### 📱 PWA
 
-1. **Acesse** o Vercel
-2. **Vá** para "Deployments"
-3. **Clique** em deploy anterior
-4. **Clique** em "Promote to Production"
+#### Service Worker
 
----
+```javascript
+// public/sw.js
+const CACHE_NAME = 'cartalia-v1';
+const urlsToCache = [
+  '/',
+  '/index.html',
+  '/assets/vendor.js',
+  '/assets/main.js',
+  '/assets/style.css'
+];
 
-## 📞 Suporte
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(urlsToCache))
+  );
+});
 
-**Problemas com Vercel**: [vercel.com/support](https://vercel.com/support)
-**Problemas com GitHub Actions**: [github.com/actions](https://github.com/actions)
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request)
+      .then((response) => response || fetch(event.request))
+  );
+});
+```
 
----
+#### Manifest
 
-*Última atualização: Julho 2024* 
+```json
+// public/manifest.json
+{
+  "name": "Cartalia - Marketplace de Cartas",
+  "short_name": "Cartalia",
+  "description": "Marketplace para troca de cartas colecionáveis",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1976d2",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+```
+
+### 📊 Lighthouse
+
+```bash
+# Executar Lighthouse
+npm run lighthouse
+
+# Verificar métricas
+# - First Contentful Paint: < 1.5s
+# - Largest Contentful Paint: < 2.5s
+# - Cumulative Layout Shift: < 0.1
+# - First Input Delay: < 100ms
+```
+
+## 🔧 Troubleshooting
+
+### 🚨 Problemas Comuns
+
+#### Build Falha
+
+```bash
+# Verificar dependências
+npm audit
+npm audit fix
+
+# Limpar cache
+npm run clean
+rm -rf node_modules package-lock.json
+npm install
+
+# Verificar TypeScript
+npm run type-check
+```
+
+#### Deploy Falha
+
+```bash
+# Verificar logs
+vercel logs
+
+# Verificar variáveis de ambiente
+vercel env ls
+
+# Re-deploy
+vercel --prod --force
+```
+
+#### Performance Ruim
+
+```bash
+# Analisar bundle
+npm run analyze
+
+# Verificar métricas
+npm run lighthouse
+
+# Otimizar imagens
+npm run optimize-images
+```
+
+### 📝 Logs e Debug
+
+```bash
+# Ver logs do Vercel
+vercel logs
+
+# Ver logs de função
+vercel logs --function=api/hello
+
+# Debug local
+vercel dev --debug
+```
+
+## 🎯 Boas Práticas
+
+### 📦 Deploy
+
+1. **Sempre teste localmente** antes do deploy
+2. **Use branches** para features
+3. **Configure CI/CD** para automação
+4. **Monitore performance** após cada deploy
+5. **Mantenha backups** dos dados
+
+### 🔒 Segurança
+
+1. **Nunca commite** variáveis sensíveis
+2. **Use HTTPS** sempre
+3. **Configure CSP** adequadamente
+4. **Valide inputs** do usuário
+5. **Mantenha dependências** atualizadas
+
+### 📊 Performance
+
+1. **Otimize imagens** antes do deploy
+2. **Use lazy loading** para componentes
+3. **Implemente cache** adequadamente
+4. **Monitore métricas** regularmente
+5. **Teste em diferentes** dispositivos
+
+### 🔍 Monitoramento
+
+1. **Configure alertas** para erros
+2. **Monitore uptime** da aplicação
+3. **Track métricas** de performance
+4. **Analise logs** regularmente
+5. **Mantenha documentação** atualizada 

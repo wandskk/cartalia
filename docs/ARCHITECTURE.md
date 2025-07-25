@@ -26,7 +26,8 @@ Frontend (Vue 3 + TypeScript)
 ├── Build Tool: Vite
 ├── State Management: Pinia
 ├── Router: Vue Router
-├── Styling: SASS
+├── UI Framework: Vuetify 3
+├── Styling: SASS/SCSS
 ├── Validation: Zod + VeeValidate
 └── Testing: Vitest + Vue Test Utils
 ```
@@ -75,12 +76,14 @@ src/
 │   └── layout/         # Componentes de layout (Header, Footer)
 ├── views/              # Páginas da aplicação
 ├── stores/             # Stores Pinia (gerenciamento de estado)
+├── composables/        # Composables Vue (lógica reutilizável)
 ├── services/           # Serviços de API e externos
 ├── utils/              # Utilitários e helpers
 ├── types/              # Definições de tipos TypeScript
+├── schemas/            # Schemas de validação Zod
 ├── styles/             # Estilos globais e variáveis
 ├── router/             # Configuração de rotas
-└── test/               # Configuração de testes
+└── tests/              # Configuração e testes
 ```
 
 ### 📂 Detalhamento das Pastas
@@ -89,19 +92,59 @@ src/
 ```
 components/
 ├── common/             # Componentes base reutilizáveis
-│   ├── BaseButton.vue
-│   ├── BaseInput.vue
+│   ├── BaseModal.vue
+│   ├── Card.vue
+│   ├── CardPreview.vue
+│   ├── Container.vue
+│   ├── ErrorBoundary.vue
 │   ├── ErrorModal.vue
-│   └── UserAvatar.vue
+│   ├── Loading.vue
+│   ├── LoadingOverlay.vue
+│   ├── LoadingSpinner.vue
+│   ├── Logo.vue
+│   ├── NavMenu.vue
+│   ├── Notification.vue
+│   ├── PageHeader.vue
+│   ├── Pagination.vue
+│   ├── SearchInput.vue
+│   ├── SearchWithPagination.vue
+│   ├── SimplePagination.vue
+│   ├── StatCard.vue
+│   ├── StatsGrid.vue
+│   └── ViewToggle.vue
 ├── features/           # Componentes específicos
 │   ├── auth/          # Componentes de autenticação
+│   │   ├── LoginForm.vue
+│   │   └── RegisterForm.vue
 │   ├── cards/         # Componentes de cartas
+│   │   ├── AddCardModal.vue
+│   │   ├── CardDetailModal.vue
+│   │   ├── CardList.vue
+│   │   ├── CardsEmptyState.vue
+│   │   ├── CardsErrorState.vue
+│   │   ├── CardsFilters.vue
+│   │   ├── CardsHeader.vue
+│   │   ├── CardsNoResults.vue
+│   │   └── CardStats.vue
 │   ├── dashboard/     # Componentes do dashboard
+│   │   ├── DashboardHeader.vue
+│   │   ├── DashboardStats.vue
+│   │   ├── QuickActions.vue
+│   │   └── RecentActivity.vue
 │   └── trades/        # Componentes de trocas
+│       ├── CreateTradeModal.vue
+│       ├── DeleteConfirmationModal.vue
+│       ├── MyTradeList.vue
+│       ├── TradeFilters.vue
+│       ├── TradeItem.vue
+│       ├── TradeList.vue
+│       ├── TradePreviewStep.vue
+│       ├── TradeStats.vue
+│       └── TradeStepCardSelection.vue
 └── layout/            # Componentes de layout
     ├── Header.vue
-    ├── Footer.vue
-    └── Container.vue
+    ├── MainLayout.vue
+    └── Sidebar.vue
 ```
 
 #### `stores/`
@@ -110,266 +153,325 @@ stores/
 ├── auth.ts            # Store de autenticação
 ├── cards.ts           # Store de cartas
 ├── trades.ts          # Store de trocas
-├── error.ts           # Store de tratamento de erros
-└── __tests__/         # Testes dos stores
+├── cache.ts           # Store de cache
+├── loading.ts         # Store de loading
+├── notification.ts    # Store de notificações
+├── error.ts           # Store de erros
+├── sidebar.ts         # Store da sidebar
+└── index.ts           # Exportações
+```
+
+#### `composables/`
+```
+composables/
+├── useApi.ts          # Composable para API
+├── useAsyncState.ts   # Composable para estado assíncrono
+├── useAuthForm.ts     # Composable para formulários de auth
+├── useCardFilters.ts  # Composable para filtros de cartas
+├── useCardSelection.ts # Composable para seleção de cartas
+├── useCardStates.ts   # Composable para estados de cartas
+├── useDashboard.ts    # Composable para dashboard
+├── useFilters.ts      # Composable para filtros genéricos
+├── useLoadingState.ts # Composable para loading
+├── useMarketplaceFilters.ts # Composable para filtros do marketplace
+├── useModal.ts        # Composable para modais
+├── usePagination.ts   # Composable para paginação
+├── useSearch.ts       # Composable para busca
+├── useSidebar.ts      # Composable para sidebar
+├── useSteps.ts        # Composable para steps
+├── useTradeCreation.ts # Composable para criação de trades
+├── useTradeFilters.ts # Composable para filtros de trades
+└── index.ts           # Exportações
 ```
 
 #### `services/`
 ```
 services/
-├── index.ts           # Configuração base do Axios
-├── modules/           # Módulos de serviços
+├── modules/
 │   ├── auth.ts        # Serviços de autenticação
 │   ├── cards.ts       # Serviços de cartas
 │   └── trades.ts      # Serviços de trocas
-└── types/             # Tipos dos serviços
+└── index.ts           # Configuração do axios
+```
+
+#### `types/`
+```
+types/
+├── api.ts             # Tipos da API
+├── auth.ts            # Tipos de autenticação
+├── cards.ts           # Tipos de cartas
+├── common.ts          # Tipos comuns
+├── components.ts      # Tipos de componentes
+├── modals.ts          # Tipos de modais
+├── store.ts           # Tipos de stores
+├── trades.ts          # Tipos de trades
+└── index.ts           # Exportações
+```
+
+#### `schemas/`
+```
+schemas/
+├── cards.schema.ts    # Schemas de validação de cartas
+├── common.schema.ts   # Schemas comuns
+├── login.schema.ts    # Schemas de login
+├── modals.schema.ts   # Schemas de modais
+├── register.schema.ts # Schemas de registro
+├── trades.schema.ts   # Schemas de trades
+└── index.ts           # Exportações
 ```
 
 ## 🔧 Padrões de Código
 
-### 📝 Convenções de Nomenclatura
+### 🎨 Vue 3 Composition API
 
-#### Arquivos e Pastas
-```typescript
+O projeto utiliza exclusivamente a **Composition API** do Vue 3, que oferece melhor reutilização de lógica e tipagem TypeScript.
 
-BaseButton.vue
-UserProfile.vue
+#### 📝 Exemplo de Componente
 
-
-authService.ts
-errorHandler.ts
-
-
-feature-name/
-component-name/
-```
-
-#### Variáveis e Funções
-```typescript
-
-const userName = 'John';
-const isLoading = ref(false);
-
-function handleUserLogin() {
-
-}
-
-
-interface UserData {
-  id: string;
-  name: string;
-}
-
-class AuthService {
-
-}
-```
-
-#### Constantes
-```typescript
-
-const API_BASE_URL = 'https://api.example.com';
-const MAX_RETRY_ATTEMPTS = 3;
-```
-
-### 🎨 Padrões de Componentes
-
-#### Estrutura de Componente Vue
 ```vue
 <template>
-  <!-- Template sempre primeiro -->
+  <div class="card-list">
+    <CardItem 
+      v-for="card in cards" 
+      :key="card.id" 
+      :card="card"
+      @select="handleCardSelect"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { useCardsStore } from '@/stores/cards'
+import { useCardFilters } from '@/composables/useCardFilters'
+import CardItem from './CardItem.vue'
 
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
-
-
-import BaseButton from '../common/BaseButton.vue';
-import { useAuthStore } from '../../stores/auth';
-
-
+// Props e emits
 interface Props {
-  title: string;
-  loading?: boolean;
+  initialFilters?: CardFilters
 }
 
+const props = withDefaults(defineProps<Props>(), {
+  initialFilters: () => ({})
+})
 
-const props = defineProps<Props>();
 const emit = defineEmits<{
-  submit: [data: any];
-}>();
+  cardSelect: [card: Card]
+}>()
 
+// Composables
+const cardsStore = useCardsStore()
+const { filters, applyFilters } = useCardFilters(props.initialFilters)
 
-const router = useRouter();
-const authStore = useAuthStore();
+// Estado local
+const cards = ref<Card[]>([])
+const loading = ref(false)
 
-
-const formData = ref({});
-
-
-const isValid = computed(() => {
-
-});
-
-
-function handleSubmit() {
-
+// Métodos
+const handleCardSelect = (card: Card) => {
+  emit('cardSelect', card)
 }
 
+const loadCards = async () => {
+  loading.value = true
+  try {
+    cards.value = await cardsStore.fetchCards(filters.value)
+  } catch (error) {
+    console.error('Erro ao carregar cartas:', error)
+  } finally {
+    loading.value = false
+  }
+}
 
+// Lifecycle
 onMounted(() => {
-
-});
+  loadCards()
+})
 </script>
-
-<style scoped lang="scss">
-
-</style>
 ```
 
-### 🔄 Padrões de Estado
+### 🏪 Pinia Stores
 
-#### Store Pinia
+Gerenciamento de estado centralizado com Pinia, seguindo o padrão de **Setup Stores**.
+
+#### 📝 Exemplo de Store
+
 ```typescript
-import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
+import type { Card, CardFilters } from '@/types'
+import { cardsApi } from '@/services/modules/cards'
 
-export const useFeatureStore = defineStore('feature', () => {
+export const useCardsStore = defineStore('cards', () => {
+  // State
+  const cards = ref<Card[]>([])
+  const loading = ref(false)
+  const error = ref<string | null>(null)
 
-  const items = ref<Item[]>([]);
-  const loading = ref(false);
-  const error = ref<string | null>(null);
+  // Getters
+  const totalCards = computed(() => cards.value.length)
+  const cardsByRarity = computed(() => {
+    return cards.value.reduce((acc, card) => {
+      acc[card.rarity] = (acc[card.rarity] || 0) + 1
+      return acc
+    }, {} as Record<string, number>)
+  })
 
-
-  const hasItems = computed(() => items.value.length > 0);
-  const itemCount = computed(() => items.value.length);
-
-
-  async function fetchItems() {
-    loading.value = true;
-    error.value = null;
+  // Actions
+  const fetchCards = async (filters?: CardFilters) => {
+    loading.value = true
+    error.value = null
     
     try {
-      const response = await api.getItems();
-      items.value = response.data;
+      const response = await cardsApi.getCards(filters)
+      cards.value = response.data
     } catch (err) {
-      error.value = handleError(err);
+      error.value = 'Erro ao carregar cartas'
+      throw err
     } finally {
-      loading.value = false;
+      loading.value = false
     }
   }
 
-  function addItem(item: Item) {
-    items.value.push(item);
-  }
-
-  function removeItem(id: string) {
-    const index = items.value.findIndex(item => item.id === id);
-    if (index > -1) {
-      items.value.splice(index, 1);
+  const addCard = async (card: Omit<Card, 'id'>) => {
+    try {
+      const response = await cardsApi.createCard(card)
+      cards.value.push(response.data)
+    } catch (err) {
+      error.value = 'Erro ao adicionar carta'
+      throw err
     }
   }
 
   return {
-
-    items,
+    // State
+    cards,
     loading,
     error,
     
-
-    hasItems,
-    itemCount,
+    // Getters
+    totalCards,
+    cardsByRarity,
     
+    // Actions
+    fetchCards,
+    addCard
+  }
+})
+```
 
-    fetchItems,
-    addItem,
-    removeItem
-  };
-});
+### 🔄 Composables
+
+Lógica reutilizável encapsulada em composables Vue.
+
+#### 📝 Exemplo de Composable
+
+```typescript
+import { ref, computed } from 'vue'
+import type { Card, CardFilters } from '@/types'
+
+export function useCardFilters(initialFilters: CardFilters = {}) {
+  const filters = ref<CardFilters>({
+    name: '',
+    rarity: '',
+    type: '',
+    ...initialFilters
+  })
+
+  const hasActiveFilters = computed(() => {
+    return Object.values(filters.value).some(value => 
+      value !== '' && value !== null && value !== undefined
+    )
+  })
+
+  const clearFilters = () => {
+    filters.value = {
+      name: '',
+      rarity: '',
+      type: ''
+    }
+  }
+
+  const applyFilters = (newFilters: Partial<CardFilters>) => {
+    filters.value = { ...filters.value, ...newFilters }
+  }
+
+  return {
+    filters,
+    hasActiveFilters,
+    clearFilters,
+    applyFilters
+  }
+}
+```
+
+### 🎯 TypeScript
+
+Tipagem estática completa com TypeScript para maior confiabilidade e melhor DX.
+
+#### 📝 Exemplo de Tipos
+
+```typescript
+// types/cards.ts
+export interface Card {
+  id: string
+  name: string
+  description: string
+  image: string
+  rarity: CardRarity
+  type: CardType
+  attack?: number
+  defense?: number
+  createdAt: string
+  updatedAt: string
+}
+
+export type CardRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
+export type CardType = 'monster' | 'spell' | 'trap'
+
+export interface CardFilters {
+  name?: string
+  rarity?: CardRarity
+  type?: CardType
+  minAttack?: number
+  maxAttack?: number
+  minDefense?: number
+  maxDefense?: number
+}
+
+export interface CardApiResponse {
+  data: Card[]
+  total: number
+  page: number
+  limit: number
+}
 ```
 
 ## 🎨 Design Patterns
 
-### 🏭 Factory Pattern
-```typescript
+### 🏗️ Component-Based Architecture
 
-export class ErrorFactory {
-  static createApiError(message: string, status: number): AppError {
-    return {
-      type: 'api',
-      message,
-      status,
-      timestamp: new Date()
-    };
-  }
+- **Atomic Design**: Componentes organizados por complexidade
+- **Composition over Inheritance**: Reutilização via composição
+- **Single Responsibility**: Cada componente tem uma responsabilidade
 
-  static createValidationError(field: string, message: string): AppError {
-    return {
-      type: 'validation',
-      message,
-      field,
-      timestamp: new Date()
-    };
-  }
-}
-```
+### 🔄 State Management Patterns
 
-### 🎯 Observer Pattern
-```typescript
+- **Centralized State**: Estado global no Pinia
+- **Local State**: Estado local nos componentes
+- **Derived State**: Estado calculado via computed properties
 
-export const useNotificationStore = defineStore('notification', () => {
-  const notifications = ref<Notification[]>([]);
-  const listeners = ref<Function[]>([]);
+### 🎯 Error Handling Patterns
 
-  function subscribe(listener: Function) {
-    listeners.value.push(listener);
-  }
+- **Global Error Boundary**: Captura de erros global
+- **Try-Catch Blocks**: Tratamento local de erros
+- **Error Stores**: Centralização de erros
 
-  function unsubscribe(listener: Function) {
-    const index = listeners.value.indexOf(listener);
-    if (index > -1) {
-      listeners.value.splice(index, 1);
-    }
-  }
+### 🔧 API Patterns
 
-  function notify(notification: Notification) {
-    notifications.value.push(notification);
-    listeners.value.forEach(listener => listener(notification));
-  }
-
-  return { subscribe, unsubscribe, notify, notifications };
-});
-```
-
-### 🔧 Strategy Pattern
-```typescript
-
-interface ValidationStrategy {
-  validate(value: any): ValidationResult;
-}
-
-class EmailValidationStrategy implements ValidationStrategy {
-  validate(value: string): ValidationResult {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return {
-      isValid: emailRegex.test(value),
-      message: emailRegex.test(value) ? '' : 'Email inválido'
-    };
-  }
-}
-
-class PasswordValidationStrategy implements ValidationStrategy {
-  validate(value: string): ValidationResult {
-    const minLength = 6;
-    return {
-      isValid: value.length >= minLength,
-      message: value.length >= minLength ? '' : `Mínimo ${minLength} caracteres`
-    };
-  }
-}
-```
+- **Service Layer**: Abstração da API
+- **Interceptors**: Interceptação de requisições/respostas
+- **Error Handling**: Tratamento centralizado de erros
 
 ## 🔄 Fluxo de Dados
 
@@ -378,111 +480,74 @@ class PasswordValidationStrategy implements ValidationStrategy {
 ```
 User Action → Component → Store → Service → API
      ↑                                           ↓
-     └─────────── State Update ←───────────────┘
+     ← Component ← Store ← Service ← API Response
 ```
 
-### 🔄 Fluxo de Autenticação
+### 🎯 Exemplo de Fluxo
 
-```
-1. User Input → LoginForm
-2. Validation → Zod Schema
-3. API Call → AuthService
-4. Response → AuthStore
-5. State Update → Router Guard
-6. Navigation → Protected Route
-```
-
-### 🔄 Fluxo de Tratamento de Erros
-
-```
-1. API Error → Axios Interceptor
-2. Error Handler → ErrorStore
-3. Error Modal → User Notification
-4. Analytics → Error Tracking
-5. Logging → Console/External Service
-```
+1. **User Action**: Usuário clica em "Adicionar Carta"
+2. **Component**: `AddCardModal` emite evento
+3. **Store**: `useCardsStore.addCard()` é chamado
+4. **Service**: `cardsApi.createCard()` faz requisição
+5. **API**: Processa e retorna resposta
+6. **Store**: Atualiza estado com nova carta
+7. **Component**: Reage às mudanças do store
 
 ## 🛡️ Segurança
 
 ### 🔐 Autenticação
 
-- **JWT Tokens**: Armazenados em localStorage
-- **Token Refresh**: Implementado automaticamente
-- **Route Guards**: Proteção de rotas privadas
-- **Token Expiration**: Tratamento de expiração
+- **JWT Tokens**: Autenticação via tokens
+- **Token Storage**: Armazenamento seguro no localStorage
+- **Token Refresh**: Renovação automática de tokens
+- **Route Guards**: Proteção de rotas
 
 ### 🛡️ Validação
 
-- **Client-side**: Zod schemas para validação
-- **Server-side**: Validação na API
-- **Input Sanitization**: Limpeza de dados
-- **XSS Protection**: Headers de segurança
+- **Client-Side**: Validação com Zod + VeeValidate
+- **Server-Side**: Validação na API
+- **Input Sanitization**: Sanitização de inputs
 
-### 🔒 Headers de Segurança
+### 🔒 CORS
 
-```typescript
-
-{
-  "X-Content-Type-Options": "nosniff",
-  "X-Frame-Options": "DENY",
-  "X-XSS-Protection": "1; mode=block"
-}
-```
+- **Configuração**: CORS configurado na API
+- **Origins**: Apenas origens permitidas
+- **Methods**: Métodos HTTP permitidos
 
 ## ⚡ Performance
 
-### 🚀 Otimizações Implementadas
+### 🚀 Otimizações
 
-#### Code Splitting
+- **Lazy Loading**: Carregamento sob demanda
+- **Code Splitting**: Divisão do bundle
+- **Tree Shaking**: Eliminação de código não utilizado
+- **Caching**: Cache de recursos estáticos
+
+### 📦 Bundle Optimization
+
 ```typescript
-
-const LoginView = () => import('../views/LoginView.vue');
-const DashboardView = () => import('../views/DashboardView.vue');
-```
-
-#### Bundle Optimization
-```typescript
-
-rollupOptions: {
-  output: {
-    manualChunks: {
-      vendor: ['vue', 'vue-router', 'pinia']
+// vite.config.ts
+export default defineConfig({
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['vue', 'vue-router', 'pinia', 'vuetify']
+        }
+      }
     }
   }
-}
+})
 ```
 
-#### Caching Strategy
-```javascript
+### 🎯 Performance Monitoring
 
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => response || fetch(event.request))
-  );
-});
-```
+- **Lighthouse**: Análise de performance
+- **Bundle Analyzer**: Análise do bundle
+- **Error Tracking**: Rastreamento de erros
 
-### 📊 Métricas de Performance
+### 📱 PWA Features
 
-- **First Contentful Paint**: < 1.5s
-- **Largest Contentful Paint**: < 2.5s
-- **Cumulative Layout Shift**: < 0.1
-- **First Input Delay**: < 100ms
-
-### 🔧 Ferramentas de Monitoramento
-
-- **Lighthouse**: Auditoria de performance
-- **Web Vitals**: Métricas Core Web Vitals
-- **Bundle Analyzer**: Análise de bundle
-- **Error Tracking**: Monitoramento de erros
-
----
-
-## 📚 Referências
-
-- [Vue 3 Documentation](https://vuejs.org/)
-- [Pinia Documentation](https://pinia.vuejs.org/)
-- [Vite Documentation](https://vitejs.dev/)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) 
+- **Service Worker**: Cache e offline
+- **Manifest**: Configuração do app
+- **Install Prompt**: Instalação como app 
