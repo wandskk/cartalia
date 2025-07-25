@@ -6,6 +6,7 @@ import MainLayout from "./components/layout/MainLayout.vue"
 import Loading from "./components/common/Loading.vue"
 import Notification from "./components/common/Notification.vue"
 import ErrorModal from "./components/common/ErrorModal.vue"
+import ErrorBoundary from "./components/common/ErrorBoundary.vue"
 
 export default defineComponent({
   name: 'App',
@@ -13,7 +14,8 @@ export default defineComponent({
     MainLayout,
     Loading,
     Notification,
-    ErrorModal
+    ErrorModal,
+    ErrorBoundary
   },
   setup() {
     const loadingStore = useLoadingStore()
@@ -29,10 +31,12 @@ export default defineComponent({
 
 <template>
   <v-app>
-    <Notification />
-    <Loading v-if="loadingStore.isLoading" />
-    <ErrorModal :is-open="errorStore.isErrorModalOpen" />
-    <MainLayout />
+    <ErrorBoundary>
+      <Notification />
+      <Loading v-if="loadingStore.isLoading" />
+      <ErrorModal :is-open="errorStore.isErrorModalOpen" />
+      <MainLayout />
+    </ErrorBoundary>
   </v-app>
 </template>
 

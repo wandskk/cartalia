@@ -3,6 +3,7 @@ import { createPinia } from "pinia";
 import App from "./App.vue";
 import "./style.scss";
 import router from './router'
+import { useCacheStore } from './stores/cache';
 
 // Vuetify
 import 'vuetify/styles'
@@ -26,7 +27,13 @@ const vuetify = createVuetify({
 })
 
 const app = createApp(App);
-app.use(createPinia());
+const pinia = createPinia();
+app.use(pinia);
 app.use(router);
 app.use(vuetify);
+
+// Initialize cache
+const cacheStore = useCacheStore(pinia);
+cacheStore.initializeCache();
+
 app.mount("#app");
