@@ -363,16 +363,6 @@ const isTradeValid = computed(() => {
   );
 });
 
-const validationMessage = computed(() => {
-  if (selectedOfferingCards.value.length === 0) {
-    return "Selecione pelo menos uma carta para oferecer";
-  }
-  if (selectedReceivingCards.value.length === 0) {
-    return "Selecione pelo menos uma carta para receber";
-  }
-  return "";
-});
-
 const selectedOfferingCardsData = computed(() => {
   return selectedOfferingCards.value
     .map(id => getCardById(id))
@@ -513,20 +503,6 @@ function handleReceivingCardSelect(card: CardType, selected: boolean) {
     if (index > -1) {
       selectedReceivingCards.value.splice(index, 1);
     }
-  }
-}
-
-function removeOfferingCard(cardId: string) {
-  const index = selectedOfferingCards.value.indexOf(cardId);
-  if (index > -1) {
-    selectedOfferingCards.value.splice(index, 1);
-  }
-}
-
-function removeReceivingCard(cardId: string) {
-  const index = selectedReceivingCards.value.indexOf(cardId);
-  if (index > -1) {
-    selectedReceivingCards.value.splice(index, 1);
   }
 }
 

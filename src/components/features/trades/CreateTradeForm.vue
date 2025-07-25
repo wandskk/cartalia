@@ -125,10 +125,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useCardsStore } from '../../../stores/cards';
-import { useNotificationStore } from '../../../stores/notification';
 import BaseModal from '../../common/BaseModal.vue';
 import SearchInput from '../../common/SearchInput.vue';
-import type { Card } from '../../../types';
+import type { Card as CardType } from '../../../types';
 
 interface Props {
   creating?: boolean;
@@ -136,7 +135,7 @@ interface Props {
 
 interface Emits {
   (e: 'cancel'): void;
-  (e: 'create', tradeData: { offeringCards: Card[], receivingCards: Card[] }): void;
+  (e: 'create', tradeData: { offeringCards: CardType[], receivingCards: CardType[] }): void;
 }
 
 withDefaults(defineProps<Props>(), {
@@ -146,10 +145,9 @@ withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>();
 
 const cardsStore = useCardsStore();
-const notification = useNotificationStore();
 
-const selectedOfferingCards = ref<Card[]>([]);
-const selectedReceivingCards = ref<Card[]>([]);
+const selectedOfferingCards = ref<CardType[]>([]);
+const selectedReceivingCards = ref<CardType[]>([]);
 const showCardSelector = ref<'offering' | 'receiving' | false>(false);
 const searchTerm = ref('');
 
@@ -166,7 +164,7 @@ const canCreateTrade = computed(() =>
   selectedOfferingCards.value.length > 0 && selectedReceivingCards.value.length > 0
 );
 
-function selectCard(card: Card) {
+function selectCard(card: CardType) {
   if (showCardSelector.value === 'offering') {
     if (!selectedOfferingCards.value.find(c => c.id === card.id)) {
       selectedOfferingCards.value.push(card);
@@ -181,14 +179,14 @@ function selectCard(card: Card) {
   searchTerm.value = '';
 }
 
-function removeOfferingCard(card: Card) {
+function removeOfferingCard(card: CardType) {
   const index = selectedOfferingCards.value.findIndex(c => c.id === card.id);
   if (index > -1) {
     selectedOfferingCards.value.splice(index, 1);
   }
 }
 
-function removeReceivingCard(card: Card) {
+function removeReceivingCard(card: CardType) {
   const index = selectedReceivingCards.value.findIndex(c => c.id === card.id);
   if (index > -1) {
     selectedReceivingCards.value.splice(index, 1);

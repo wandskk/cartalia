@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, watch, computed } from 'vue';
+import { reactive, watch } from 'vue';
 import SearchWithPagination from '../../common/SearchWithPagination.vue';
 
 interface Filters {
@@ -52,29 +52,6 @@ const emit = defineEmits<Emits>();
 const internalFilters = reactive<Filters>({
   search: ''
 });
-
-// Computed para converter entre as duas interfaces
-const internalFiltersComputed = computed({
-  get: () => {
-    // Se modelValue está sendo usado (interface antiga)
-    if (props.modelValue) {
-      return { search: props.modelValue.searchTerm };
-    }
-    return internalFilters;
-  },
-  set: (value) => {
-    internalFilters.search = value.search;
-  }
-});
-
-function handleSearch() {
-  const filters = { search: internalFilters.search };
-  emit('filters-change', filters);
-  
-  // Emit para interface antiga
-  emit('update:modelValue', { searchTerm: internalFilters.search });
-  emit('filter', { searchTerm: internalFilters.search });
-}
 
 function handlePageChange(page: number) {
   emit('page-change', page);

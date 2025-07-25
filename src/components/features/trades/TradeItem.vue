@@ -154,7 +154,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 import { useAuthStore } from '../../../stores/auth';
 import type { Trade } from '../../../types';
 import type { Card } from '../../../types/cards';

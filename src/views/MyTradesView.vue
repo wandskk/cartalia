@@ -95,7 +95,6 @@ const notification = useNotificationStore();
 const loading = computed(() => tradesStore.loading);
 const error = computed(() => tradesStore.error);
 const userTrades = computed(() => tradesStore.userTrades);
-const pagination = computed(() => tradesStore.pagination);
 
 const viewMode = ref<"grid" | "list">("grid");
 const showCreateModal = ref(false);

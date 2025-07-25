@@ -14,17 +14,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import type { Trade } from '../../../types';
 
-interface Emits {
-  (e: 'delete'): void;
+interface Props {
+  trade: Trade;
 }
 
+interface Emits {
+  (e: 'delete', trade: Trade): void;
+}
+
+const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 function handleDelete() {
   if (confirm('Tem certeza que deseja deletar esta troca?')) {
-    emit('delete');
+    emit('delete', props.trade);
   }
 }
 </script> 

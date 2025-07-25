@@ -58,7 +58,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
 import Card from '../../common/Card.vue';
 import LoadingSpinner from '../../common/LoadingSpinner.vue';
 import type { Card as CardType } from '../../../types';
