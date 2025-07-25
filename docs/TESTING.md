@@ -46,13 +46,57 @@ Framework de testes principal, escolhido por sua integração nativa com Vite e 
 // vitest.config.ts
 import { defineConfig } from 'vitest/config';
 import vue from '@vitejs/plugin-vue';
+import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [vue()],
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['./src/test/setup.ts']
+    setupFiles: ['./src/tests/setup.ts'],
+    include: ['src/tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    exclude: [
+      'src/tests/e2e/**/*',
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/cypress/**',
+      '**/.{idea,git,cache,output,temp}/**',
+      '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*'
+    ],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'coverage/**',
+        'dist/**',
+        'packages/*/test{,s}/**',
+        '**/*.d.ts',
+        'cypress/**',
+        'test{,s}/**',
+        'test{,-*}.{js,cjs,mjs,ts,tsx,jsx}',
+        '**/*{.,-}test.{js,cjs,mjs,ts,tsx,jsx}',
+        '**/*{.,-}spec.{js,cjs,mjs,ts,tsx,jsx}',
+        '**/__tests__/**',
+        '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*'
+      ],
+      thresholds: {
+        global: {
+          branches: 80,
+          functions: 80,
+          lines: 80,
+          statements: 80
+        }
+      }
+    }
+  },
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
+      '~': resolve(__dirname, './src')
+    }
+  },
+  define: {
+    global: 'globalThis'
   }
 });
 ```
@@ -63,11 +107,14 @@ Biblioteca oficial do Vue para testar componentes.
 
 ```typescript
 import { mount } from '@vue/test-utils';
-import BaseButton from '../BaseButton.vue';
+import Card from '@/components/common/Card.vue';
 
-const wrapper = mount(BaseButton, {
-  props: { color: 'primary' },
-  slots: { default: 'Click me' }
+const wrapper = mount(Card, {
+  props: { 
+    card: mockCard,
+    selectable: true 
+  },
+  slots: { default: 'Card Content' }
 });
 ```
 
@@ -77,7 +124,7 @@ Ferramentas para testar componentes como o usuário os utiliza.
 
 ```typescript
 import { render, screen, fireEvent } from '@testing-library/vue';
-import LoginForm from '../LoginForm.vue';
+import LoginForm from '@/components/features/auth/LoginForm.vue';
 
 const { getByLabelText, getByRole } = render(LoginForm);
 const emailInput = getByLabelText('Email');
@@ -89,7 +136,7 @@ const submitButton = getByRole('button', { name: /entrar/i });
 Ambiente DOM para testes de componentes Vue.
 
 ```typescript
-// src/test/setup.ts
+// src/tests/setup.ts
 import { config } from '@vue/test-utils';
 import { vi } from 'vitest';
 
@@ -100,369 +147,572 @@ const localStorageMock = {
   removeItem: vi.fn(),
   clear: vi.fn()
 };
-global.localStorage = localStorageMock;
+
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock
+});
+
+// Mock IntersectionObserver
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  observe() { return null; }
+  unobserve() { return null; }
+  disconnect() { return null; }
+};
+
+// Configuração global do Vue Test Utils
+config.global.stubs = {
+  'router-link': true,
+  'router-view': true
+};
 ```
 
 ## 📁 Estrutura de Testes
 
+### 📂 Organização
+
 ```
-src/
-├── components/
-│   ├── __tests__/           # Testes de componentes
-│   │   ├── common/         # Testes dos componentes base
-│   │   ├── features/       # Testes dos componentes de features
-│   │   └── layout/         # Testes dos componentes de layout
-│   └── ComponentName.vue
-├── stores/
-│   ├── __tests__/          # Testes de stores
-│   │   ├── auth.test.ts
-│   │   ├── cards.test.ts
-│   │   └── trades.test.ts
-│   └── storeName.ts
-├── utils/
-│   ├── __tests__/          # Testes de utilitários
-│   │   ├── validation.test.ts
-│   │   └── errorHandler.test.ts
-│   └── utilName.ts
-└── test/
-    ├── setup.ts            # Configuração global de testes
-    ├── mocks/              # Mocks globais
-    └── helpers/            # Funções auxiliares
+src/tests/
+├── components/           # Testes de componentes
+│   ├── common/          # Componentes base
+│   │   ├── Card.test.ts
+│   │   ├── LoadingOverlay.test.ts
+│   │   └── Pagination.test.ts
+│   └── features/        # Componentes específicos
+│       ├── auth/
+│       │   ├── LoginForm.test.ts
+│       │   └── RegisterForm.test.ts
+│       ├── cards/
+│       │   ├── CardList.test.ts
+│       │   └── AddCardModal.test.ts
+│       └── trades/
+│           ├── TradeList.test.ts
+│           └── CreateTradeModal.test.ts
+├── composables/         # Testes de composables
+│   ├── useApi.test.ts
+│   ├── useAuthForm.test.ts
+│   ├── useCardFilters.test.ts
+│   ├── useCardSelection.test.ts
+│   ├── useCardStates.test.ts
+│   ├── useDashboard.test.ts
+│   ├── useFilters.test.ts
+│   ├── useLoadingState.test.ts
+│   ├── useMarketplaceFilters.test.ts
+│   ├── useModal.test.ts
+│   ├── usePagination.test.ts
+│   ├── useSearch.test.ts
+│   ├── useSidebar.test.ts
+│   ├── useSteps.test.ts
+│   ├── useTradeCreation.test.ts
+│   └── useTradeFilters.test.ts
+├── stores/              # Testes de stores
+│   ├── auth.test.ts
+│   ├── cache.test.ts
+│   ├── cards.test.ts
+│   ├── error.test.ts
+│   ├── loading.test.ts
+│   ├── notification.test.ts
+│   ├── sidebar.test.ts
+│   └── trades.test.ts
+├── utils/               # Testes de utilitários
+│   ├── formatters.test.ts
+│   ├── errorHandler.test.ts
+│   └── parseApiError.test.ts
+├── mocks/               # Mocks e dados de teste
+│   ├── api.ts
+│   ├── data.ts
+│   ├── stores.ts
+│   └── index.ts
+└── setup.ts            # Configuração global
 ```
 
-### 📂 Convenções de Nomenclatura
+### 📂 Mocks e Dados
 
-- **Arquivos de teste**: `ComponentName.test.ts` ou `ComponentName.spec.ts`
-- **Pastas de teste**: `__tests__` dentro da pasta do módulo
-- **Testes de integração**: `ComponentName.integration.test.ts`
-- **Testes E2E**: `ComponentName.e2e.test.ts`
+```typescript
+// src/tests/mocks/data.ts
+export const mockCard = {
+  id: '1',
+  name: 'Blue-Eyes White Dragon',
+  description: 'This legendary dragon...',
+  image: '/images/card.jpg',
+  rarity: 'legendary' as const,
+  type: 'monster' as const,
+  attack: 3000,
+  defense: 2500,
+  createdAt: '2024-01-01T00:00:00Z',
+  updatedAt: '2024-01-01T00:00:00Z'
+};
+
+export const mockUser = {
+  id: '1',
+  name: 'John Doe',
+  email: 'john@example.com',
+  createdAt: '2024-01-01T00:00:00Z',
+  updatedAt: '2024-01-01T00:00:00Z'
+};
+
+export const mockTrade = {
+  id: '1',
+  userId: '1',
+  offeredCards: [mockCard],
+  requestedCards: [mockCard],
+  description: 'Trade description',
+  status: 'pending' as const,
+  createdAt: '2024-01-01T00:00:00Z',
+  updatedAt: '2024-01-01T00:00:00Z'
+};
+```
+
+```typescript
+// src/tests/mocks/api.ts
+import { vi } from 'vitest';
+
+export const mockApi = {
+  get: vi.fn(),
+  post: vi.fn(),
+  put: vi.fn(),
+  delete: vi.fn()
+};
+
+export const mockAxiosResponse = (data: any) => ({
+  data,
+  status: 200,
+  statusText: 'OK',
+  headers: {},
+  config: {}
+});
+
+export const mockAxiosError = (message: string, status: number = 400) => ({
+  message,
+  response: {
+    data: { message },
+    status,
+    statusText: 'Bad Request',
+    headers: {},
+    config: {}
+  }
+});
+```
 
 ## 🧪 Tipos de Testes
 
-### 🧩 Testes Unitários
-
-Testes isolados de funções, métodos e componentes individuais.
-
-#### 📝 Exemplo: Teste de Utilitário
-
-```typescript
-// src/utils/__tests__/validation.test.ts
-import { describe, it, expect } from 'vitest';
-import { validateEmail, validatePassword } from '../validation';
-
-describe('Validation Utils', () => {
-  describe('validateEmail', () => {
-    it('should return true for valid email', () => {
-      expect(validateEmail('test@example.com')).toBe(true);
-    });
-
-    it('should return false for invalid email', () => {
-      expect(validateEmail('invalid-email')).toBe(false);
-    });
-
-    it('should return false for empty email', () => {
-      expect(validateEmail('')).toBe(false);
-    });
-  });
-
-  describe('validatePassword', () => {
-    it('should return true for valid password', () => {
-      expect(validatePassword('password123')).toBe(true);
-    });
-
-    it('should return false for short password', () => {
-      expect(validatePassword('123')).toBe(false);
-    });
-  });
-});
-```
-
-#### 📝 Exemplo: Teste de Store
-
-```typescript
-// src/stores/__tests__/auth.test.ts
-import { setActivePinia, createPinia } from 'pinia';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { useAuthStore } from '../auth';
-import { AuthServices } from '../../services/modules/auth';
-
-vi.mock('../../services/modules/auth');
-
-describe('Auth Store', () => {
-  beforeEach(() => {
-    setActivePinia(createPinia());
-    vi.clearAllMocks();
-  });
-
-  it('should have initial state', () => {
-    const store = useAuthStore();
-    
-    expect(store.user).toBeNull();
-    expect(store.token).toBeNull();
-    expect(store.isAuthenticated).toBe(false);
-  });
-
-  it('should login successfully', async () => {
-    const mockUser = { id: '1', name: 'Test User', email: 'test@example.com' };
-    const mockToken = 'mock-token';
-    
-    vi.mocked(AuthServices.login).mockResolvedValue({
-      user: mockUser,
-      token: mockToken
-    });
-
-    const store = useAuthStore();
-    await store.login({ email: 'test@example.com', password: 'password' });
-
-    expect(store.user).toEqual(mockUser);
-    expect(store.token).toBe(mockToken);
-    expect(store.isAuthenticated).toBe(true);
-  });
-
-  it('should handle login error', async () => {
-    const error = new Error('Invalid credentials');
-    vi.mocked(AuthServices.login).mockRejectedValue(error);
-
-    const store = useAuthStore();
-    await store.login({ email: 'test@example.com', password: 'wrong' });
-
-    expect(store.user).toBeNull();
-    expect(store.token).toBeNull();
-    expect(store.isAuthenticated).toBe(false);
-  });
-});
-```
-
 ### 🧩 Testes de Componentes
 
-Testes de componentes Vue isolados, verificando props, eventos e renderização.
+Testes que verificam o comportamento e renderização dos componentes Vue.
 
-#### 📝 Exemplo: Teste de Componente Base
+#### 📝 Exemplo: Card Component
 
 ```typescript
-// src/components/common/__tests__/BaseButton.test.ts
+// src/tests/components/common/Card.test.ts
 import { mount } from '@vue/test-utils';
-import { describe, it, expect } from 'vitest';
-import BaseButton from '../BaseButton.vue';
+import { describe, it, expect, beforeEach } from 'vitest';
+import Card from '@/components/common/Card.vue';
+import { mockCard } from '@/tests/mocks/data';
 
-describe('BaseButton', () => {
-  it('renders with default props', () => {
-    const wrapper = mount(BaseButton, {
-      slots: { default: 'Click me' }
+describe('Card', () => {
+  let wrapper: any;
+
+  beforeEach(() => {
+    wrapper = mount(Card, {
+      props: { card: mockCard }
     });
-
-    expect(wrapper.text()).toContain('Click me');
-    expect(wrapper.find('button').exists()).toBe(true);
-    expect(wrapper.classes()).toContain('base-btn');
   });
 
-  it('applies color class correctly', () => {
-    const wrapper = mount(BaseButton, {
-      props: { color: 'primary' },
-      slots: { default: 'Button' }
+  it('renders card information correctly', () => {
+    expect(wrapper.text()).toContain('Blue-Eyes White Dragon');
+    expect(wrapper.text()).toContain('This legendary dragon...');
+    expect(wrapper.find('img').attributes('src')).toBe('/images/card.jpg');
+  });
+
+  it('emits select event when clicked and selectable', async () => {
+    wrapper = mount(Card, {
+      props: { 
+        card: mockCard,
+        selectable: true 
+      }
     });
 
-    expect(wrapper.classes()).toContain('primary');
+    await wrapper.trigger('click');
+    
+    expect(wrapper.emitted('select')).toBeTruthy();
+    expect(wrapper.emitted('select')?.[0]).toEqual([mockCard]);
+  });
+
+  it('applies selected class when selected', () => {
+    wrapper = mount(Card, {
+      props: { 
+        card: mockCard,
+        selectable: true,
+        selected: true 
+      }
+    });
+
+    expect(wrapper.classes()).toContain('selected');
   });
 
   it('shows loading state', () => {
-    const wrapper = mount(BaseButton, {
-      props: { loading: true },
-      slots: { default: 'Button' }
+    wrapper = mount(Card, {
+      props: { 
+        card: mockCard,
+        loading: true 
+      }
     });
 
-    expect(wrapper.find('.btn-spinner').exists()).toBe(true);
-    expect(wrapper.attributes('disabled')).toBeDefined();
-  });
-
-  it('emits click event', async () => {
-    const wrapper = mount(BaseButton, {
-      slots: { default: 'Button' }
-    });
-
-    await wrapper.find('button').trigger('click');
-    
-    expect(wrapper.emitted('click')).toBeTruthy();
-  });
-
-  it('is disabled when disabled prop is true', () => {
-    const wrapper = mount(BaseButton, {
-      props: { disabled: true },
-      slots: { default: 'Button' }
-    });
-
-    expect(wrapper.attributes('disabled')).toBeDefined();
+    expect(wrapper.find('.loading-overlay').exists()).toBe(true);
   });
 });
 ```
 
-#### 📝 Exemplo: Teste de Componente Complexo
+#### 📝 Exemplo: LoginForm Component
 
 ```typescript
-// src/components/features/auth/__tests__/LoginForm.test.ts
+// src/tests/components/features/auth/LoginForm.test.ts
 import { mount } from '@vue/test-utils';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createPinia, setActivePinia } from 'pinia';
-import LoginForm from '../LoginForm.vue';
-import { useAuthStore } from '../../../stores/auth';
-
-vi.mock('../../../stores/auth');
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import LoginForm from '@/components/features/auth/LoginForm.vue';
 
 describe('LoginForm', () => {
+  let wrapper: any;
+
   beforeEach(() => {
-    setActivePinia(createPinia());
+    wrapper = mount(LoginForm);
   });
 
-  it('renders login form correctly', () => {
-    const wrapper = mount(LoginForm);
-
+  it('renders form fields correctly', () => {
     expect(wrapper.find('input[type="email"]').exists()).toBe(true);
     expect(wrapper.find('input[type="password"]').exists()).toBe(true);
     expect(wrapper.find('button[type="submit"]').exists()).toBe(true);
   });
 
-  it('validates form inputs', async () => {
-    const wrapper = mount(LoginForm);
-    const emailInput = wrapper.find('input[type="email"]');
-    const passwordInput = wrapper.find('input[type="password"]');
+  it('emits submit event with form data', async () => {
+    const email = 'test@example.com';
+    const password = 'password123';
 
-    // Test invalid email
-    await emailInput.setValue('invalid-email');
+    await wrapper.find('input[type="email"]').setValue(email);
+    await wrapper.find('input[type="password"]').setValue(password);
     await wrapper.find('form').trigger('submit');
 
-    expect(wrapper.text()).toContain('Email inválido');
-
-    // Test valid inputs
-    await emailInput.setValue('test@example.com');
-    await passwordInput.setValue('password123');
-    
-    expect(wrapper.text()).not.toContain('Email inválido');
+    expect(wrapper.emitted('submit')).toBeTruthy();
+    expect(wrapper.emitted('submit')?.[0]).toEqual([{
+      email,
+      password
+    }]);
   });
 
-  it('calls login method on form submit', async () => {
-    const mockLogin = vi.fn();
-    vi.mocked(useAuthStore).mockReturnValue({
-      login: mockLogin,
-      loading: false,
-      error: null
+  it('shows loading state', () => {
+    wrapper = mount(LoginForm, {
+      props: { loading: true }
     });
 
-    const wrapper = mount(LoginForm);
-    
-    await wrapper.find('input[type="email"]').setValue('test@example.com');
-    await wrapper.find('input[type="password"]').setValue('password123');
-    await wrapper.find('form').trigger('submit');
-
-    expect(mockLogin).toHaveBeenCalledWith({
-      email: 'test@example.com',
-      password: 'password123'
-    });
+    expect(wrapper.find('button').attributes('disabled')).toBeDefined();
   });
 
-  it('shows loading state during submission', () => {
-    vi.mocked(useAuthStore).mockReturnValue({
-      login: vi.fn(),
-      loading: true,
-      error: null
+  it('displays error message', () => {
+    const errorMessage = 'Invalid credentials';
+    wrapper = mount(LoginForm, {
+      props: { error: errorMessage }
     });
 
-    const wrapper = mount(LoginForm);
-    const submitButton = wrapper.find('button[type="submit"]');
+    expect(wrapper.text()).toContain(errorMessage);
+  });
 
-    expect(submitButton.props('loading')).toBe(true);
+  it('emits register event when register link is clicked', async () => {
+    await wrapper.find('[data-testid="register-link"]').trigger('click');
+    
+    expect(wrapper.emitted('register')).toBeTruthy();
   });
 });
 ```
 
-### 🔗 Testes de Integração
+### 🔄 Testes de Composables
 
-Testes que verificam a interação entre múltiplos componentes ou módulos.
+Testes que verificam a lógica reutilizável dos composables.
 
-#### 📝 Exemplo: Teste de Integração
+#### 📝 Exemplo: useCardFilters
 
 ```typescript
-// src/components/features/cards/__tests__/CardList.integration.test.ts
-import { mount } from '@vue/test-utils';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createPinia, setActivePinia } from 'pinia';
-import CardList from '../CardList.vue';
-import { useCardsStore } from '../../../stores/cards';
+// src/tests/composables/useCardFilters.test.ts
+import { describe, it, expect, beforeEach } from 'vitest';
+import { useCardFilters } from '@/composables/useCardFilters';
 
-vi.mock('../../../stores/cards');
+describe('useCardFilters', () => {
+  let composable: any;
 
-describe('CardList Integration', () => {
+  beforeEach(() => {
+    composable = useCardFilters();
+  });
+
+  it('initializes with default filters', () => {
+    expect(composable.filters.value).toEqual({
+      name: '',
+      rarity: '',
+      type: '',
+      minAttack: undefined,
+      maxAttack: undefined,
+      minDefense: undefined,
+      maxDefense: undefined
+    });
+  });
+
+  it('initializes with provided filters', () => {
+    const initialFilters = {
+      name: 'dragon',
+      rarity: 'legendary'
+    };
+
+    composable = useCardFilters(initialFilters);
+
+    expect(composable.filters.value.name).toBe('dragon');
+    expect(composable.filters.value.rarity).toBe('legendary');
+  });
+
+  it('detects active filters correctly', () => {
+    expect(composable.hasActiveFilters.value).toBe(false);
+
+    composable.filters.value.name = 'dragon';
+    expect(composable.hasActiveFilters.value).toBe(true);
+
+    composable.filters.value.name = '';
+    composable.filters.value.rarity = 'legendary';
+    expect(composable.hasActiveFilters.value).toBe(true);
+  });
+
+  it('clears all filters', () => {
+    composable.filters.value.name = 'dragon';
+    composable.filters.value.rarity = 'legendary';
+
+    composable.clearFilters();
+
+    expect(composable.filters.value.name).toBe('');
+    expect(composable.filters.value.rarity).toBe('');
+    expect(composable.hasActiveFilters.value).toBe(false);
+  });
+
+  it('applies new filters', () => {
+    const newFilters = {
+      name: 'dragon',
+      rarity: 'legendary'
+    };
+
+    composable.applyFilters(newFilters);
+
+    expect(composable.filters.value.name).toBe('dragon');
+    expect(composable.filters.value.rarity).toBe('legendary');
+  });
+});
+```
+
+#### 📝 Exemplo: useApi
+
+```typescript
+// src/tests/composables/useApi.test.ts
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { useApi } from '@/composables/useApi';
+import { mockApi, mockAxiosResponse, mockAxiosError } from '@/tests/mocks/api';
+
+vi.mock('@/services', () => ({
+  api: mockApi
+}));
+
+describe('useApi', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('makes GET request successfully', async () => {
+    const mockData = { id: 1, name: 'Test' };
+    mockApi.get.mockResolvedValue(mockAxiosResponse(mockData));
+
+    const { data, loading, error, execute } = useApi('/test');
+
+    await execute();
+
+    expect(mockApi.get).toHaveBeenCalledWith('/test');
+    expect(data.value).toEqual(mockData);
+    expect(loading.value).toBe(false);
+    expect(error.value).toBeNull();
+  });
+
+  it('handles API errors', async () => {
+    const errorMessage = 'API Error';
+    mockApi.get.mockRejectedValue(mockAxiosError(errorMessage));
+
+    const { data, loading, error, execute } = useApi('/test');
+
+    await execute();
+
+    expect(loading.value).toBe(false);
+    expect(error.value).toBe(errorMessage);
+    expect(data.value).toBeNull();
+  });
+
+  it('shows loading state during request', async () => {
+    let resolvePromise: (value: any) => void;
+    const promise = new Promise((resolve) => {
+      resolvePromise = resolve;
+    });
+    mockApi.get.mockReturnValue(promise);
+
+    const { loading, execute } = useApi('/test');
+
+    const executePromise = execute();
+    expect(loading.value).toBe(true);
+
+    resolvePromise!(mockAxiosResponse({}));
+    await executePromise;
+
+    expect(loading.value).toBe(false);
+  });
+});
+```
+
+### 🏪 Testes de Stores
+
+Testes que verificam o gerenciamento de estado com Pinia.
+
+#### 📝 Exemplo: useCardsStore
+
+```typescript
+// src/tests/stores/cards.test.ts
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { setActivePinia, createPinia } from 'pinia';
+import { useCardsStore } from '@/stores/cards';
+import { mockCard } from '@/tests/mocks/data';
+import { mockApi, mockAxiosResponse, mockAxiosError } from '@/tests/mocks/api';
+
+vi.mock('@/services/modules/cards', () => ({
+  cardsApi: mockApi
+}));
+
+describe('useCardsStore', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
+    vi.clearAllMocks();
   });
 
-  it('loads and displays cards from store', async () => {
-    const mockCards = [
-      { id: '1', name: 'Card 1', description: 'Description 1' },
-      { id: '2', name: 'Card 2', description: 'Description 2' }
+  it('initializes with default state', () => {
+    const store = useCardsStore();
+
+    expect(store.cards).toEqual([]);
+    expect(store.loading).toBe(false);
+    expect(store.error).toBeNull();
+  });
+
+  it('fetches cards successfully', async () => {
+    const mockCards = [mockCard];
+    const mockResponse = {
+      data: mockCards,
+      total: 1,
+      page: 1,
+      limit: 20
+    };
+    mockApi.get.mockResolvedValue(mockAxiosResponse(mockResponse));
+
+    const store = useCardsStore();
+
+    await store.fetchCards();
+
+    expect(mockApi.get).toHaveBeenCalledWith('/cards', { params: undefined });
+    expect(store.cards).toEqual(mockCards);
+    expect(store.loading).toBe(false);
+    expect(store.error).toBeNull();
+  });
+
+  it('handles fetch error', async () => {
+    const errorMessage = 'Failed to fetch cards';
+    mockApi.get.mockRejectedValue(mockAxiosError(errorMessage));
+
+    const store = useCardsStore();
+
+    await expect(store.fetchCards()).rejects.toThrow();
+
+    expect(store.loading).toBe(false);
+    expect(store.error).toBe('Erro ao carregar cartas');
+  });
+
+  it('adds card successfully', async () => {
+    const newCard = { ...mockCard, id: '2' };
+    mockApi.post.mockResolvedValue(mockAxiosResponse({ card: newCard }));
+
+    const store = useCardsStore();
+    store.cards = [mockCard];
+
+    await store.addCard('2');
+
+    expect(mockApi.post).toHaveBeenCalledWith('/cards', { cardId: '2' });
+    expect(store.cards).toContain(newCard);
+  });
+
+  it('calculates total cards correctly', () => {
+    const store = useCardsStore();
+    store.cards = [mockCard, { ...mockCard, id: '2' }];
+
+    expect(store.totalCards).toBe(2);
+  });
+
+  it('groups cards by rarity correctly', () => {
+    const store = useCardsStore();
+    store.cards = [
+      mockCard,
+      { ...mockCard, id: '2', rarity: 'common' },
+      { ...mockCard, id: '3', rarity: 'legendary' }
     ];
 
-    vi.mocked(useCardsStore).mockReturnValue({
-      cards: mockCards,
-      loading: false,
-      error: null,
-      fetchCards: vi.fn()
+    expect(store.cardsByRarity).toEqual({
+      legendary: 2,
+      common: 1
     });
-
-    const wrapper = mount(CardList);
-
-    expect(wrapper.findAll('.card-item')).toHaveLength(2);
-    expect(wrapper.text()).toContain('Card 1');
-    expect(wrapper.text()).toContain('Card 2');
-  });
-
-  it('handles card selection and emits events', async () => {
-    const mockCards = [{ id: '1', name: 'Card 1' }];
-    
-    vi.mocked(useCardsStore).mockReturnValue({
-      cards: mockCards,
-      loading: false,
-      error: null,
-      fetchCards: vi.fn()
-    });
-
-    const wrapper = mount(CardList);
-    const cardItem = wrapper.find('.card-item');
-
-    await cardItem.trigger('click');
-
-    expect(wrapper.emitted('card-click')).toBeTruthy();
-    expect(wrapper.emitted('card-click')?.[0]).toEqual([mockCards[0]]);
   });
 });
 ```
 
-### 🌐 Testes E2E (End-to-End)
+### 🛠️ Testes de Utilitários
 
-Testes que simulam o comportamento real do usuário na aplicação.
+Testes que verificam funções utilitárias.
+
+#### 📝 Exemplo: formatters
 
 ```typescript
-// src/tests/e2e/login.e2e.test.ts
-import { test, expect } from '@playwright/test';
+// src/tests/utils/formatters.test.ts
+import { describe, it, expect } from 'vitest';
+import { formatCardName, formatRarity, formatDate } from '@/utils/formatters';
 
-test('user can login successfully', async ({ page }) => {
-  await page.goto('/login');
-  
-  await page.fill('input[type="email"]', 'test@example.com');
-  await page.fill('input[type="password"]', 'password123');
-  await page.click('button[type="submit"]');
-  
-  await expect(page).toHaveURL('/dashboard');
-  await expect(page.locator('h1')).toContainText('Dashboard');
-});
+describe('formatters', () => {
+  describe('formatCardName', () => {
+    it('formats card name correctly', () => {
+      expect(formatCardName('blue-eyes-white-dragon')).toBe('Blue Eyes White Dragon');
+      expect(formatCardName('dark-magician')).toBe('Dark Magician');
+    });
 
-test('shows error for invalid credentials', async ({ page }) => {
-  await page.goto('/login');
-  
-  await page.fill('input[type="email"]', 'invalid@example.com');
-  await page.fill('input[type="password"]', 'wrongpassword');
-  await page.click('button[type="submit"]');
-  
-  await expect(page.locator('.error-message')).toContainText('Credenciais inválidas');
+    it('handles empty string', () => {
+      expect(formatCardName('')).toBe('');
+    });
+  });
+
+  describe('formatRarity', () => {
+    it('formats rarity correctly', () => {
+      expect(formatRarity('common')).toBe('Comum');
+      expect(formatRarity('uncommon')).toBe('Incomum');
+      expect(formatRarity('rare')).toBe('Rara');
+      expect(formatRarity('epic')).toBe('Épica');
+      expect(formatRarity('legendary')).toBe('Lendária');
+    });
+
+    it('handles unknown rarity', () => {
+      expect(formatRarity('unknown')).toBe('Desconhecida');
+    });
+  });
+
+  describe('formatDate', () => {
+    it('formats date correctly', () => {
+      const date = new Date('2024-01-15T10:30:00Z');
+      expect(formatDate(date)).toBe('15/01/2024');
+    });
+
+    it('handles string date', () => {
+      expect(formatDate('2024-01-15T10:30:00Z')).toBe('15/01/2024');
+    });
+  });
 });
 ```
 
@@ -471,180 +721,136 @@ test('shows error for invalid credentials', async ({ page }) => {
 ### 🎯 AAA Pattern (Arrange, Act, Assert)
 
 ```typescript
-describe('UserService', () => {
-  it('should create user successfully', async () => {
-    // Arrange
-    const userData = { name: 'John', email: 'john@example.com' };
-    const mockResponse = { id: '1', ...userData };
-    vi.mocked(api.post).mockResolvedValue({ data: mockResponse });
+describe('Component', () => {
+  it('should behave correctly', () => {
+    // Arrange - Preparar dados e configurações
+    const mockData = { id: 1, name: 'Test' };
+    const wrapper = mount(Component, {
+      props: { data: mockData }
+    });
 
-    // Act
-    const result = await UserService.createUser(userData);
+    // Act - Executar a ação
+    wrapper.find('button').trigger('click');
 
-    // Assert
-    expect(result).toEqual(mockResponse);
-    expect(api.post).toHaveBeenCalledWith('/users', userData);
+    // Assert - Verificar o resultado
+    expect(wrapper.emitted('click')).toBeTruthy();
   });
 });
 ```
 
-### 🎭 Test Doubles (Mocks, Stubs, Spies)
+### 🔄 Testes de Integração
 
 ```typescript
-// Mock de serviço
-vi.mock('../../services/api', () => ({
-  api: {
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-    delete: vi.fn()
-  }
-}));
+// src/tests/integration/cardFlow.test.ts
+import { describe, it, expect, beforeEach } from 'vitest';
+import { mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
+import CardList from '@/components/features/cards/CardList.vue';
+import { useCardsStore } from '@/stores/cards';
+import { mockCard } from '@/tests/mocks/data';
 
-// Spy de função
-const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+describe('Card Flow Integration', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia());
+  });
 
-// Stub de localStorage
-const localStorageStub = {
-  getItem: vi.fn().mockReturnValue('mock-token'),
-  setItem: vi.fn(),
-  removeItem: vi.fn()
-};
-Object.defineProperty(window, 'localStorage', { value: localStorageStub });
+  it('loads and displays cards', async () => {
+    const store = useCardsStore();
+    store.cards = [mockCard];
+
+    const wrapper = mount(CardList, {
+      props: { cards: store.cards }
+    });
+
+    expect(wrapper.find('.card-item').exists()).toBe(true);
+    expect(wrapper.text()).toContain('Blue-Eyes White Dragon');
+  });
+});
 ```
 
-### 🧹 Cleanup e Setup
+### 🎭 Testes com Mocks
 
 ```typescript
-describe('Component Tests', () => {
+// src/tests/unit/apiService.test.ts
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { cardsApi } from '@/services/modules/cards';
+import { mockApi, mockAxiosResponse } from '@/tests/mocks/api';
+
+vi.mock('@/services', () => ({
+  api: mockApi
+}));
+
+describe('cardsApi', () => {
   beforeEach(() => {
-    // Setup antes de cada teste
-    setActivePinia(createPinia());
     vi.clearAllMocks();
   });
 
-  afterEach(() => {
-    // Cleanup após cada teste
-    vi.restoreAllMocks();
-  });
+  it('fetches cards with filters', async () => {
+    const filters = { name: 'dragon', rarity: 'legendary' };
+    const mockResponse = { data: [], total: 0 };
+    mockApi.get.mockResolvedValue(mockAxiosResponse(mockResponse));
 
-  afterAll(() => {
-    // Cleanup após todos os testes
-    vi.clearAllTimers();
+    await cardsApi.getCards(filters);
+
+    expect(mockApi.get).toHaveBeenCalledWith('/cards', { params: filters });
   });
 });
 ```
 
 ## 🔧 Configuração
 
-### 📝 Setup Global
+### 📦 Scripts de Teste
 
-```typescript
-// src/test/setup.ts
-import { config } from '@vue/test-utils';
-import { vi } from 'vitest';
-
-// Mock localStorage
-const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-  length: 0,
-  key: vi.fn(),
-} as Storage;
-global.localStorage = localStorageMock;
-
-// Mock console.error para evitar logs nos testes
-global.console.error = vi.fn();
-
-// Configuração global do Vue Test Utils
-config.global.stubs = {
-  'router-link': true,
-  'router-view': true
-};
-
-// Mock do vue-router
-vi.mock('vue-router', () => ({
-  useRouter: () => ({
-    push: vi.fn(),
-    replace: vi.fn(),
-    go: vi.fn()
-  }),
-  useRoute: () => ({
-    params: {},
-    query: {},
-    path: '/'
-  })
-}));
-```
-
-### 📝 Helpers de Teste
-
-```typescript
-// src/test/helpers/index.ts
-import { mount } from '@vue/test-utils';
-import { createPinia, setActivePinia } from 'pinia';
-import type { ComponentMountingOptions } from '@vue/test-utils';
-
-export function createTestPinia() {
-  const pinia = createPinia();
-  setActivePinia(pinia);
-  return pinia;
-}
-
-export function mountWithPinia(
-  component: any,
-  options: ComponentMountingOptions<any> = {}
-) {
-  const pinia = createTestPinia();
-  
-  return mount(component, {
-    global: {
-      plugins: [pinia],
-      ...options.global
-    },
-    ...options
-  });
-}
-
-export function createMockUser(overrides = {}) {
-  return {
-    id: '1',
-    name: 'Test User',
-    email: 'test@example.com',
-    ...overrides
-  };
-}
-
-export function createMockCard(overrides = {}) {
-  return {
-    id: '1',
-    name: 'Test Card',
-    description: 'Test Description',
-    imageUrl: 'https://example.com/card.jpg',
-    createdAt: '2024-01-01T00:00:00.000Z',
-    ...overrides
-  };
+```json
+{
+  "scripts": {
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest --watch"
+  }
 }
 ```
 
-## 📊 Cobertura
-
-### 🎯 Configuração de Cobertura
+### 🎯 Configuração do Vitest
 
 ```typescript
 // vitest.config.ts
+import { defineConfig } from 'vitest/config';
+import vue from '@vitejs/plugin-vue';
+import { resolve } from 'path';
+
 export default defineConfig({
+  plugins: [vue()],
   test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/tests/setup.ts'],
+    include: ['src/tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    exclude: [
+      'src/tests/e2e/**/*',
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/cypress/**',
+      '**/.{idea,git,cache,output,temp}/**',
+      '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*'
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
       exclude: [
-        'node_modules/',
-        'src/test/',
+        'coverage/**',
+        'dist/**',
+        'packages/*/test{,s}/**',
         '**/*.d.ts',
-        '**/*.config.*'
+        'cypress/**',
+        'test{,s}/**',
+        'test{,-*}.{js,cjs,mjs,ts,tsx,jsx}',
+        '**/*{.,-}test.{js,cjs,mjs,ts,tsx,jsx}',
+        '**/*{.,-}spec.{js,cjs,mjs,ts,tsx,jsx}',
+        '**/__tests__/**',
+        '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*'
       ],
       thresholds: {
         global: {
@@ -655,9 +861,149 @@ export default defineConfig({
         }
       }
     }
+  },
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
+      '~': resolve(__dirname, './src')
+    }
+  },
+  define: {
+    global: 'globalThis'
   }
 });
 ```
+
+### 🎨 Configuração do Setup
+
+```typescript
+// src/tests/setup.ts
+import { config } from '@vue/test-utils';
+import { vi } from 'vitest';
+
+// Mock localStorage
+const localStorageMock = {
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn()
+};
+
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock
+});
+
+// Mock IntersectionObserver
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  observe() { return null; }
+  unobserve() { return null; }
+  disconnect() { return null; }
+};
+
+// Mock ResizeObserver
+global.ResizeObserver = class ResizeObserver {
+  constructor() {}
+  observe() { return null; }
+  unobserve() { return null; }
+  disconnect() { return null; }
+};
+
+// Configuração global do Vue Test Utils
+config.global.stubs = {
+  'router-link': true,
+  'router-view': true,
+  'v-app': true,
+  'v-main': true,
+  'v-container': true,
+  'v-row': true,
+  'v-col': true,
+  'v-card': true,
+  'v-card-title': true,
+  'v-card-text': true,
+  'v-btn': true,
+  'v-text-field': true,
+  'v-select': true,
+  'v-checkbox': true,
+  'v-radio-group': true,
+  'v-radio': true,
+  'v-switch': true,
+  'v-slider': true,
+  'v-rating': true,
+  'v-progress-linear': true,
+  'v-progress-circular': true,
+  'v-chip': true,
+  'v-badge': true,
+  'v-avatar': true,
+  'v-icon': true,
+  'v-img': true,
+  'v-divider': true,
+  'v-spacer': true,
+  'v-toolbar': true,
+  'v-app-bar': true,
+  'v-navigation-drawer': true,
+  'v-list': true,
+  'v-list-item': true,
+  'v-list-item-title': true,
+  'v-list-item-subtitle': true,
+  'v-list-item-icon': true,
+  'v-list-group': true,
+  'v-list-subheader': true,
+  'v-menu': true,
+  'v-dialog': true,
+  'v-sheet': true,
+  'v-expansion-panels': true,
+  'v-expansion-panel': true,
+  'v-expansion-panel-header': true,
+  'v-expansion-panel-content': true,
+  'v-tabs': true,
+  'v-tab': true,
+  'v-tab-item': true,
+  'v-tabs-items': true,
+  'v-window': true,
+  'v-window-item': true,
+  'v-stepper': true,
+  'v-stepper-header': true,
+  'v-stepper-step': true,
+  'v-stepper-content': true,
+  'v-stepper-items': true,
+  'v-data-table': true,
+  'v-data-iterator': true,
+  'v-pagination': true,
+  'v-autocomplete': true,
+  'v-combobox': true,
+  'v-file-input': true,
+  'v-textarea': true,
+  'v-time-picker': true,
+  'v-date-picker': true,
+  'v-color-picker': true
+};
+
+// Mock Vuetify
+config.global.mocks = {
+  $vuetify: {
+    theme: {
+      current: {
+        dark: false
+      }
+    },
+    breakpoint: {
+      mobile: false,
+      tablet: false,
+      desktop: true
+    }
+  }
+};
+```
+
+## 📊 Cobertura
+
+### 🎯 Metas de Cobertura
+
+- **Branches**: 80%
+- **Functions**: 80%
+- **Lines**: 80%
+- **Statements**: 80%
 
 ### 📈 Relatórios de Cobertura
 
@@ -665,91 +1011,119 @@ export default defineConfig({
 # Gerar relatório de cobertura
 npm run test:coverage
 
-# Visualizar relatório HTML
+# Abrir relatório no navegador
 open coverage/index.html
 ```
 
-### 🎯 Métricas de Cobertura
+### 📊 Estrutura do Relatório
 
-| Tipo | Meta | Atual |
-|------|------|-------|
-| **Statements** | 80% | 85% |
-| **Branches** | 80% | 82% |
-| **Functions** | 80% | 88% |
-| **Lines** | 80% | 86% |
+```
+coverage/
+├── index.html          # Relatório principal
+├── lcov.info          # Dados para CI/CD
+├── coverage-summary.json
+└── src/               # Cobertura por arquivo
+    ├── components/
+    ├── composables/
+    ├── stores/
+    └── utils/
+```
 
 ## 🚀 CI/CD
 
-### 📝 GitHub Actions
+### 🔄 GitHub Actions
 
 ```yaml
 # .github/workflows/test.yml
 name: Tests
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v4
-    
+    - uses: actions/checkout@v3
+
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v3
       with:
-        node-version: '20'
+        node-version: '18'
         cache: 'npm'
-    
+
     - name: Install dependencies
       run: npm ci
-    
+
     - name: Run tests
       run: npm run test:run
-    
+
     - name: Generate coverage report
       run: npm run test:coverage
-    
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
-        file: ./coverage/coverage-final.json
+        file: ./coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
 ```
 
-### 🔧 Scripts de Teste
-
-```json
-{
-  "scripts": {
-    "test": "vitest",
-    "test:run": "vitest run",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage",
-    "test:watch": "vitest --watch",
-    "test:debug": "vitest --inspect-brk"
-  }
-}
-```
-
-### 🎯 Pre-commit Hooks
+### 🎯 Pré-commit Hooks
 
 ```json
 {
   "husky": {
     "hooks": {
-      "pre-commit": "npm run test:run",
-      "pre-push": "npm run test:coverage"
+      "pre-commit": "lint-staged",
+      "pre-push": "npm run test:run"
     }
+  },
+  "lint-staged": {
+    "*.{js,ts,vue}": [
+      "eslint --fix",
+      "npm run test:run -- --findRelatedTests"
+    ]
   }
 }
 ```
 
----
+### 📊 Monitoramento de Qualidade
 
-## 📚 Referências
+- **Codecov**: Relatórios de cobertura
+- **SonarQube**: Análise de qualidade
+- **GitHub Actions**: Execução automática
+- **Pull Request Checks**: Validação obrigatória
 
-- [Vitest Documentation](https://vitest.dev/)
-- [Vue Test Utils](https://test-utils.vuejs.org/)
-- [Testing Library](https://testing-library.com/)
-- [Jest Documentation](https://jestjs.io/)
-- [Testing Best Practices](https://kentcdodds.com/blog/common-mistakes-with-react-testing-library) 
+## 🎯 Boas Práticas
+
+### 📝 Nomenclatura
+
+- **Arquivos de teste**: `ComponentName.test.ts`
+- **Descrições**: Claras e específicas
+- **Grupos**: Organizados por funcionalidade
+
+### 🔧 Organização
+
+- **Um teste por comportamento**
+- **Setup e teardown** adequados
+- **Mocks** para dependências externas
+- **Dados de teste** reutilizáveis
+
+### 🎨 Manutenibilidade
+
+- **Testes independentes**
+- **Dados de teste** isolados
+- **Mocks** consistentes
+- **Documentação** clara
+
+### 🚀 Performance
+
+- **Testes rápidos**
+- **Paralelização** quando possível
+- **Cache** de dependências
+- **Otimização** de setup 

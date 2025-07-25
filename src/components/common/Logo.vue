@@ -4,17 +4,15 @@
       <v-icon size="32" color="primary">mdi-cards</v-icon>
     </div>
     <div class="logo-text">
-      <span class="logo-title">Cartalia</span>
+      <span class="logo-title">Cartália</span>
       <span class="logo-subtitle">Trading Cards</span>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-// Componente de logo
-</script>
 
 <style scoped lang="scss">
+@use "sass:color";
 .logo {
   display: flex;
   align-items: center;
@@ -29,7 +27,11 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, $primary 0%, darken($primary, 10%) 100%);
+  background: linear-gradient(
+    135deg,
+    $primary 0%,
+    color.adjust($primary, $lightness: -10%) 100%
+  );
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba($primary, 0.3);
 }
@@ -73,4 +75,4 @@
     font-size: 0.6875rem;
   }
 }
-</style> 
+</style>

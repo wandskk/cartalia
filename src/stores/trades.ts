@@ -1,11 +1,11 @@
-import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
-import { TradeServices } from '../services/modules/trades';
-import { useAuthStore } from './auth';
-import { useLoadingStore } from './loading';
-import type { Trade, TradeListResponse, CreateTradeForm } from '../types';
+import { defineStore } from "pinia";
+import { ref, computed } from "vue";
+import { TradeServices } from "../services/modules/trades";
+import { useAuthStore } from "./auth";
+import { useLoadingStore } from "./loading";
+import type { Trade, TradeListResponse, CreateTradeForm } from "../types";
 
-export const useTradesStore = defineStore('trades', () => {
+export const useTradesStore = defineStore("trades", () => {
   const allTrades = ref<Trade[]>([]);
   const loading = ref(false);
   const error = ref<string | null>(null);
@@ -13,17 +13,19 @@ export const useTradesStore = defineStore('trades', () => {
     page: 1,
     rpp: 10,
     total: 0,
-    more: false
+    more: false,
   });
 
   const authStore = useAuthStore();
   const loadingStore = useLoadingStore();
 
   const totalTrades = computed(() => allTrades.value.length);
-  
+
   const userTrades = computed(() => {
     if (!authStore.user) return [];
-    return allTrades.value.filter(trade => trade.userId === authStore.user?.id);
+    return allTrades.value.filter(
+      (trade) => trade.userId === authStore.user?.id
+    );
   });
 
   const totalUserTrades = computed(() => userTrades.value.length);
@@ -32,26 +34,27 @@ export const useTradesStore = defineStore('trades', () => {
     loading.value = true;
     loadingStore.startLoading();
     error.value = null;
-    
+
     try {
-      const response: TradeListResponse = await TradeServices.getAllTrades(page, rpp);
-      
+      const response: TradeListResponse = await TradeServices.getAllTrades(
+        page,
+        rpp
+      );
+
       if (reset || page === 1) {
-        // Reset ou primeira página: substituir todos os trades
         allTrades.value = response.list;
       } else {
-        // Páginas subsequentes: acumular trades
         allTrades.value = [...allTrades.value, ...response.list];
       }
-      
+
       pagination.value = {
         page: response.page,
         rpp: response.rpp,
         total: allTrades.value.length,
-        more: response.more
+        more: response.more,
       };
     } catch (err: any) {
-      error.value = err.message || 'Erro ao carregar trocas';
+      error.value = err.message || "Erro ao carregar trocas";
     } finally {
       loading.value = false;
       loadingStore.stopLoading();
@@ -66,12 +69,12 @@ export const useTradesStore = defineStore('trades', () => {
     loading.value = true;
     loadingStore.startLoading();
     error.value = null;
-    
+
     try {
       await TradeServices.createTrade(tradeData);
-      await fetchAllTrades(1, pagination.value.rpp, true); // Reset para primeira página
+      await fetchAllTrades(1, pagination.value.rpp, true);
     } catch (err: any) {
-      error.value = err.message || 'Erro ao criar troca';
+      error.value = err.message || "Erro ao criar troca";
       throw err;
     } finally {
       loading.value = false;
@@ -83,12 +86,12 @@ export const useTradesStore = defineStore('trades', () => {
     loading.value = true;
     loadingStore.startLoading();
     error.value = null;
-    
+
     try {
       await TradeServices.deleteTrade(tradeId);
-      await fetchAllTrades(1, pagination.value.rpp, true); // Reset para primeira página
+      await fetchAllTrades(1, pagination.value.rpp, true);
     } catch (err: any) {
-      error.value = err.message || 'Erro ao deletar troca';
+      error.value = err.message || "Erro ao deletar troca";
     } finally {
       loading.value = false;
       loadingStore.stopLoading();
@@ -105,7 +108,7 @@ export const useTradesStore = defineStore('trades', () => {
       page: 1,
       rpp: 10,
       total: 0,
-      more: false
+      more: false,
     };
   }
 
@@ -122,6 +125,6 @@ export const useTradesStore = defineStore('trades', () => {
     createTrade,
     deleteTrade,
     clearError,
-    clearTrades
+    clearTrades,
   };
-}); 
+});

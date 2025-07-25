@@ -90,6 +90,7 @@ const maxWidth = computed(() => {
 .modal-content {
   padding: 24px;
   max-height: calc(90vh - 140px);
+  overflow-y: auto;
 }
 
 .modal-footer {
@@ -98,6 +99,10 @@ const maxWidth = computed(() => {
   display: flex;
   gap: 12px;
   justify-content: flex-end;
+  background: white;
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
 }
 
 @media (max-width: 768px) {
@@ -111,6 +116,7 @@ const maxWidth = computed(() => {
 
   .modal-content {
     padding: 20px;
+    max-height: calc(100vh - 180px);
   }
 
   .modal-footer {

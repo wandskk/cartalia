@@ -1,20 +1,30 @@
-// Tipos de autenticação
-export * from './auth';
-
-// Tipos de cards
-export * from './cards';
-
-// Tipos de trades
-export * from './trades';
-
-// Tipos comuns
-export * from './common';
-
-// Tipos de API
 export * from './api';
-
-// Tipos de stores
+export * from './auth';
+export * from './cards';
+export * from './common';
+export * from './components';
 export * from './store';
-
-// Tipos de componentes
-export * from './components'; 
+export * from './trades';
+export type { 
+  BaseModalProps,
+  BaseModalEmits,
+  ConfirmationModalProps,
+  FormModalProps,
+  ListModalProps,
+  LoadingModalProps,
+  LoadingModalState,
+  ErrorModalProps,
+  ErrorModalState,
+  EmptyModalProps,
+  EmptyModalState,
+  PaginationModalProps,
+  PaginationModalState,
+  SearchModalProps,
+  SearchModalState,
+  SelectionModalProps,
+  SelectionModalState,
+  FilterModalProps,
+  FilterModalState,
+  NotificationModalProps,
+  NotificationModalState
+} from './modals'; 

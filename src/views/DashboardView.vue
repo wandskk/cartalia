@@ -1,6 +1,10 @@
 <template>
   <Container class="dashboard-view pa-0">
-    <div class="dashboard-content">
+    <div v-if="!isInitialized && loading" class="dashboard-loading">
+      <LoadingSpinner />
+    </div>
+    
+    <div v-else class="dashboard-content">
       <DashboardHeader />
       <DashboardStats
         :total-cards="totalCards"
@@ -31,6 +35,7 @@ import Container from "../components/common/Container.vue";
 import DashboardStats from "../components/features/dashboard/DashboardStats.vue";
 import QuickActions from "../components/features/dashboard/QuickActions.vue";
 import RecentActivity from "../components/features/dashboard/RecentActivity.vue";
+import LoadingSpinner from "../components/common/LoadingSpinner.vue";
 import { useDashboard } from "../composables/useDashboard";
 import DashboardHeader from "../components/features/dashboard/DashboardHeader.vue";
 
@@ -45,6 +50,7 @@ const {
   userTrades,
   marketplaceTrades,
   uniqueCards,
+  isInitialized,
   fetchData
 } = useDashboard();
 </script>
@@ -55,6 +61,13 @@ const {
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   padding: 2rem 0;
   overflow-x: hidden;
+}
+
+.dashboard-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
 }
 
 .dashboard-content {

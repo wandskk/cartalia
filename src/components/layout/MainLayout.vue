@@ -1,17 +1,15 @@
 <template>
-  <v-app>
-    <Header />
-    <Sidebar />
-    <v-main
-      :class="{
-        'with-sidebar': !sidebarStore.isCollapsed && !sidebarStore.isMobileOpen,
-        'with-sidebar-collapsed': sidebarStore.isCollapsed && !sidebarStore.isMobileOpen,
-      }"
-      class="main-content"
-    >
-      <router-view />
-    </v-main>
-  </v-app>
+  <Header />
+  <Sidebar />
+  <v-main
+    :class="{
+      'with-sidebar': !sidebarStore.isCollapsed && !sidebarStore.isMobileOpen,
+      'with-sidebar-collapsed': sidebarStore.isCollapsed && !sidebarStore.isMobileOpen,
+    }"
+    class="main-content"
+  >
+    <router-view />
+  </v-main>
 </template>
 
 <script setup lang="ts">

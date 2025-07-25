@@ -1,225 +1,156 @@
 <template>
-  <v-dialog v-model="isOpen" max-width="1200" persistent>
-    <v-card>
-      <v-card-title class="d-flex justify-space-between align-center pa-6">
-        <span class="text-h5 font-weight-bold">Criar Nova Troca</span>
+  <v-dialog v-model="isOpen" :max-width="isMobile ? '100%' : '1200'" persistent>
+    <v-card class="create-trade-modal">
+      <v-card-title class="modal-header">
+        <span class="modal-title">Criar Troca</span>
         <v-btn icon variant="text" @click="closeModal">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-card-title>
-      
-      <v-card-text class="pa-0">
-        <div class="d-flex flex-column max-height-80vh">
-          <!-- Step 1: Select Offering Cards -->
-          <div
-            v-if="currentStep === 0"
-            class="step-content flex-grow-1 d-flex flex-column overflow-hidden pa-6"
-          >
-            <div class="step-header text-center mb-6">
-              <h3 class="text-h5 mb-2">
-                <v-icon color="primary" class="mr-2">mdi-export</v-icon>
-                Cartas que você oferece
-              </h3>
-              <p class="text-body-2 text-grey">
-                Selecione as cartas da sua coleção que deseja trocar
-              </p>
-            </div>
 
-            <SearchWithPagination
-              v-model:search-query="offeringSearchQuery"
-              placeholder="Buscar suas cartas..."
-              :disabled="cardsStore.loading"
-              :show-pagination="totalFilteredOfferingCards > userCardsPagination.rpp"
-              :total-items="totalFilteredOfferingCards"
-              :items-per-page="userCardsPagination.rpp"
+      <v-card-text class="modal-content pa-0">
+        <div class="modal-body">
+          <!-- Step Progress - Minimal -->
+          <div class="step-progress">
+            <div class="step-progress-content">
+              <div
+                v-for="(_, index) in ['Oferecer', 'Receber', 'Revisar']"
+                :key="index"
+                class="step-item"
+              >
+                <div
+                  class="step-indicator"
+                  :class="{
+                    'step-active': steps.currentStep.value === index,
+                    'step-completed': steps.currentStep.value > index,
+                    'step-pending': steps.currentStep.value < index,
+                  }"
+                >
+                  <v-icon
+                    v-if="steps.currentStep.value > index"
+                    size="16"
+                    color="white"
+                    >mdi-check</v-icon
+                  >
+                  <span v-else class="step-number">{{ index + 1 }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step Content -->
+          <div class="step-content-container">
+            <!-- Step 1: Select Offering Cards -->
+            <TradeStepCardSelection
+              v-if="steps.currentStep.value === 0"
+              title="Cartas que você oferece"
+              description="Selecione as cartas da sua coleção que deseja trocar"
+              icon="mdi-export"
+              empty-icon="mdi-cards"
+              empty-message="Você precisa ter cartas na sua coleção para criar uma troca"
+              search-placeholder="Buscar suas cartas..."
+              loading-message="Carregando suas cartas..."
+              :cards="userCards"
+              :loading="cardsStore.loading"
               :current-page="userCardsPagination.page"
-              :loading="cardsStore.loading"
+              :items-per-page="userCardsPagination.rpp"
+              :total-items="totalFilteredOfferingCards"
+              :selected-cards="selectedOfferingCards"
+              :search-query="offeringSearchQuery"
+              @card-toggle="toggleOfferingCard"
+              @card-select="handleOfferingCardSelect"
               @page-change="handleOfferingPageChange"
+              @search-change="handleOfferingSearchChange"
             />
 
-            <div
-              v-if="cardsStore.loading"
-              class="d-flex flex-column align-center justify-center py-15"
-            >
-              <LoadingSpinner size="large" class="mb-4" />
-              <p class="text-grey text-center">Carregando suas cartas...</p>
-            </div>
-
-            <div v-else class="cards-grid flex-grow-1">
-              <Card
-                v-for="card in filteredOfferingCards"
-                :key="card.id"
-                :card="card"
-                :selectable="true"
-                :selected="selectedOfferingCards.includes(card.id)"
-                :clickable="true"
-                size="sm"
-                variant="compact"
-                :show-description="true"
-                :max-description-length="80"
-                @click="toggleOfferingCard(card.id)"
-                @select="handleOfferingCardSelect"
-              />
-            </div>
-
-            <div
-              v-if="filteredOfferingCards.length === 0 && !cardsStore.loading"
-              class="d-flex flex-column align-center justify-center py-15 text-center"
-            >
-              <v-icon size="64" color="grey-lighten-1" class="mb-4"
-                >mdi-cards</v-icon
-              >
-              <h3 class="text-h6 mb-2 text-grey">Nenhuma carta encontrada</h3>
-              <p class="text-body-2 text-grey" v-if="offeringSearchQuery">
-                Tente ajustar sua busca
-              </p>
-              <p class="text-body-2 text-grey" v-else>
-                Você precisa ter cartas na sua coleção para criar uma troca
-              </p>
-            </div>
-          </div>
-
-          <!-- Step 2: Select Receiving Cards -->
-          <div
-            v-if="currentStep === 1"
-            class="step-content flex-grow-1 d-flex flex-column overflow-hidden pa-6"
-          >
-            <div class="step-header text-center mb-6">
-              <h3 class="text-h5 mb-2">
-                <v-icon color="primary" class="mr-2">mdi-import</v-icon>
-                Cartas que você quer receber
-              </h3>
-              <p class="text-body-2 text-grey">
-                Selecione as cartas que você deseja receber em troca
-              </p>
-            </div>
-
-            <SearchWithPagination
-              v-model:search-query="receivingSearchQuery"
-              placeholder="Buscar cartas disponíveis..."
-              :disabled="cardsStore.loading"
-              :show-pagination="Math.ceil(totalFilteredReceivingCards / allCardsPagination.rpp) > 1"
-              :total-items="totalFilteredReceivingCards"
-              :items-per-page="allCardsPagination.rpp"
-              :current-page="allCardsPagination.page"
+            <!-- Step 2: Select Receiving Cards -->
+            <TradeStepCardSelection
+              v-if="steps.currentStep.value === 1"
+              title="Cartas que você quer receber"
+              description="Selecione as cartas que você deseja receber em troca"
+              icon="mdi-import"
+              empty-icon="mdi-cards"
+              empty-message="Nenhuma carta disponível no sistema"
+              search-placeholder="Buscar cartas disponíveis..."
+              loading-message="Carregando cartas disponíveis..."
+              :cards="allCards"
               :loading="cardsStore.loading"
+              :current-page="allCardsPagination.page"
+              :items-per-page="allCardsPagination.rpp"
+              :total-items="totalFilteredReceivingCards"
+              :selected-cards="selectedReceivingCards"
+              :search-query="receivingSearchQuery"
+              @card-toggle="toggleReceivingCard"
+              @card-select="handleReceivingCardSelect"
               @page-change="handleReceivingPageChange"
+              @search-change="handleReceivingSearchChange"
             />
 
-            <div
-              v-if="cardsStore.loading"
-              class="d-flex flex-column align-center justify-center py-15"
-            >
-              <LoadingSpinner size="large" class="mb-4" />
-              <p class="text-grey text-center">Carregando cartas disponíveis...</p>
-            </div>
-
-            <div v-else class="cards-grid flex-grow-1">
-              <Card
-                v-for="card in filteredReceivingCards"
-                :key="card.id"
-                :card="card"
-                :selectable="true"
-                :selected="selectedReceivingCards.includes(card.id)"
-                :clickable="true"
-                size="sm"
-                variant="compact"
-                :show-description="true"
-                :max-description-length="80"
-                @click="toggleReceivingCard(card.id)"
-                @select="handleReceivingCardSelect"
-              />
-            </div>
-
-            <div
-              v-if="filteredReceivingCards.length === 0 && !cardsStore.loading"
-              class="d-flex flex-column align-center justify-center py-15 text-center"
-            >
-              <v-icon size="64" color="grey-lighten-1" class="mb-4"
-                >mdi-cards</v-icon
-              >
-              <h3 class="text-h6 mb-2 text-grey">Nenhuma carta encontrada</h3>
-              <p class="text-body-2 text-grey" v-if="receivingSearchQuery">
-                Tente ajustar sua busca
-              </p>
-              <p class="text-body-2 text-grey" v-else>
-                Não há cartas disponíveis no sistema
-              </p>
-            </div>
-          </div>
-
-          <!-- Step 3: Review and Confirm -->
-          <div
-            v-if="currentStep === 2"
-            class="step-content flex-grow-1 d-flex flex-column overflow-hidden pa-6"
-          >
-            <div class="step-header text-center mb-6">
-              <h3 class="text-h5 mb-2">
-                <v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>
-                Revisar Troca
-              </h3>
-              <p class="text-body-2 text-grey">
-                Confirme os detalhes da sua troca antes de criar
-              </p>
-            </div>
-
-            <TradePreview
+            <!-- Step 3: Review Trade -->
+            <TradePreviewStep
+              v-if="steps.currentStep.value === 2"
               :offering-cards="selectedOfferingCardsData"
               :receiving-cards="selectedReceivingCardsData"
-              :loading="creating"
-              @create="createTrade"
-              @reset="resetForm"
+              @card-click="handleCardClick"
             />
           </div>
         </div>
       </v-card-text>
 
-      <v-card-actions class="pa-6 pt-0">
-        <div class="d-flex justify-space-between align-center w-100">
-          <div class="d-flex ga-2">
-            <v-btn
-              v-if="currentStep > 0"
-              @click="previousStep"
-              variant="outlined"
-              :disabled="creating"
-            >
-              <v-icon class="mr-2">mdi-arrow-left</v-icon>
-              Voltar
-            </v-btn>
-          </div>
+      <!-- Footer Actions - Minimal -->
+      <v-card-actions class="modal-footer">
+        <v-btn
+          v-if="steps.canGoBack"
+          @click="previousStep"
+          variant="outlined"
+          color="grey"
+          class="footer-btn"
+        >
+          Voltar
+        </v-btn>
 
-          <div class="d-flex ga-2">
-            <v-btn @click="closeModal" variant="outlined" :disabled="creating">
-              Cancelar
-            </v-btn>
-            <v-btn
-              v-if="currentStep < 2"
-              @click="nextStep"
-              color="primary"
-              variant="elevated"
-              :disabled="!canProceedToNextStep"
-            >
-              Próximo
-              <v-icon class="ml-2">mdi-arrow-right</v-icon>
-            </v-btn>
-          </div>
-        </div>
+        <v-btn
+          v-if="steps.canGoNext && steps.currentStep.value < 2"
+          @click="nextStep"
+          color="primary"
+          :disabled="!canProceedToNextStep"
+          class="footer-btn"
+        >
+          Continuar
+        </v-btn>
+
+        <v-btn
+          v-if="steps.currentStep.value === 2"
+          @click="createTrade"
+          color="success"
+          :loading="loadingStore.isLoading"
+          :disabled="!canCreateTrade"
+          class="footer-btn"
+        >
+          <span v-if="loadingStore.isLoading">Criando...</span>
+          <span v-else>Criar</span>
+        </v-btn>
+
+        <v-btn @click="closeModal" variant="outlined" color="grey" class="footer-btn">
+          Cancelar
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, onUnmounted } from "vue";
 import { useCardsStore } from "../../../stores/cards";
 import { useTradesStore } from "../../../stores/trades";
+import { useLoadingStore } from "../../../stores/loading";
 import { useNotificationStore } from "../../../stores/notification";
+import { useSteps } from "../../../composables/useSteps";
+import { useSearch } from "../../../composables/useSearch";
 
-import Card from "../../common/Card.vue";
-import TradePreview from "./TradePreview.vue";
-import LoadingSpinner from "../../common/LoadingSpinner.vue";
-import type { Card as CardType } from "../../../types";
-import SearchWithPagination from "../../common/SearchWithPagination.vue";
+import TradeStepCardSelection from "./TradeStepCardSelection.vue";
+import TradePreviewStep from "./TradePreviewStep.vue";
+import type { Card } from "../../../types/cards";
 
 interface Props {
   modelValue: boolean;
@@ -235,150 +166,115 @@ const emit = defineEmits<Emits>();
 
 const cardsStore = useCardsStore();
 const tradesStore = useTradesStore();
-const notification = useNotificationStore();
+const loadingStore = useLoadingStore();
+const notificationStore = useNotificationStore();
 
-// Step management
-const currentStep = ref(0);
-const steps = [
-  { id: "offering", label: "Cartas que oferece" },
-  { id: "receiving", label: "Cartas que recebe" },
-  { id: "review", label: "Revisar troca" },
-];
+const steps = useSteps({
+  steps: [
+    {
+      id: 0,
+      title: "Oferecer",
+      description: "Selecione suas cartas",
+      icon: "mdi-export",
+    },
+    {
+      id: 1,
+      title: "Receber",
+      description: "Selecione cartas desejadas",
+      icon: "mdi-import",
+    },
+    {
+      id: 2,
+      title: "Revisar",
+      description: "Confirme a troca",
+      icon: "mdi-eye",
+    },
+  ],
+  validateStep: (step) => {
+    if (step === 0) return selectedOfferingCards.value.length > 0;
+    if (step === 1) return selectedReceivingCards.value.length > 0;
+    return true;
+  },
+});
 
-// Search queries
+const offeringSearch = useSearch({ debounceMs: 500 });
+const receivingSearch = useSearch({ debounceMs: 500 });
+
+const selectedOfferingCards = ref<string[]>([]);
+const selectedReceivingCards = ref<string[]>([]);
 const offeringSearchQuery = ref("");
 const receivingSearchQuery = ref("");
 
-// Selected cards
-const selectedOfferingCards = ref<string[]>([]);
-const selectedReceivingCards = ref<string[]>([]);
+const userCardsPagination = ref({ page: 1, rpp: 12, total: 0 });
+const allCardsPagination = ref({ page: 1, rpp: 12, total: 0 });
 
-// Loading states
-const creating = ref(false);
-
-// Pagination states
-const userCardsPagination = ref({
-  page: 1,
-  rpp: 12,
-  total: 0,
-});
-
-const allCardsPagination = ref({
-  page: 1,
-  rpp: 12, // Aumentado de 6 para 12
-  total: 0,
-});
+const isMobile = ref(false);
 
 const isOpen = computed({
   get: () => props.modelValue,
   set: (value) => emit("update:modelValue", value),
 });
 
-// Computed properties
 const userCards = computed(() => cardsStore.userCards);
 const allCards = computed(() => cardsStore.allCards);
 
-const filteredOfferingCards = computed(() => {
-  let filtered = userCards.value;
-
-  if (offeringSearchQuery.value) {
-    const query = offeringSearchQuery.value.toLowerCase();
-    filtered = filtered.filter(
-      (card) =>
-        card.name.toLowerCase().includes(query) ||
-        card.description.toLowerCase().includes(query)
-    );
-  }
-
-  const startIndex =
-    (userCardsPagination.value.page - 1) * userCardsPagination.value.rpp;
-  const endIndex = startIndex + userCardsPagination.value.rpp;
-
-  return filtered.slice(startIndex, endIndex);
-});
-
-const filteredReceivingCards = computed(() => {
-  let filtered = allCards.value;
-
-  if (receivingSearchQuery.value) {
-    const query = receivingSearchQuery.value.toLowerCase();
-    filtered = filtered.filter(
-      (card) =>
-        card.name.toLowerCase().includes(query) ||
-        card.description.toLowerCase().includes(query)
-    );
-  }
-
-  const startIndex =
-    (allCardsPagination.value.page - 1) * allCardsPagination.value.rpp;
-  const endIndex = startIndex + allCardsPagination.value.rpp;
-
-  return filtered.slice(startIndex, endIndex);
-});
-
 const totalFilteredOfferingCards = computed(() => {
-  let filtered = userCards.value;
-
-  if (offeringSearchQuery.value) {
-    const query = offeringSearchQuery.value.toLowerCase();
-    filtered = filtered.filter(
-      (card) =>
-        card.name.toLowerCase().includes(query) ||
-        card.description.toLowerCase().includes(query)
-    );
-  }
-
-  return filtered.length;
+  return offeringSearch.filterByQuery(
+    userCards.value,
+    ["name", "description"],
+    offeringSearch.debouncedQuery.value
+  ).length;
 });
 
 const totalFilteredReceivingCards = computed(() => {
-  let filtered = allCards.value;
+  return receivingSearch.filterByQuery(
+    allCards.value,
+    ["name", "description"],
+    receivingSearch.debouncedQuery.value
+  ).length;
+});
 
-  if (receivingSearchQuery.value) {
-    const query = receivingSearchQuery.value.toLowerCase();
-    filtered = filtered.filter(
-      (card) =>
-        card.name.toLowerCase().includes(query) ||
-        card.description.toLowerCase().includes(query)
-    );
-  }
+const selectedOfferingCardsData = computed(() => {
+  return userCards.value.filter((card) =>
+    selectedOfferingCards.value.includes(card.id)
+  );
+});
 
-  return filtered.length;
+const selectedReceivingCardsData = computed(() => {
+  return allCards.value.filter((card) =>
+    selectedReceivingCards.value.includes(card.id)
+  );
 });
 
 const canProceedToNextStep = computed(() => {
-  if (currentStep.value === 0) {
+  if (steps.currentStep.value === 0)
     return selectedOfferingCards.value.length > 0;
-  }
-  if (currentStep.value === 1) {
+  if (steps.currentStep.value === 1)
     return selectedReceivingCards.value.length > 0;
-  }
   return true;
 });
 
-const isTradeValid = computed(() => {
+const canCreateTrade = computed(() => {
   return (
     selectedOfferingCards.value.length > 0 &&
     selectedReceivingCards.value.length > 0
   );
 });
 
-const selectedOfferingCardsData = computed(() => {
-  return selectedOfferingCards.value
-    .map(id => getCardById(id))
-    .filter((c): c is CardType => !!c);
-});
-const selectedReceivingCardsData = computed(() => {
-  return selectedReceivingCards.value
-    .map(id => getCardById(id))
-    .filter((c): c is CardType => !!c);
-});
+const checkMobile = () => {
+  isMobile.value = window.innerWidth <= 768;
+};
 
-// Lifecycle
 onMounted(() => {
+  checkMobile();
+  window.addEventListener("resize", checkMobile);
   if (isOpen.value) {
     loadData();
   }
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", checkMobile);
 });
 
 watch(
@@ -392,17 +288,6 @@ watch(
   }
 );
 
-watch(offeringSearchQuery, () => {
-  userCardsPagination.value.page = 1;
-  userCardsPagination.value.total = totalFilteredOfferingCards.value;
-});
-
-watch(receivingSearchQuery, () => {
-  allCardsPagination.value.page = 1;
-  allCardsPagination.value.total = totalFilteredReceivingCards.value;
-});
-
-// Methods
 async function loadData() {
   try {
     await Promise.all([loadUserCards(), loadAllCards()]);
@@ -422,26 +307,15 @@ async function loadUserCards() {
 
 async function loadAllCards() {
   try {
-    // Carregar todas as cartas de uma vez para fazer paginação local
-    await cardsStore.fetchAllCards(1, 1000); // Carregar muitas cartas de uma vez
+    await cardsStore.fetchAllCards(1, 1000);
     allCardsPagination.value.total = totalFilteredReceivingCards.value;
   } catch (error) {
     console.error("Erro ao carregar todas as cartas:", error);
   }
 }
 
-async function handleOfferingPageChange(page: number) {
-  userCardsPagination.value.page = page;
-  userCardsPagination.value.total = totalFilteredOfferingCards.value;
-}
-
-async function handleReceivingPageChange(page: number) {
-  allCardsPagination.value.page = page;
-  allCardsPagination.value.total = totalFilteredReceivingCards.value;
-}
-
 function resetForm() {
-  currentStep.value = 0;
+  steps.reset();
   selectedOfferingCards.value = [];
   selectedReceivingCards.value = [];
   offeringSearchQuery.value = "";
@@ -451,15 +325,15 @@ function resetForm() {
 }
 
 function nextStep() {
-  if (currentStep.value < steps.length - 1) {
-    currentStep.value++;
-  }
+  steps.nextStep();
 }
 
 function previousStep() {
-  if (currentStep.value > 0) {
-    currentStep.value--;
-  }
+  steps.previousStep();
+}
+
+function closeModal() {
+  emit("update:modelValue", false);
 }
 
 function toggleOfferingCard(cardId: string) {
@@ -480,7 +354,7 @@ function toggleReceivingCard(cardId: string) {
   }
 }
 
-function handleOfferingCardSelect(card: CardType, selected: boolean) {
+function handleOfferingCardSelect(card: Card, selected: boolean) {
   if (selected) {
     if (!selectedOfferingCards.value.includes(card.id)) {
       selectedOfferingCards.value.push(card.id);
@@ -493,7 +367,7 @@ function handleOfferingCardSelect(card: CardType, selected: boolean) {
   }
 }
 
-function handleReceivingCardSelect(card: CardType, selected: boolean) {
+function handleReceivingCardSelect(card: Card, selected: boolean) {
   if (selected) {
     if (!selectedReceivingCards.value.includes(card.id)) {
       selectedReceivingCards.value.push(card.id);
@@ -506,18 +380,31 @@ function handleReceivingCardSelect(card: CardType, selected: boolean) {
   }
 }
 
-function getCardById(cardId: string): CardType | undefined {
-  return [...userCards.value, ...allCards.value].find(
-    (card) => card.id === cardId
-  );
+function handleOfferingSearchChange(query: string) {
+  offeringSearchQuery.value = query;
+  userCardsPagination.value.page = 1;
+}
+
+function handleReceivingSearchChange(query: string) {
+  receivingSearchQuery.value = query;
+  allCardsPagination.value.page = 1;
+}
+
+async function handleOfferingPageChange(page: number) {
+  userCardsPagination.value.page = page;
+}
+
+async function handleReceivingPageChange(page: number) {
+  allCardsPagination.value.page = page;
+}
+
+function handleCardClick(_: Card) {
 }
 
 async function createTrade() {
-  if (!isTradeValid.value) {
-    return;
-  }
+  if (!canCreateTrade.value) return;
 
-  creating.value = true;
+  loadingStore.startLoading();
 
   try {
     const tradeData = {
@@ -535,190 +422,172 @@ async function createTrade() {
 
     await tradesStore.createTrade(tradeData);
 
-    notification.show("Troca criada com sucesso!", "success");
+    notificationStore.show("Troca criada com sucesso!", "success");
+
     emit("trade-created");
-    emit("update:modelValue", false);
+    closeModal();
   } catch (error: any) {
     console.error("Erro ao criar troca:", error);
-    notification.show(error.message || "Erro ao criar troca", "error");
+    notificationStore.show(error.message || "Erro ao criar troca", "error");
   } finally {
-    creating.value = false;
+    loadingStore.stopLoading();
   }
-}
-
-function closeModal() {
-  emit('update:modelValue', false);
 }
 </script>
 
 <style scoped>
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
-  max-height: 400px;
-  overflow-y: auto;
-  padding: 4px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(var(--v-theme-primary), 0.3) transparent;
-  min-height: 0;
-}
-
-.cards-grid::-webkit-scrollbar {
-  width: 6px;
-}
-
-.cards-grid::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.cards-grid::-webkit-scrollbar-thumb {
-  background-color: rgba(var(--v-theme-primary), 0.3);
-  border-radius: 3px;
-}
-
-.cards-grid::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(var(--v-theme-primary), 0.5);
-}
-
-.card-wrapper {
-  position: relative;
-}
-
-.disabled-label {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  right: 8px;
-  z-index: 10;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.trade-summary {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  margin-bottom: 24px;
-}
-
-.summary-section {
-  flex: 1;
-}
-
-.selected-cards {
+.create-trade-modal {
+  border-radius: 16px;
+  max-height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 12px;
 }
 
-.selected-card {
-  transition: border-color 0.2s ease;
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 0 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.selected-card:hover {
-  border-color: rgb(var(--v-theme-primary)) !important;
+.modal-title {
+  font-size: 18px;
+  font-weight: 600;
 }
 
-.trade-arrow {
-  padding: 16px 0;
+.modal-content {
+  flex: 1;
+  overflow: hidden;
 }
 
-.step-dot {
-  width: 8px;
-  height: 8px;
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: calc(100vh - 180px);
+}
+
+.step-progress {
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  background: #f9fafb;
+}
+
+.step-progress-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+}
+
+.step-indicator {
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background: rgb(var(--v-theme-grey-lighten-2));
+  background: #e5e7eb;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.3s ease;
-  border: 1px solid #00000052;
-  transform: scale(1.2);
 }
 
-.step-dot.active {
-  background: rgb(var(--v-theme-primary));
-  border: none;
+.step-number {
+  font-size: 12px;
+  font-weight: 600;
 }
 
-.step-dot.completed {
-  background: rgb(var(--v-theme-success));
+.step-indicator.step-active {
+  background: #3b82f6;
+  color: white;
+}
+
+.step-indicator.step-completed {
+  background: #10b981;
+  color: white;
+}
+
+.step-indicator.step-pending {
+  background: #e5e7eb;
+  color: #6b7280;
+}
+
+.step-content-container {
+  flex: 1;
+  overflow: hidden;
+  padding: 20px;
 }
 
 .modal-footer {
-  width: 100%;
-  border-top: 1px solid rgb(var(--v-theme-grey-lighten-2));
-  background: rgb(var(--v-theme-grey-lighten-5));
-  margin: 0 -24px -24px -24px;
-  padding: 20px 24px;
-}
-
-.footer-content {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  background: white;
   display: flex;
+  gap: 12px;
   justify-content: space-between;
-  align-items: center;
-  gap: 20px;
 }
 
-.footer-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+.footer-btn {
+  min-width: 100px;
 }
 
 @media (max-width: 768px) {
-  .search-section .d-flex {
-    flex-direction: column;
-    align-items: stretch;
+  .create-trade-modal {
+    border-radius: 0;
+    height: 100vh;
+    max-height: 100vh;
+  }
+
+  .modal-header {
+    padding: 16px 20px 0 20px;
+  }
+
+  .modal-title {
+    font-size: 16px;
+  }
+
+  .modal-body {
+    max-height: calc(100vh - 120px);
+  }
+
+  .step-progress {
+    padding: 12px 20px;
+  }
+
+  .step-progress-content {
     gap: 12px;
   }
 
-  .cards-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 12px;
-    max-height: 300px;
-    margin-bottom: 16px;
+  .step-indicator {
+    width: 24px;
+    height: 24px;
   }
 
-  .card-wrapper .disabled-label {
-    font-size: 9px;
-    padding: 3px 6px;
-    top: 6px;
-    left: 6px;
-    right: 6px;
+  .step-number {
+    font-size: 10px;
   }
 
-  .trade-summary {
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .trade-arrow .v-avatar {
-    transform: rotate(90deg);
+  .step-content-container {
+    padding: 16px 20px;
+    overflow-y: auto;
   }
 
   .modal-footer {
-    margin: 0 -16px -16px -16px;
-    padding: 16px;
-    position: sticky;
-    bottom: 0;
-    background: rgb(var(--v-theme-grey-lighten-5));
-    z-index: 10;
-  }
-
-  .footer-content {
+    padding: 12px 20px;
     flex-direction: column;
-    gap: 16px;
-    align-items: stretch;
+    gap: 8px;
   }
 
-  .step-indicator .d-flex {
-    justify-content: center;
-  }
-
-  .footer-actions {
-    justify-content: center;
-    gap: 12px;
+  .footer-btn {
+    width: 100%;
+    min-width: auto;
+    height: 40px;
   }
 }
 </style>

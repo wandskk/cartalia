@@ -1,6 +1,6 @@
 <template>
   <div class="mb-0">
-    <h3 class="text-h4 font-weight-bold text-center mb-8">Ações Rápidas</h3>
+    <h3 class="text-h4 font-weight-bold mb-8">Ações Rápidas</h3>
 
     <div class="actions-grid">
       <v-card
@@ -40,13 +40,15 @@ interface Props {
 const props = defineProps<Props>();
 const router = useRouter();
 
-const actions = [
+import { computed } from "vue";
+
+const actions = computed(() => [
   {
     title: "Adicionar Cartas",
     description: "Adicione cartas à sua coleção",
     icon: "mdi-cards",
     meta: `${props.totalCards} cart${props.totalCards !== 1 ? "as" : "a"}`,
-    action: () => router.push("/cards"),
+    handler: () => router.push("/cards"),
   },
   {
     icon: "mdi-store",
@@ -76,7 +78,7 @@ const actions = [
     chipColor: "success",
     handler: () => router.push("/my-trades"),
   },
-];
+]);
 </script>
 
 <style scoped>
@@ -99,7 +101,8 @@ const actions = [
   transform: translateY(-4px);
   background: rgba(255, 255, 255, 0.95) !important;
   border-color: rgba(var(--v-theme-primary), 0.2);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
 }
 

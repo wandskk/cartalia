@@ -1,11 +1,4 @@
-interface AnalyticsEvent {
-  action: string;
-  category: string;
-  label?: string;
-  value?: number;
-}
-
-class Analytics {
+export class Analytics {
   private isEnabled: boolean;
   private trackingId: string | null;
 
@@ -14,96 +7,53 @@ class Analytics {
     this.trackingId = import.meta.env.VITE_GA_TRACKING_ID || null;
     
     if (this.isEnabled && this.trackingId) {
-      this.initGoogleAnalytics();
+      this.initialize();
     }
   }
 
-  private initGoogleAnalytics() {
-    // Google Analytics 4
+  private initialize() {
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      return;
+    }
+
     const script = document.createElement('script');
     script.async = true;
     script.src = `https://www.googletagmanager.com/gtag/js?id=${this.trackingId}`;
     document.head.appendChild(script);
 
     window.dataLayer = window.dataLayer || [];
-    function gtag(...args: any[]) {
-      window.dataLayer.push(args);
-    }
-    gtag('js', new Date());
-    gtag('config', this.trackingId);
+    window.gtag = function() {
+      window.dataLayer.push(arguments);
+    };
+
+    window.gtag('js', new Date());
+    window.gtag('config', this.trackingId);
+  }
+
+  trackEvent(action: string, category: string, label?: string, value?: number) {
+    if (!this.isEnabled || !window.gtag) return;
+
+    window.gtag('event', action, {
+      event_category: category,
+      event_label: label,
+      value: value
+    });
   }
 
   trackPageView(page: string) {
-    if (!this.isEnabled) return;
+    if (!this.isEnabled || !window.gtag) return;
 
-    if (window.gtag) {
-      window.gtag('config', this.trackingId, {
-        page_path: page
-      });
-    }
-
-    console.log('📊 Page View:', page);
-  }
-
-  trackEvent(event: AnalyticsEvent) {
-    if (!this.isEnabled) return;
-
-    if (window.gtag) {
-      window.gtag('event', event.action, {
-        event_category: event.category,
-        event_label: event.label,
-        value: event.value
-      });
-    }
-
-    console.log('📊 Event:', event);
-  }
-
-  trackError(error: Error, context?: string) {
-    this.trackEvent({
-      action: 'error',
-      category: 'app',
-      label: `${error.name}: ${error.message}`,
-      value: context ? 1 : 0
+    window.gtag('config', this.trackingId, {
+      page_path: page
     });
   }
 
-  trackUserAction(action: string, category: string = 'user') {
-    this.trackEvent({
-      action,
-      category
-    });
-  }
+  trackException(description: string, fatal = false) {
+    if (!this.isEnabled || !window.gtag) return;
 
-  trackTradeCreated(tradeId: string) {
-    this.trackEvent({
-      action: 'trade_created',
-      category: 'trading',
-      label: tradeId
-    });
-  }
-
-  trackCardAdded(cardId: string) {
-    this.trackEvent({
-      action: 'card_added',
-      category: 'cards',
-      label: cardId
-    });
-  }
-
-  trackLogin(method: string = 'email') {
-    this.trackEvent({
-      action: 'login',
-      category: 'auth',
-      label: method
-    });
-  }
-
-  trackRegister(method: string = 'email') {
-    this.trackEvent({
-      action: 'register',
-      category: 'auth',
-      label: method
+    window.gtag('event', 'exception', {
+      description,
+      fatal
     });
   }
 }

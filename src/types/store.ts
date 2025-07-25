@@ -1,86 +1,81 @@
-// Tipos relacionados aos stores
-
-// Estado base para stores
-export interface BaseStoreState {
+export interface BaseState {
   loading: boolean;
   error: string | null;
 }
 
-// Estado paginado
-export interface PaginatedStoreState<T> extends BaseStoreState {
-  data: T[];
+export interface PaginatedState<T> extends BaseState {
+  items: T[];
   pagination: {
     page: number;
     rpp: number;
+    total: number;
     more: boolean;
   };
 }
 
-// Estado de entidade única
-export interface SingleEntityStoreState<T> extends BaseStoreState {
-  data: T | null;
+export interface SingleEntityState<T> extends BaseState {
+  item: T | null;
 }
 
-// Estado de lista simples
-export interface ListStoreState<T> extends BaseStoreState {
-  data: T[];
+export interface SimpleListState<T> extends BaseState {
+  items: T[];
 }
 
-// Ações base para stores
-export interface BaseStoreActions {
+export interface BaseActions {
   clearError: () => void;
   setLoading: (loading: boolean) => void;
-  setError: (error: string | null) => void;
 }
 
-// Ações para stores paginados
-export interface PaginatedStoreActions<T> extends BaseStoreActions {
-  setData: (data: T[]) => void;
-  setPagination: (pagination: { page: number; rpp: number; more: boolean }) => void;
-  appendData: (data: T[]) => void;
-  clearData: () => void;
-}
-
-// Ações para entidade única
-export interface SingleEntityStoreActions<T> extends BaseStoreActions {
-  setData: (data: T | null) => void;
-  clearData: () => void;
-}
-
-// Ações para lista simples
-export interface ListStoreActions<T> extends BaseStoreActions {
-  setData: (data: T[]) => void;
+export interface PaginatedActions<T> extends BaseActions {
+  fetchItems: (page?: number, rpp?: number) => Promise<void>;
+  setItems: (items: T[]) => void;
   addItem: (item: T) => void;
-  removeItem: (predicate: (item: T) => boolean) => void;
-  updateItem: (predicate: (item: T) => boolean, updates: Partial<T>) => void;
-  clearData: () => void;
+  updateItem: (id: string, updates: Partial<T>) => void;
+  removeItem: (id: string) => void;
+  setPagination: (pagination: { page: number; rpp: number; total: number; more: boolean }) => void;
 }
 
-// Getters base
-export interface BaseStoreGetters {
+export interface SingleEntityActions<T> extends BaseActions {
+  fetchItem: (id: string) => Promise<void>;
+  setItem: (item: T | null) => void;
+  updateItem: (updates: Partial<T>) => void;
+  clearItem: () => void;
+}
+
+export interface SimpleListActions<T> extends BaseActions {
+  fetchItems: () => Promise<void>;
+  setItems: (items: T[]) => void;
+  addItem: (item: T) => void;
+  updateItem: (id: string, updates: Partial<T>) => void;
+  removeItem: (id: string) => void;
+}
+
+export interface BaseGetters {
   isLoading: boolean;
   hasError: boolean;
   errorMessage: string | null;
 }
 
-// Getters para stores paginados
-export interface PaginatedStoreGetters<T> extends BaseStoreGetters {
+export interface PaginatedGetters<T> extends BaseGetters {
   items: T[];
-  totalItems: number;
-  currentPage: number;
-  hasMore: boolean;
+  pagination: {
+    page: number;
+    rpp: number;
+    total: number;
+    more: boolean;
+  };
+  hasItems: boolean;
   isEmpty: boolean;
+  canLoadMore: boolean;
 }
 
-// Getters para entidade única
-export interface SingleEntityStoreGetters<T> extends BaseStoreGetters {
-  data: T | null;
-  hasData: boolean;
+export interface SingleEntityGetters<T> extends BaseGetters {
+  item: T | null;
+  hasItem: boolean;
 }
 
-// Getters para lista simples
-export interface ListStoreGetters<T> extends BaseStoreGetters {
+export interface SimpleListGetters<T> extends BaseGetters {
   items: T[];
-  totalItems: number;
+  hasItems: boolean;
   isEmpty: boolean;
 } 

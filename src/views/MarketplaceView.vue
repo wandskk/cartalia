@@ -36,8 +36,8 @@
               :loading="loading"
               :show-pagination="showLocalPagination"
               :total-items="totalFilteredTrades"
-              :items-per-page="localPagination.rpp"
-              :current-page="localPagination.page"
+              :items-per-page="pagination.itemsPerPage.value"
+              :current-page="pagination.currentPage.value"
             />
 
             <TradeList
@@ -45,7 +45,7 @@
               :loading="loading"
               :error="error"
               :show-pagination="false"
-              :pagination="pagination"
+              :pagination="storePagination"
               @retry="fetchTrades"
               @page-change="handlePageChange"
               @delete="handleDeleteTrade"
@@ -70,6 +70,8 @@ import { useRouter } from "vue-router";
 import { useTradesStore } from "../stores/trades";
 import { useAuthStore } from "../stores/auth";
 import { useMarketplaceFilters } from "../composables/useMarketplaceFilters";
+import { usePagination } from "../composables/usePagination";
+import { useLoadingState } from "../composables/useLoadingState";
 import Container from "../components/common/Container.vue";
 import PageHeader from "../components/common/PageHeader.vue";
 import TradeList from "../components/features/trades/TradeList.vue";
@@ -81,22 +83,23 @@ import type { Card } from "../types/cards";
 const router = useRouter();
 const tradesStore = useTradesStore();
 const authStore = useAuthStore();
+
+
+const { isLoading: loading, withLoading } = useLoadingState();
+const pagination = usePagination({
+  initialItemsPerPage: 12
+});
+
 const { filteredTrades, updateFilters } = useMarketplaceFilters();
 
-// Modal de detalhes da carta
+
 const showCardDetailModal = ref(false);
 const selectedCardId = ref<string>("");
 
-// Paginação local para filtros
-const localPagination = ref({
-  page: 1,
-  rpp: 12
-});
 
-const loading = computed(() => tradesStore.loading);
 const error = computed(() => tradesStore.error);
 const trades = computed(() => tradesStore.allTrades);
-const pagination = computed(() => tradesStore.pagination);
+const storePagination = computed(() => tradesStore.pagination);
 const isAuthenticated = computed(() => authStore.isAuthenticated);
 
 const filteredTradesList = computed(() => {
@@ -108,13 +111,12 @@ const totalFilteredTrades = computed(() => {
 });
 
 const showLocalPagination = computed(() => {
-  return totalFilteredTrades.value > localPagination.value.rpp;
+  return totalFilteredTrades.value > pagination.itemsPerPage.value;
 });
 
 const paginatedTradesList = computed(() => {
-  const startIndex = (localPagination.value.page - 1) * localPagination.value.rpp;
-  const endIndex = startIndex + localPagination.value.rpp;
-  return filteredTradesList.value.slice(startIndex, endIndex);
+  pagination.setTotalItems(filteredTradesList.value.length);
+  return pagination.paginateItems(filteredTradesList.value);
 });
 
 const filteredTradesCount = computed(() => {
@@ -126,20 +128,22 @@ onMounted(() => {
 });
 
 async function fetchTrades() {
-  // Carregar mais trades da API para ter dados suficientes para filtragem
-  await tradesStore.fetchAllTrades(1, 50, true); // Carregar 50 trades de uma vez
+  await withLoading(async () => {
+
+    await tradesStore.fetchAllTrades(1, 50, true); // Carregar 50 trades de uma vez
+  }, "Carregando trades...");
 }
 
 async function handlePageChange(page: number) {
-  // Carregar mais trades da API se necessário
-  if (page > Math.ceil(trades.value.length / pagination.value.rpp)) {
-    const nextPage = Math.ceil(trades.value.length / pagination.value.rpp) + 1;
-    await tradesStore.fetchAllTrades(nextPage, pagination.value.rpp, false);
+
+  if (page > Math.ceil(trades.value.length / storePagination.value.rpp)) {
+    const nextPage = Math.ceil(trades.value.length / storePagination.value.rpp) + 1;
+    await tradesStore.fetchAllTrades(nextPage, storePagination.value.rpp, false);
   }
 }
 
 function handleLocalPageChange(page: number) {
-  localPagination.value.page = page;
+  pagination.setPage(page);
 }
 
 async function handleDeleteTrade(tradeId: string) {
@@ -148,8 +152,8 @@ async function handleDeleteTrade(tradeId: string) {
 
 function handleFiltersChange(newFilters: any) {
   updateFilters(newFilters);
-  // Reset para primeira página quando filtrar
-  localPagination.value.page = 1;
+
+  pagination.firstPage();
 }
 
 function handleCardClick(card: Card) {

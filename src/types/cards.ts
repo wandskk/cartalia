@@ -1,10 +1,10 @@
 import type { z } from 'zod';
 import { addCardsSchema } from '../schemas';
 
-// Tipos de formulários (inferidos dos schemas)
+
 export type AddCardsForm = z.infer<typeof addCardsSchema>;
 
-// Tipos de API (respostas do servidor)
+
 export interface Card {
   id: string;
   name: string;
@@ -21,7 +21,7 @@ export interface CardListResponse {
   total?: number;
 }
 
-// Tipos de estado
+
 export interface Filter {
   value: string;
   label: string;

@@ -8,7 +8,11 @@ export const useNotificationStore = defineStore('notification', () => {
   function show(msg: string, msgType: 'success' | 'error' | 'info' = 'success') {
     message.value = msg;
     type.value = msgType;
-    setTimeout(() => clear(), 3000);
+    
+
+    if (msgType !== 'error') {
+      setTimeout(() => clear(), 3000);
+    }
   }
 
   function clear() {

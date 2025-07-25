@@ -47,11 +47,11 @@
 
     <v-card-text class="pa-3">
       <div class="card-header">
-        <h3 class="text-subtitle-1 font-weight-bold mb-2">{{ card.name }}</h3>
+        <h3 class="text-subtitle-1 font-weight-bold mb-2">{{ formattedName }}</h3>
       </div>
       
       <p v-if="showDescription" class="text-body-2 text-grey mb-3">
-        {{ truncatedDescription }}
+        {{ formattedDescription }}
       </p>
 
       <div v-if="showActions && $slots.actions" class="card-actions">
@@ -66,6 +66,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import LoadingSpinner from './LoadingSpinner.vue';
+import { truncateText, capitalizeFirst } from '../../utils/formatters';
 import type { Card as CardType } from '../../types';
 
 interface Props {
@@ -110,15 +111,15 @@ const imageHeight = computed(() => {
   }
 });
 
-const truncatedDescription = computed(() => {
+const formattedName = computed(() => {
+  return capitalizeFirst(props.card.name);
+});
+
+const formattedDescription = computed(() => {
   if (!props.showDescription) return '';
   
   const description = props.card.description;
-  if (description.length <= props.maxDescriptionLength) {
-    return description;
-  }
-  
-  return description.substring(0, props.maxDescriptionLength) + '...';
+  return truncateText(description, props.maxDescriptionLength);
 });
 
 function handleClick() {

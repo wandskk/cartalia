@@ -9,7 +9,7 @@
           </div>
           <div class="d-flex align-center">
             <v-icon size="16" color="grey" class="mr-2">mdi-identifier</v-icon>
-            <span class="text-caption text-grey">#{{ trade.id.slice(0, 8) }}</span>
+            <span class="text-caption text-grey">{{ formattedId }}</span>
           </div>
         </div>
         
@@ -37,36 +37,14 @@
                 Oferecendo
               </h4>
               <div class="cards-preview">
-                <v-card
+                <CardPreview
                   v-for="tradeCard in offeringCards" 
                   :key="tradeCard.id"
-                  class="card-preview mb-3"
-                  variant="outlined"
-                  hover
-                  @click="handleCardClick(tradeCard.card)"
-                  style="cursor: pointer;"
-                >
-                  <div class="d-flex align-center pa-3">
-                    <div class="card-image mr-3">
-                      <v-img
-                        :src="tradeCard.card.imageUrl"
-                        :alt="tradeCard.card.name"
-                        width="48"
-                        height="68"
-                        class="rounded"
-                        cover
-                      />
-                    </div>
-                    <div class="flex-grow-1">
-                      <div class="text-subtitle-2 font-weight-medium mb-1">
-                        {{ tradeCard.card.name }}
-                      </div>
-                      <div class="text-caption text-grey line-clamp-2">
-                        {{ tradeCard.card.description }}
-                      </div>
-                    </div>
-                  </div>
-                </v-card>
+                  :card="tradeCard.card"
+                  size="sm"
+                  class="mb-3"
+                  @click="handleCardClick"
+                />
               </div>
             </div>
           </v-col>
@@ -86,36 +64,14 @@
                 Recebendo
               </h4>
               <div class="cards-preview">
-                <v-card
+                <CardPreview
                   v-for="tradeCard in receivingCards" 
                   :key="tradeCard.id"
-                  class="card-preview mb-3"
-                  variant="outlined"
-                  hover
-                  @click="handleCardClick(tradeCard.card)"
-                  style="cursor: pointer;"
-                >
-                  <div class="d-flex align-center pa-3">
-                    <div class="card-image mr-3">
-                      <v-img
-                        :src="tradeCard.card.imageUrl"
-                        :alt="tradeCard.card.name"
-                        width="48"
-                        height="68"
-                        class="rounded"
-                        cover
-                      />
-                    </div>
-                    <div class="flex-grow-1">
-                      <div class="text-subtitle-2 font-weight-medium mb-1">
-                        {{ tradeCard.card.name }}
-                      </div>
-                      <div class="text-caption text-grey line-clamp-2">
-                        {{ tradeCard.card.description }}
-                      </div>
-                    </div>
-                  </div>
-                </v-card>
+                  :card="tradeCard.card"
+                  size="sm"
+                  class="mb-3"
+                  @click="handleCardClick"
+                />
               </div>
             </div>
           </v-col>
@@ -125,26 +81,23 @@
 
     <v-divider />
 
-    <v-card-actions class="px-6 py-4">
-      <div class="d-flex align-center">
-        <div class="d-flex align-center mr-4">
-          <v-icon size="16" color="grey" class="mr-1">mdi-cards</v-icon>
-          <span class="text-caption text-grey">{{ trade.tradeCards.length }} cartas</span>
+    <v-card-actions class="trade-footer">
+      <div class="trade-info">
+        <div class="trade-info-item">
+          <v-icon size="14" color="grey" class="mr-1">mdi-cards</v-icon>
+          <span class="trade-info-text">{{ cardsCountText }}</span>
         </div>
-        <div class="d-flex align-center">
-          <v-icon size="16" color="grey" class="mr-1">mdi-account</v-icon>
-          <span class="text-caption text-grey">{{ trade.user.name }}</span>
+        <div class="trade-info-item">
+          <v-icon size="14" color="grey" class="mr-1">mdi-account</v-icon>
+          <span class="trade-info-text">{{ trade.user.name }}</span>
         </div>
       </div>
       
-      <v-spacer />
-      
-      <div v-if="showStatus">
+      <div v-if="showStatus" class="trade-status">
         <v-chip
           :color="statusColor"
           variant="tonal"
           size="small"
-          class="text-uppercase"
         >
           {{ statusText }}
         </v-chip>
@@ -156,6 +109,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useAuthStore } from '../../../stores/auth';
+import { formatDate, formatStatus } from '../../../utils/formatters';
+import CardPreview from '../../common/CardPreview.vue';
 import type { Trade } from '../../../types';
 import type { Card } from '../../../types/cards';
 
@@ -182,13 +137,11 @@ const emit = defineEmits<Emits>();
 const authStore = useAuthStore();
 
 const formattedDate = computed(() => {
-  return new Date(props.trade.createdAt).toLocaleDateString('pt-BR', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  return formatDate(props.trade.createdAt);
+});
+
+const formattedId = computed(() => {
+  return `#${props.trade.id.slice(0, 8)}`;
 });
 
 const offeringCards = computed(() => {
@@ -208,23 +161,23 @@ const canDelete = computed(() => {
 });
 
 const statusText = computed(() => {
-  switch (props.status) {
-    case 'active': return 'Ativa';
-    case 'completed': return 'Concluída';
-    case 'expired': return 'Expirada';
-    case 'pending': return 'Pendente';
-    default: return 'Ativa';
-  }
+  return formatStatus(props.status);
 });
 
 const statusColor = computed(() => {
-  switch (props.status) {
-    case 'active': return 'success';
-    case 'completed': return 'primary';
-    case 'expired': return 'error';
-    case 'pending': return 'warning';
-    default: return 'success';
-  }
+  const colorMap: Record<string, string> = {
+    'active': 'success',
+    'completed': 'primary',
+    'expired': 'error',
+    'pending': 'warning',
+    'cancelled': 'grey'
+  };
+  return colorMap[props.status] || 'grey';
+});
+
+const cardsCountText = computed(() => {
+  const count = props.trade.tradeCards.length;
+  return `${count} carta${count !== 1 ? 's' : ''}`;
 });
 
 function handleCardClick(card: Card) {
@@ -245,24 +198,52 @@ function handleDelete() {
   transform: translateY(-2px);
 }
 
-.card-preview {
-  transition: border-color 0.2s ease;
-}
-
-.card-preview:hover {
-  border-color: rgb(var(--v-theme-primary)) !important;
-}
-
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  line-height: 1.3;
-}
-
 .trade-arrow {
   padding: 16px 0;
+}
+
+.trade-footer {
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.trade-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.trade-info-item {
+  display: flex;
+  align-items: center;
+}
+
+.trade-info-text {
+  font-size: 12px;
+  color: #6b7280;
+  word-break: break-word;
+}
+
+.trade-status {
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .trade-footer {
+    padding: 8px 12px;
+  }
+
+  .trade-info {
+    gap: 2px;
+  }
+
+  .trade-info-text {
+    font-size: 11px;
+  }
 }
 
 @media (max-width: 960px) {

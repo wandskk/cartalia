@@ -1,14 +1,14 @@
-// Schemas de autenticação
+
 export { loginSchema, type LoginSchema } from './login.schema';
 export { registerSchema, type RegisterSchema } from './register.schema';
 
-// Schemas de cards
+
 export { addCardsSchema, type AddCardsSchema } from './cards.schema';
 
-// Schemas de trades
+
 export { createTradeSchema, type CreateTradeSchema } from './trades.schema';
 
-// Schemas comuns e funções utilitárias
+
 export {
   emailSchema,
   passwordSchema,
@@ -19,3 +19,6 @@ export {
   validateName,
   validateUuid
 } from './common.schema'; 
+
+
+export * from './modals.schema'; 

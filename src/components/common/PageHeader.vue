@@ -1,8 +1,8 @@
 <template>
   <div class="d-flex justify-space-between align-start mb-8 flex-wrap ga-6">
     <div class="flex-grow-1">
-      <h1 class="text-h3 font-weight-bold mb-2 text-primary">{{ title }}</h1>
-      <p class="text-body-1 text-grey mb-0">{{ subtitle }}</p>
+      <h1 class="text-h3 font-weight-bold mb-2 text-primary text-left">{{ title }}</h1>
+      <p class="text-body-1 text-grey mb-0 text-left">{{ subtitle }}</p>
     </div>
     
     <div v-if="$slots.actions" class="d-flex ga-3 flex-wrap">

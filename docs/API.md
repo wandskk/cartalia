@@ -34,14 +34,14 @@ Frontend (Vue 3) ←→ Axios ←→ REST API ←→ Database
 ## 🔗 Base URL
 
 ```typescript
-const API_BASE_URL = 'https://cards-marketplace-api-2fjj.onrender.com';
+const API_BASE_URL = "https://cards-marketplace-api-2fjj.onrender.com";
 ```
 
 ### 🌍 Ambientes
 
-| Ambiente | URL | Descrição |
-|----------|-----|-----------|
-| **Produção** | `https://cards-marketplace-api-2fjj.onrender.com` | API principal |
+| Ambiente            | URL                                               | Descrição                       |
+| ------------------- | ------------------------------------------------- | ------------------------------- |
+| **Produção**        | `https://cards-marketplace-api-2fjj.onrender.com` | API principal                   |
 | **Desenvolvimento** | `https://cards-marketplace-api-2fjj.onrender.com` | Mesma API (sem ambiente de dev) |
 
 ### ⚠️ Importante
@@ -66,31 +66,36 @@ headers: {
 #### 🔄 Fluxo de Autenticação
 
 1. **Login/Registro**: Retorna um JWT token
-2. **Armazenamento**: Token salvo no localStorage
+2. **Armazenamento**: Token salvo no localStorage como `tokenCartalia`
 3. **Requisições**: Token enviado automaticamente via interceptor
 4. **Expiração**: Token expira após determinado tempo
 
 ### 🔧 Configuração do Axios
 
 ```typescript
-// services/index.ts
-import axios from 'axios';
+import axios from "axios";
+import { handleApiError } from "../utils/errorHandler";
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json'
-  }
+  baseURL: "https://cards-marketplace-api-2fjj.onrender.com",
+  headers: { "Content-Type": "application/json" },
 });
 
-// Interceptor para adicionar token automaticamente
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('tokenCartalia');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    handleApiError(error, 'API Interceptor');
+    return Promise.reject(error);
+  }
+);
 ```
 
 ## 📡 Endpoints
@@ -98,543 +103,654 @@ api.interceptors.request.use((config) => {
 ### 👤 Autenticação
 
 #### POST `/register`
+
 Registra um novo usuário no sistema.
 
 **Request Body:**
-```json
+```typescript
 {
-  "name": "João Silva",
-  "email": "joao@exemplo.com",
-  "password": "123456"
+  name: string;
+  email: string;
+  password: string;
 }
 ```
 
-**Response (200):**
-```json
+**Response:**
+```typescript
 {
-  "userId": "550e8400-e29b-41d4-a716-446655440000"
-}
-```
-
-**Códigos de Erro:**
-- `400`: Dados inválidos
-- `409`: Email já cadastrado
-
-#### POST `/login`
-Realiza o login do usuário.
-
-**Request Body:**
-```json
-{
-  "email": "joao@exemplo.com",
-  "password": "123456"
-}
-```
-
-**Response (200):**
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "user": {
-    "id": "550e8400-e29b-41d4-a716-446655440000",
-    "name": "João Silva",
-    "email": "joao@exemplo.com"
+  token: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
   }
 }
 ```
 
-**Códigos de Erro:**
-- `400`: Dados inválidos
-- `401`: Credenciais inválidas
+**Exemplo de uso:**
+```typescript
+import { authApi } from '@/services/modules/auth';
 
-#### GET `/me`
-Retorna informações do usuário logado.
-
-**Headers:**
+const registerUser = async (userData: RegisterData) => {
+  try {
+    const response = await authApi.register(userData);
+    localStorage.setItem('tokenCartalia', response.data.token);
+    return response.data.user;
+  } catch (error) {
+    throw new Error('Erro no registro');
+  }
+};
 ```
-Authorization: Bearer <token>
-```
 
-**Response (200):**
-```json
+#### POST `/login`
+
+Autentica um usuário existente.
+
+**Request Body:**
+```typescript
 {
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "name": "João Silva",
-  "email": "joao@exemplo.com",
-  "cards": [
-    {
-      "id": "card-uuid",
-      "name": "Blue-Eyes White Dragon",
-      "description": "This legendary dragon...",
-      "imageUrl": "https://example.com/card.jpg",
-      "createdAt": "2024-02-15T16:40:14.677Z"
-    }
-  ]
+  email: string;
+  password: string;
 }
 ```
 
-**Códigos de Erro:**
-- `401`: Token inválido ou expirado
+**Response:**
+```typescript
+{
+  token: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  }
+}
+```
 
 ### 🃏 Cartas
 
 #### GET `/cards`
-Retorna todas as cartas disponíveis no sistema.
+
+Lista todas as cartas disponíveis com paginação e filtros.
 
 **Query Parameters:**
 ```typescript
 {
-  rpp?: number;    // Registros por página (padrão: 10)
-  page?: number;   // Número da página (padrão: 1)
+  page?: number;        // Página atual (padrão: 1)
+  limit?: number;       // Itens por página (padrão: 20)
+  name?: string;        // Filtro por nome
+  rarity?: string;      // Filtro por raridade
+  type?: string;        // Filtro por tipo
+  minAttack?: number;   // Ataque mínimo
+  maxAttack?: number;   // Ataque máximo
+  minDefense?: number;  // Defesa mínima
+  maxDefense?: number;  // Defesa máxima
 }
 ```
 
-**Response (200):**
-```json
+**Response:**
+```typescript
 {
-  "list": [
-    {
-      "id": "card-uuid",
-      "name": "Blue-Eyes White Dragon",
-      "description": "This legendary dragon...",
-      "imageUrl": "https://example.com/card.jpg",
-      "createdAt": "2024-02-15T16:40:14.677Z"
-    }
-  ],
-  "rpp": 10,
-  "page": 1,
-  "more": false
+  data: Card[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
+```
+
+**Exemplo de uso:**
+```typescript
+import { cardsApi } from '@/services/modules/cards';
+
+const fetchCards = async (filters?: CardFilters) => {
+  try {
+    const response = await cardsApi.getCards(filters);
+    return response.data;
+  } catch (error) {
+    throw new Error('Erro ao carregar cartas');
+  }
+};
 ```
 
 #### GET `/cards/:id`
-Retorna detalhes de uma carta específica.
 
-**Response (200):**
-```json
+Obtém detalhes de uma carta específica.
+
+**Response:**
+```typescript
 {
-  "id": "card-uuid",
-  "name": "Blue-Eyes White Dragon",
-  "description": "This legendary dragon...",
-  "imageUrl": "https://example.com/card.jpg",
-  "createdAt": "2024-02-15T16:40:14.677Z"
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  rarity: CardRarity;
+  type: CardType;
+  attack?: number;
+  defense?: number;
+  createdAt: string;
+  updatedAt: string;
 }
 ```
 
-**Códigos de Erro:**
-- `404`: Carta não encontrada
+#### POST `/cards`
 
-#### POST `/me/cards`
-Adiciona cartas à coleção do usuário.
-
-**Headers:**
-```
-Authorization: Bearer <token>
-```
+Adiciona uma nova carta à coleção do usuário.
 
 **Request Body:**
-```json
+```typescript
 {
-  "cardIds": ["card-uuid-1", "card-uuid-2"]
+  cardId: string;
 }
 ```
 
-**Response (200):**
-```json
+**Response:**
+```typescript
 {
-  "message": "Cards added successfully"
+  message: string;
+  card: Card;
 }
-```
-
-**Códigos de Erro:**
-- `400`: Dados inválidos
-- `401`: Token inválido
-- `404`: Carta não encontrada
-
-#### GET `/me/cards`
-Retorna todas as cartas do usuário logado.
-
-**Headers:**
-```
-Authorization: Bearer <token>
-```
-
-**Response (200):**
-```json
-[
-  {
-    "id": "card-uuid",
-    "name": "Blue-Eyes White Dragon",
-    "description": "This legendary dragon...",
-    "imageUrl": "https://example.com/card.jpg",
-    "createdAt": "2024-02-15T16:40:14.677Z"
-  }
-]
 ```
 
 ### 🔄 Trocas
 
-#### POST `/trades`
-Cria uma nova solicitação de troca.
-
-**Headers:**
-```
-Authorization: Bearer <token>
-```
-
-**Request Body:**
-```json
-{
-  "cards": [
-    {
-      "cardId": "card-uuid-1",
-      "type": "OFFERING"
-    },
-    {
-      "cardId": "card-uuid-2",
-      "type": "RECEIVING"
-    }
-  ]
-}
-```
-
-**Response (200):**
-```json
-{
-  "tradeId": "trade-uuid"
-}
-```
-
-**Códigos de Erro:**
-- `400`: Dados inválidos
-- `401`: Token inválido
-- `404`: Carta não encontrada
-- `403`: Carta não pertence ao usuário
-
 #### GET `/trades`
-Retorna todas as solicitações de troca.
+
+Lista todas as trocas disponíveis.
 
 **Query Parameters:**
 ```typescript
 {
-  rpp?: number;    // Registros por página (padrão: 10)
-  page?: number;   // Número da página (padrão: 1)
+  page?: number;
+  limit?: number;
+  status?: TradeStatus;
+  userId?: string;
 }
 ```
 
-**Response (200):**
-```json
+**Response:**
+```typescript
 {
-  "list": [
-    {
-      "id": "trade-uuid",
-      "userId": "user-uuid",
-      "createdAt": "2024-02-15T17:15:08.807Z",
-      "user": {
-        "name": "João Silva"
-      },
-      "tradeCards": [
-        {
-          "id": "trade-card-uuid",
-          "cardId": "card-uuid",
-          "tradeId": "trade-uuid",
-          "type": "OFFERING",
-          "card": {
-            "id": "card-uuid",
-            "name": "Blue-Eyes White Dragon",
-            "description": "This legendary dragon...",
-            "imageUrl": "https://example.com/card.jpg",
-            "createdAt": "2024-02-15T16:40:14.677Z"
-          }
-        }
-      ]
-    }
-  ],
-  "rpp": 10,
-  "page": 1,
-  "more": false
+  data: Trade[];
+  total: number;
+  page: number;
+  limit: number;
+}
+```
+
+#### POST `/trades`
+
+Cria uma nova solicitação de troca.
+
+**Request Body:**
+```typescript
+{
+  offeredCards: string[];    // IDs das cartas oferecidas
+  requestedCards: string[];  // IDs das cartas solicitadas
+  description?: string;      // Descrição opcional
+}
+```
+
+**Response:**
+```typescript
+{
+  message: string;
+  trade: Trade;
 }
 ```
 
 #### DELETE `/trades/:id`
-Remove uma solicitação de troca.
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
+Remove uma troca específica.
 
-**Response (200):**
-```json
+**Response:**
+```typescript
 {
-  "message": "Trade deleted successfully"
+  message: string;
 }
 ```
 
-**Códigos de Erro:**
-- `401`: Token inválido
-- `403`: Troca não pertence ao usuário
-- `404`: Troca não encontrada
+#### PUT `/trades/:id/accept`
+
+Aceita uma troca.
+
+**Response:**
+```typescript
+{
+  message: string;
+  trade: Trade;
+}
+```
+
+#### PUT `/trades/:id/reject`
+
+Rejeita uma troca.
+
+**Response:**
+```typescript
+{
+  message: string;
+  trade: Trade;
+}
+```
 
 ## 📊 Tipos de Dados
 
-### 👤 User
-```typescript
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  cards?: Card[];
-}
-```
-
 ### 🃏 Card
+
 ```typescript
 interface Card {
   id: string;
   name: string;
   description: string;
-  imageUrl: string;
+  image: string;
+  rarity: CardRarity;
+  type: CardType;
+  attack?: number;
+  defense?: number;
   createdAt: string;
+  updatedAt: string;
 }
+
+type CardRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+type CardType = 'monster' | 'spell' | 'trap';
 ```
 
 ### 🔄 Trade
+
 ```typescript
 interface Trade {
   id: string;
   userId: string;
+  offeredCards: Card[];
+  requestedCards: Card[];
+  description?: string;
+  status: TradeStatus;
   createdAt: string;
-  user: {
-    name: string;
-  };
-  tradeCards: TradeCard[];
+  updatedAt: string;
 }
 
-interface TradeCard {
+type TradeStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled';
+```
+
+### 👤 User
+
+```typescript
+interface User {
   id: string;
-  cardId: string;
-  tradeId: string;
-  type: 'OFFERING' | 'RECEIVING';
-  card: Card;
+  name: string;
+  email: string;
+  createdAt: string;
+  updatedAt: string;
 }
 ```
 
-### 📄 Pagination
+### 🔍 Filters
+
 ```typescript
-interface PaginatedResponse<T> {
-  list: T[];
-  rpp: number;
-  page: number;
-  more: boolean;
+interface CardFilters {
+  name?: string;
+  rarity?: CardRarity;
+  type?: CardType;
+  minAttack?: number;
+  maxAttack?: number;
+  minDefense?: number;
+  maxDefense?: number;
+  page?: number;
+  limit?: number;
+}
+
+interface TradeFilters {
+  status?: TradeStatus;
+  userId?: string;
+  page?: number;
+  limit?: number;
 }
 ```
 
 ## ⚠️ Tratamento de Erros
 
-### 📊 Códigos de Status HTTP
-
-| Código | Descrição | Ação Recomendada |
-|--------|-----------|------------------|
-| `200` | Sucesso | Processar resposta normalmente |
-| `201` | Criado | Recurso criado com sucesso |
-| `400` | Bad Request | Verificar dados enviados |
-| `401` | Unauthorized | Token inválido ou expirado |
-| `403` | Forbidden | Sem permissão para acessar |
-| `404` | Not Found | Recurso não encontrado |
-| `409` | Conflict | Conflito (ex: email já existe) |
-| `422` | Unprocessable Entity | Dados inválidos |
-| `500` | Internal Server Error | Erro interno do servidor |
-
-### 🔧 Estrutura de Erro
+### 📝 Estrutura de Erro
 
 ```typescript
 interface ApiError {
   message: string;
-  details?: string;
-  status?: number;
-  code?: string;
+  status: number;
+  errors?: Record<string, string[]>;
 }
 ```
 
-### 📝 Exemplo de Resposta de Erro
-
-```json
-{
-  "message": "Invalid credentials",
-  "details": "Email or password is incorrect",
-  "status": 401,
-  "code": "AUTH_INVALID_CREDENTIALS"
-}
-```
-
-### 🛠️ Tratamento no Frontend
+### 🔧 Interceptor de Erros
 
 ```typescript
-// services/index.ts
+import { handleApiError } from '@/utils/errorHandler';
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Token expirado - redirecionar para login
-      localStorage.removeItem('token');
-      router.push('/login');
-    }
-    
-    // Tratar outros erros
-    const errorMessage = error.response?.data?.message || 'Erro desconhecido';
-    handleApiError(error, 'API');
-    
+    handleApiError(error, 'API Interceptor');
     return Promise.reject(error);
   }
 );
+```
+
+### 🎯 Códigos de Status
+
+| Status | Descrição | Ação Recomendada |
+|--------|-----------|------------------|
+| `200` | Sucesso | Processar resposta normalmente |
+| `201` | Criado | Recarregar dados ou navegar |
+| `400` | Bad Request | Validar dados de entrada |
+| `401` | Não Autorizado | Redirecionar para login |
+| `403` | Proibido | Mostrar erro de permissão |
+| `404` | Não Encontrado | Mostrar página 404 |
+| `422` | Dados Inválidos | Mostrar erros de validação |
+| `500` | Erro Interno | Mostrar erro genérico |
+
+### 🛡️ Tratamento Global
+
+```typescript
+// utils/errorHandler.ts
+export const handleApiError = (error: any, context: string) => {
+  const errorStore = useErrorStore();
+  
+  if (error.response?.status === 401) {
+    // Token expirado ou inválido
+    const authStore = useAuthStore();
+    authStore.logout();
+    router.push('/login');
+  } else if (error.response?.status === 422) {
+    // Erros de validação
+    const validationErrors = error.response.data.errors;
+    errorStore.setValidationErrors(validationErrors);
+  } else {
+    // Erro genérico
+    const message = error.response?.data?.message || 'Erro inesperado';
+    errorStore.setError(message);
+  }
+  
+  // Log para analytics
+  console.error(`[${context}] API Error:`, error);
+};
 ```
 
 ## 🔧 Configuração
 
-### 📝 Environment Variables
+### 📦 Instalação
 
-```env
-# API Configuration
-VITE_API_BASE_URL=https://cards-marketplace-api-2fjj.onrender.com
-VITE_API_TIMEOUT=10000
-VITE_API_RETRY_ATTEMPTS=3
+```bash
+npm install axios
 ```
 
-### ⚙️ Configuração do Axios
+### ⚙️ Configuração do Vite
 
 ```typescript
-// services/index.ts
-import axios from 'axios';
-
-export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
-  timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || '10000'),
-  headers: {
-    'Content-Type': 'application/json'
+// vite.config.ts
+export default defineConfig({
+  define: {
+    'process.env.VITE_API_BASE_URL': JSON.stringify(
+      'https://cards-marketplace-api-2fjj.onrender.com'
+    )
   }
 });
+```
 
-// Interceptors
-api.interceptors.request.use(
-  (config) => {
-    // Adicionar token
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+### 🌍 Variáveis de Ambiente
 
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    // Tratamento global de erros
-    handleApiError(error);
-    return Promise.reject(error);
-  }
-);
+```env
+# .env
+VITE_API_BASE_URL=https://cards-marketplace-api-2fjj.onrender.com
+VITE_APP_NAME=Cartalia
+VITE_APP_VERSION=1.0.0
+```
+
+### 🔧 Configuração dos Serviços
+
+```typescript
+// services/modules/cards.ts
+import { api } from '../index';
+import type { Card, CardFilters, CardApiResponse } from '@/types';
+
+export const cardsApi = {
+  getCards: (filters?: CardFilters) => 
+    api.get<CardApiResponse>('/cards', { params: filters }),
+    
+  getCard: (id: string) => 
+    api.get<Card>(`/cards/${id}`),
+    
+  addCard: (cardId: string) => 
+    api.post<{ message: string; card: Card }>('/cards', { cardId })
+};
 ```
 
 ## 📝 Exemplos de Uso
 
-### 🔐 Login de Usuário
+### 🃏 Gerenciamento de Cartas
 
 ```typescript
-// services/modules/auth.ts
-export const AuthServices = {
-  async login(credentials: LoginCredentials): Promise<LoginResponse> {
-    const response = await api.post('/login', credentials);
-    return response.data;
-  }
-};
+// Composables/useCards.ts
+import { ref, computed } from 'vue';
+import { useCardsStore } from '@/stores/cards';
+import { useCardFilters } from '@/composables/useCardFilters';
 
-// Uso no componente
-const handleLogin = async () => {
-  try {
-    const response = await AuthServices.login({
-      email: form.email,
-      password: form.password
-    });
-    
-    // Salvar token
-    localStorage.setItem('token', response.token);
-    
-    // Atualizar store
-    authStore.setUser(response.user);
-    
-    // Redirecionar
-    router.push('/dashboard');
-  } catch (error) {
-    // Erro tratado automaticamente pelo interceptor
-  }
-};
+export function useCards() {
+  const cardsStore = useCardsStore();
+  const { filters, applyFilters, clearFilters } = useCardFilters();
+  
+  const loading = computed(() => cardsStore.loading);
+  const cards = computed(() => cardsStore.cards);
+  const error = computed(() => cardsStore.error);
+  
+  const loadCards = async () => {
+    try {
+      await cardsStore.fetchCards(filters.value);
+    } catch (error) {
+      console.error('Erro ao carregar cartas:', error);
+    }
+  };
+  
+  const addCard = async (cardId: string) => {
+    try {
+      await cardsStore.addCard(cardId);
+      await loadCards(); // Recarregar lista
+    } catch (error) {
+      console.error('Erro ao adicionar carta:', error);
+    }
+  };
+  
+  return {
+    cards,
+    loading,
+    error,
+    filters,
+    loadCards,
+    addCard,
+    applyFilters,
+    clearFilters
+  };
+}
 ```
 
-### 🃏 Buscar Cartas
+### 🔄 Gerenciamento de Trocas
 
 ```typescript
-// services/modules/cards.ts
-export const CardServices = {
-  async getCards(params?: PaginationParams): Promise<PaginatedResponse<Card>> {
-    const response = await api.get('/cards', { params });
-    return response.data;
-  }
-};
+// Composables/useTrades.ts
+import { ref, computed } from 'vue';
+import { useTradesStore } from '@/stores/trades';
 
-// Uso no componente
-const fetchCards = async () => {
-  try {
-    const response = await CardServices.getCards({
-      page: currentPage.value,
-      rpp: 10
-    });
-    
-    cards.value = response.list;
-    hasMore.value = response.more;
-  } catch (error) {
-    // Erro tratado automaticamente
-  }
-};
+export function useTrades() {
+  const tradesStore = useTradesStore();
+  
+  const loading = computed(() => tradesStore.loading);
+  const trades = computed(() => tradesStore.trades);
+  const error = computed(() => tradesStore.error);
+  
+  const createTrade = async (tradeData: CreateTradeData) => {
+    try {
+      await tradesStore.createTrade(tradeData);
+    } catch (error) {
+      console.error('Erro ao criar troca:', error);
+    }
+  };
+  
+  const acceptTrade = async (tradeId: string) => {
+    try {
+      await tradesStore.acceptTrade(tradeId);
+    } catch (error) {
+      console.error('Erro ao aceitar troca:', error);
+    }
+  };
+  
+  const rejectTrade = async (tradeId: string) => {
+    try {
+      await tradesStore.rejectTrade(tradeId);
+    } catch (error) {
+      console.error('Erro ao rejeitar troca:', error);
+    }
+  };
+  
+  return {
+    trades,
+    loading,
+    error,
+    createTrade,
+    acceptTrade,
+    rejectTrade
+  };
+}
 ```
 
-### 🔄 Criar Troca
+### 🔐 Autenticação
 
 ```typescript
-// services/modules/trades.ts
-export const TradeServices = {
-  async createTrade(tradeData: CreateTradeRequest): Promise<CreateTradeResponse> {
-    const response = await api.post('/trades', tradeData);
-    return response.data;
-  }
-};
+// Composables/useAuth.ts
+import { ref, computed } from 'vue';
+import { useAuthStore } from '@/stores/auth';
+import { useRouter } from 'vue-router';
 
-// Uso no componente
-const createTrade = async () => {
-  try {
-    const response = await TradeServices.createTrade({
-      cards: [
-        { cardId: selectedOffering.value, type: 'OFFERING' },
-        { cardId: selectedReceiving.value, type: 'RECEIVING' }
-      ]
-    });
-    
-    // Sucesso
-    notification.show('Troca criada com sucesso!', 'success');
-    router.push('/my-trades');
-  } catch (error) {
-    // Erro tratado automaticamente
-  }
-};
+export function useAuth() {
+  const authStore = useAuthStore();
+  const router = useRouter();
+  
+  const user = computed(() => authStore.user);
+  const isAuthenticated = computed(() => authStore.isAuthenticated);
+  const loading = computed(() => authStore.loading);
+  
+  const login = async (credentials: LoginCredentials) => {
+    try {
+      await authStore.login(credentials);
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Erro no login:', error);
+    }
+  };
+  
+  const register = async (userData: RegisterData) => {
+    try {
+      await authStore.register(userData);
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Erro no registro:', error);
+    }
+  };
+  
+  const logout = () => {
+    authStore.logout();
+    router.push('/login');
+  };
+  
+  return {
+    user,
+    isAuthenticated,
+    loading,
+    login,
+    register,
+    logout
+  };
+}
 ```
 
----
+### 🔍 Filtros e Busca
 
-## 📚 Referências
+```typescript
+// Composables/useSearch.ts
+import { ref, computed, watch } from 'vue';
+import { useDebounce } from '@/composables/useDebounce';
 
-- [Axios Documentation](https://axios-http.com/)
-- [JWT.io](https://jwt.io/)
-- [HTTP Status Codes](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)
-- [REST API Design](https://restfulapi.net/) 
+export function useSearch<T>(
+  searchFunction: (query: string) => Promise<T[]>,
+  delay: number = 300
+) {
+  const query = ref('');
+  const results = ref<T[]>([]);
+  const loading = ref(false);
+  const error = ref<string | null>(null);
+  
+  const debouncedQuery = useDebounce(query, delay);
+  
+  const search = async () => {
+    if (!debouncedQuery.value.trim()) {
+      results.value = [];
+      return;
+    }
+    
+    loading.value = true;
+    error.value = null;
+    
+    try {
+      results.value = await searchFunction(debouncedQuery.value);
+    } catch (err) {
+      error.value = 'Erro na busca';
+      results.value = [];
+    } finally {
+      loading.value = false;
+    }
+  };
+  
+  watch(debouncedQuery, search);
+  
+  const clearSearch = () => {
+    query.value = '';
+    results.value = [];
+    error.value = null;
+  };
+  
+  return {
+    query,
+    results,
+    loading,
+    error,
+    search,
+    clearSearch
+  };
+}
+```
+
+## 🚀 Boas Práticas
+
+### 📝 Tratamento de Erros
+
+1. **Sempre use try-catch** em operações assíncronas
+2. **Centralize o tratamento** de erros via interceptors
+3. **Forneça feedback** visual para o usuário
+4. **Log erros** para debugging
+
+### 🔄 Cache e Performance
+
+1. **Use stores** para cache de dados
+2. **Implemente paginação** para listas grandes
+3. **Debounce** operações de busca
+4. **Lazy load** dados quando necessário
+
+### 🛡️ Segurança
+
+1. **Valide dados** antes de enviar
+2. **Sanitize inputs** do usuário
+3. **Use HTTPS** sempre
+4. **Mantenha tokens** seguros
+
+### 📊 Monitoramento
+
+1. **Track erros** para analytics
+2. **Monitor performance** da API
+3. **Log métricas** importantes
+4. **Alertas** para falhas críticas

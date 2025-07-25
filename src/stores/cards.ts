@@ -42,12 +42,12 @@ export const useCardsStore = defineStore('cards', () => {
     error.value = null;
     
     try {
-      // Se rpp é grande (1000+), carregar todas as cartas de uma vez
+
       if (rpp >= 1000) {
         const response: CardListResponse = await CardServices.getAllCards(1, 1000);
         allCards.value = response.list;
         
-        // Se ainda há mais cartas, continuar carregando
+
         let currentPage = 2;
         while (response.more) {
           const nextResponse: CardListResponse = await CardServices.getAllCards(currentPage, 1000);
@@ -66,18 +66,12 @@ export const useCardsStore = defineStore('cards', () => {
         const response: CardListResponse = await CardServices.getAllCards(page, rpp, search);
         allCards.value = response.list;
         
-        let calculatedTotal = 0;
-        if (response.more) {
-          calculatedTotal = page * rpp + rpp;
-        } else {
-          calculatedTotal = page * rpp;
-        }
-        
+        const total = response.total || (response.more ? (page * rpp + rpp) : (page * rpp));
         pagination.value = {
           page: response.page,
           rpp: response.rpp,
           more: response.more,
-          total: calculatedTotal
+          total: total
         };
       }
     } catch (err: any) {

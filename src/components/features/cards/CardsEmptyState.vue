@@ -5,17 +5,14 @@
     </div>
     <h3 class="text-h5 font-weight-bold mb-4">Nenhuma carta encontrada</h3>
     <p class="text-body-1 text-grey mb-6">
-      Parece que não há cartas disponíveis no momento. Tente ajustar os filtros ou volte mais tarde.
+      Parece que não há cartas disponíveis no momento. Tente ajustar os filtros
+      ou volte mais tarde.
     </p>
   </div>
 </template>
 
-<script setup lang="ts">
-// Componente simples, sem lógica adicional
-</script>
-
 <style scoped lang="scss">
-@use '../../../styles/_variables.scss' as *;
+@use "../../../styles/_variables.scss" as *;
 
 .cards-empty-state {
   display: flex;
@@ -47,4 +44,4 @@
     }
   }
 }
-</style> 
+</style>

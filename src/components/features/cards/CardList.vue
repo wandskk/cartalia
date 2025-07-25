@@ -1,15 +1,17 @@
 <template>
-  <div class="card-list">
-    <div v-if="loading" class="d-flex flex-column align-center justify-center py-10 text-grey">
-      <LoadingSpinner text="Carregando cartas..." />
-    </div>
-
-    <div v-else-if="error" class="d-flex flex-column align-center justify-center py-10 text-center">
+  <div class="card-list" style="position: relative;">
+    <LoadingOverlay 
+      :loading="loading" 
+      message="Carregando cartas..."
+      :size="32"
+    />
+    
+    <div v-if="error" class="d-flex flex-column align-center justify-center py-10 text-center">
       <div class="mb-4 text-error">{{ error }}</div>
       <v-btn @click="retry" color="primary" variant="elevated">Tentar novamente</v-btn>
     </div>
 
-    <div v-else-if="cards.length === 0" class="d-flex align-center justify-center py-10 text-grey">
+    <div v-else-if="cards.length === 0 && !loading" class="d-flex align-center justify-center py-10 text-grey">
       <span>Nenhuma carta encontrada.</span>
     </div>
 
@@ -59,7 +61,7 @@
 
 <script setup lang="ts">
 import Card from '../../common/Card.vue';
-import LoadingSpinner from '../../common/LoadingSpinner.vue';
+import LoadingOverlay from '../../common/LoadingOverlay.vue';
 import type { Card as CardType } from '../../../types';
 
 interface Props {

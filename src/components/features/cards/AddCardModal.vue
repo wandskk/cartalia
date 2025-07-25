@@ -1,51 +1,39 @@
 <template>
   <BaseModal
     v-model="isOpen"
-    :title="initialLoading ? 'Carregando...' : 'Adicionar cartas à sua coleção'"
+    :title="initialLoading ? 'Carregando...' : 'Adicionar cartas'"
     size="lg"
     @update:model-value="$emit('update:modelValue', $event)"
   >
     <div class="add-card-modal">
       <SearchWithPagination
-        v-model:search-query="searchQuery"
+        :search-query="search.searchQuery.value"
         placeholder="Buscar cartas..."
         :disabled="initialLoading"
         :show-pagination="
-          filteredCards.length > 0 &&
-          !initialLoading &&
-          !searchLoading &&
-          !loadingStore.isLoading
+          cardsStore.pagination.total > itemsPerPage && !initialLoading
         "
-        :total-items="cardsStore.pagination.total || filteredCards.length"
+        :total-items="cardsStore.pagination.total"
         :items-per-page="itemsPerPage"
         :current-page="currentPage"
         :loading="loading"
+        @update:search-query="search.setQuery"
         @page-change="handlePageChange"
       />
 
-      <div
-        v-if="initialLoading || searchLoading || loading"
-        class="d-flex flex-column align-center justify-center py-15"
-      >
-        <LoadingSpinner size="large" class="mb-4" />
-        <p class="text-grey text-center">
-          {{
-            initialLoading
-              ? "Carregando cartas disponíveis..."
-              : searchLoading
-              ? "Buscando cartas..."
-              : "Carregando página..."
-          }}
-        </p>
-      </div>
+      <LoadingOverlay
+        :loading="initialLoading || search.isSearching.value"
+        :message="getLoadingMessage()"
+        :size="32"
+      />
 
-      <div v-else-if="!loadingStore.isLoading && !loading" class="cards-grid">
+      <div v-if="!loadingStore.isLoading && !loading" class="cards-grid">
         <Card
-          v-for="card in paginatedCards"
+          v-for="card in allCards"
           :key="card.id"
           :card="card"
           :selectable="true"
-          :selected="selectedCards.includes(card.id)"
+          :selected="cardSelection.isSelected(card.id)"
           :clickable="true"
           size="sm"
           variant="compact"
@@ -57,19 +45,19 @@
       </div>
 
       <div
-        v-else-if="loadingStore.isLoading"
+        v-if="loading && !loadingStore.isLoading"
         class="d-flex flex-column align-center justify-center py-15"
       >
         <LoadingSpinner size="large" class="mb-4" />
-        <p class="text-grey text-center">Adicionando cartas à sua coleção...</p>
+        <p class="text-grey text-center">Carregando página...</p>
       </div>
 
       <div
         v-if="
-          filteredCards.length === 0 &&
+          allCards.length === 0 &&
           !initialLoading &&
-          !searchLoading &&
-          !searchQuery
+          !search.isSearching.value &&
+          !search.hasQuery.value
         "
         class="d-flex flex-column align-center justify-center py-15 text-center"
       >
@@ -82,10 +70,10 @@
 
       <div
         v-if="
-          filteredCards.length === 0 &&
+          allCards.length === 0 &&
           !initialLoading &&
-          !searchLoading &&
-          searchQuery
+          !search.isSearching.value &&
+          search.hasQuery.value
         "
         class="d-flex flex-column align-center justify-center py-15 text-center"
       >
@@ -98,29 +86,25 @@
     </div>
 
     <template #footer>
-      <div class="w-100">
-        <div class="d-flex ga-3 justify-end mt-4">
-          <v-btn
-            @click="$emit('update:modelValue', false)"
-            variant="outlined"
-            color="grey"
-          >
-            Cancelar
-          </v-btn>
-          <v-btn
-            @click="handleAddCards"
-            color="primary"
-            :disabled="selectedCards.length === 0 || loadingStore.isLoading"
-            :loading="loadingStore.isLoading"
-          >
-            <span v-if="loadingStore.isLoading">Adicionando...</span>
-            <span v-else
-              >Adicionar {{ selectedCards.length }} Carta{{
-                selectedCards.length !== 1 ? "s" : ""
-              }}</span
-            >
-          </v-btn>
-        </div>
+      <div class="modal-footer-content">
+        <v-btn
+          @click="$emit('update:modelValue', false)"
+          variant="outlined"
+          color="grey"
+          class="footer-btn"
+        >
+          Cancelar
+        </v-btn>
+        <v-btn
+          @click="handleAddCards"
+          color="primary"
+          :disabled="!cardSelection.hasSelection || loadingStore.isLoading"
+          :loading="loadingStore.isLoading"
+          class="footer-btn"
+        >
+          <span v-if="loadingStore.isLoading">Adicionando...</span>
+          <span v-else>Adicionar {{ cardSelection.selectedCount.value }}</span>
+        </v-btn>
       </div>
     </template>
   </BaseModal>
@@ -131,9 +115,12 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useCardsStore } from "../../../stores/cards";
 import { useLoadingStore } from "../../../stores/loading";
 import { useNotificationStore } from "../../../stores/notification";
+import { useCardSelection } from "../../../composables/useCardSelection";
+import { useSearch } from "../../../composables/useSearch";
 import BaseModal from "../../common/BaseModal.vue";
 import Card from "../../common/Card.vue";
 import LoadingSpinner from "../../common/LoadingSpinner.vue";
+import LoadingOverlay from "../../common/LoadingOverlay.vue";
 import SearchWithPagination from "../../common/SearchWithPagination.vue";
 import type { Card as CardType } from "../../../types";
 
@@ -152,14 +139,13 @@ const emit = defineEmits<Emits>();
 const cardsStore = useCardsStore();
 const loadingStore = useLoadingStore();
 const notificationStore = useNotificationStore();
-const searchQuery = ref("");
-const selectedCards = ref<string[]>([]);
-const initialLoading = ref(false);
 
+const cardSelection = useCardSelection();
+const search = useSearch({ debounceMs: 500 });
+
+const initialLoading = ref(false);
 const currentPage = ref(1);
 const itemsPerPage = ref(12);
-const searchTimeout = ref<NodeJS.Timeout | null>(null);
-const searchLoading = ref(false);
 
 const isOpen = computed({
   get: () => props.modelValue,
@@ -168,25 +154,6 @@ const isOpen = computed({
 
 const loading = computed(() => cardsStore.loading);
 const allCards = computed(() => cardsStore.allCards);
-
-const paginatedCards = computed(() => {
-  return filteredCards.value;
-});
-
-const filteredCards = computed(() => {
-  let filtered = allCards.value;
-
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase();
-    filtered = filtered.filter(
-      (card) =>
-        card.name.toLowerCase().includes(query) ||
-        card.description.toLowerCase().includes(query)
-    );
-  }
-
-  return filtered;
-});
 
 onMounted(() => {
   if (isOpen.value) {
@@ -201,34 +168,21 @@ watch(
       fetchAllCards();
     } else {
       currentPage.value = 1;
-      searchQuery.value = "";
+      search.clearQuery();
+      cardSelection.clearSelection();
     }
   }
 );
 
 watch(
-  () => searchQuery.value,
+  () => search.debouncedQuery.value,
   async () => {
     currentPage.value = 1;
-
-    if (searchTimeout.value) {
-      clearTimeout(searchTimeout.value);
-    }
-
-    searchTimeout.value = setTimeout(async () => {
-      if (searchQuery.value) {
-        searchLoading.value = true;
-        try {
-          await cardsStore.fetchAllCards(
-            1,
-            itemsPerPage.value,
-            searchQuery.value
-          );
-        } finally {
-          searchLoading.value = false;
-        }
-      }
-    }, 500);
+    await cardsStore.fetchAllCards(
+      1,
+      itemsPerPage.value,
+      search.debouncedQuery.value || undefined
+    );
   }
 );
 
@@ -246,52 +200,38 @@ async function handlePageChange(page: number) {
   await cardsStore.fetchAllCards(
     page,
     itemsPerPage.value,
-    searchQuery.value || undefined
+    search.debouncedQuery.value || undefined
   );
 }
 
-function toggleCardSelection(cardId: string) {
-  const index = selectedCards.value.indexOf(cardId);
-  if (index > -1) {
-    selectedCards.value.splice(index, 1);
-  } else {
-    selectedCards.value.push(cardId);
-  }
-}
-
 function handleCardClick(cardId: string) {
-  toggleCardSelection(cardId);
+  cardSelection.toggleCard(cardId);
 }
 
-function handleCardSelect(card: CardType, selected: boolean) {
-  if (selected) {
-    if (!selectedCards.value.includes(card.id)) {
-      selectedCards.value.push(card.id);
-    }
-  } else {
-    const index = selectedCards.value.indexOf(card.id);
-    if (index > -1) {
-      selectedCards.value.splice(index, 1);
-    }
-  }
+function handleCardSelect(card: CardType) {
+  cardSelection.selectCard(card.id);
+}
+
+function getLoadingMessage(): string {
+  if (initialLoading.value) return "Carregando cartas disponíveis...";
+  if (search.isSearching.value) return "Buscando cartas...";
+  return "Carregando página...";
 }
 
 async function handleAddCards() {
-  if (selectedCards.value.length === 0) return;
+  if (!cardSelection.hasSelection.value) return;
 
   loadingStore.startLoading();
 
   try {
-    await cardsStore.addCardsToUser(selectedCards.value);
+    await cardsStore.addCardsToUser(cardSelection.selectedCards.value);
 
     notificationStore.show(
-      `${selectedCards.value.length} carta${
-        selectedCards.value.length !== 1 ? "s" : ""
-      } adicionada${selectedCards.value.length !== 1 ? "s" : ""} com sucesso!`,
+      `${cardSelection.selectedCount.value} carta${cardSelection.selectedCount.value !== 1 ? "s" : ""} adicionada com sucesso!`,
       "success"
     );
 
-    selectedCards.value = [];
+    cardSelection.clearSelection();
     emit("cards-added");
     emit("update:modelValue", false);
   } catch (error: any) {
@@ -316,10 +256,46 @@ async function handleAddCards() {
   padding: 4px;
 }
 
+.modal-footer-content {
+  width: 100%;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.footer-btn {
+  min-width: 120px;
+}
+
 @media (max-width: 768px) {
   .cards-grid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 12px;
+    max-height: 300px;
+    margin-bottom: 16px;
+  }
+  
+  .add-card-modal {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+  }
+  
+  .modal-footer-content {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .footer-btn {
+    width: 100%;
+    min-width: auto;
+    height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-btn {
+    height: 44px;
+    font-size: 14px;
   }
 }
 </style>

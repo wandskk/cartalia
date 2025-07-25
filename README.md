@@ -2,111 +2,453 @@
 
 [![Vue.js](https://img.shields.io/badge/Vue.js-3.x-4FC08D?logo=vue.js)](https://vuejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-7.x-646CFF?logo=vite)](https://vitejs.dev/)
 [![Pinia](https://img.shields.io/badge/Pinia-2.x-yellow?logo=pinia)](https://pinia.vuejs.org/)
-[![SASS](https://img.shields.io/badge/SASS-1.x-CC6699?logo=sass)](https://sass-lang.com/)
-[![Vitest](https://img.shields.io/badge/Vitest-1.x-6E9F18?logo=vitest)](https://vitest.dev/)
+[![Vuetify](https://img.shields.io/badge/Vuetify-3.x-1867C0?logo=vuetify)](https://vuetifyjs.com/)
+[![Vite](https://img.shields.io/badge/Vite-5.x-646CFF?logo=vite)](https://vitejs.dev/)
 
-> **Marketplace para troca de cartas colecionáveis** - Uma aplicação moderna desenvolvida com Vue 3, TypeScript e Pinia para gerenciamento de estado.
+> **Marketplace para troca de cartas colecionáveis** - Desenvolvido como teste técnico para vaga de Front-End Pleno na INMETA.
 
 ## 📋 Índice
 
 - [🎯 Sobre o Projeto](#-sobre-o-projeto)
-- [🚀 Funcionalidades](#-funcionalidades)
-- [🛠️ Tecnologias](#️-tecnologias)
+- [🏗️ Arquitetura](#️-arquitetura)
+- [🎨 UX/UI](#-uxui)
+- [🧩 Componentização](#-componentização)
+- [📝 Tipagem](#-tipagem)
+- [✅ Funcionalidades Implementadas](#-funcionalidades-implementadas)
+- [🔧 Escolhas Técnicas](#-escolhas-técnicas)
 - [📦 Instalação](#-instalação)
-- [🏗️ Estrutura do Projeto](#️-estrutura-do-projeto)
-- [🔧 Scripts Disponíveis](#-scripts-disponíveis)
-- [📱 PWA](#-pwa)
 - [🧪 Testes](#-testes)
 - [🚀 Deploy](#-deploy)
 - [📚 Documentação](#-documentação)
 - [🤝 Contribuindo](#-contribuindo)
-- [📄 Licença](#-licença)
 
 ## 🎯 Sobre o Projeto
 
-O **Cartalia** é um marketplace moderno para troca de cartas colecionáveis, desenvolvido como parte do teste técnico para a vaga de Front-End Pleno na INMETA. A aplicação oferece uma experiência completa de gerenciamento de cartas e negociações entre usuários.
+O **Cartalia** é um marketplace moderno para troca de cartas colecionáveis, desenvolvido como parte do teste técnico para a vaga de **Front-End Pleno** na **INMETA**. 
 
-### ✨ Características Principais
+### 🎯 Objetivo do Projeto
+Demonstrar competência técnica em desenvolvimento front-end com foco em:
+- **Arquitetura limpa** e separação de responsabilidades
+- **UX intuitiva** e agradável
+- **Componentização** bem definida e reutilizável
+- **Tipagem forte** com TypeScript
+- **Qualidade de código** pronta para produção
+- **Escolhas técnicas** apropriadas
 
-- **Interface Moderna**: Design responsivo e intuitivo
-- **PWA**: Funciona offline e pode ser instalado como app
-- **Performance Otimizada**: Lazy loading e code splitting
-- **TypeScript**: Tipagem estática para maior confiabilidade
-- **Testes Automatizados**: Cobertura de testes unitários
-- **Deploy Automático**: CI/CD com GitHub Actions
+## 🏗️ Arquitetura
 
-## 🚀 Funcionalidades
+### **Separação de Camadas e Responsabilidades**
 
-### 👤 Autenticação
-- ✅ Registro de usuário
-- ✅ Login/Logout
-- ✅ Persistência de sessão
-- ✅ Proteção de rotas
+```
+src/
+├── components/          # Camada de Apresentação
+│   ├── common/         # Componentes reutilizáveis
+│   ├── features/       # Componentes específicos de features
+│   └── layout/         # Componentes de layout
+├── views/              # Páginas da aplicação
+├── stores/             # Camada de Estado (Pinia)
+├── services/           # Camada de Serviços (API)
+├── composables/        # Lógica reutilizável
+├── types/              # Definições de tipos
+├── schemas/            # Validação de dados
+├── utils/              # Utilitários
+└── styles/             # Estilos globais
+```
 
-### 🃏 Gerenciamento de Cartas
-- ✅ Visualização de todas as cartas disponíveis
-- ✅ Adição de cartas à coleção pessoal
-- ✅ Detalhes completos de cada carta
-- ✅ Busca e filtros
+### **Padrões Arquiteturais**
 
-### 🔄 Sistema de Trocas
-- ✅ Criação de solicitações de troca
-- ✅ Seleção de cartas para oferecer/receber
-- ✅ Visualização de todas as trocas disponíveis
-- ✅ Gerenciamento de trocas próprias
-- ✅ Exclusão de trocas
+#### **1. Store Pattern (Pinia)**
+```typescript
+// Exemplo: Auth Store
+export const useAuthStore = defineStore("auth", () => {
+  const user = ref<User | null>(null);
+  const token = ref<string | null>(null);
+  const isAuthenticated = computed(() => !!token.value && !!user.value);
+  
+  // Actions centralizadas
+  async function login(email: string, password: string) {
+    const data = await AuthServices.login(email, password);
+    setUser(data.user, data.token);
+  }
+  
+  return { user, token, isAuthenticated, login };
+});
+```
 
-### 📊 Dashboard
-- ✅ Estatísticas da conta
-- ✅ Atividades recentes
-- ✅ Ações rápidas
-- ✅ Visão geral da coleção
+#### **2. Service Layer Pattern**
+```typescript
+// Exemplo: Cards Service
+export const CardServices = {
+  async getAllCards(page = 1, rpp = 10): Promise<CardListResponse> {
+    const response = await api.get(`/cards?page=${page}&rpp=${rpp}`);
+    return response.data;
+  },
+  
+  async addCardsToUser(cardIds: string[]): Promise<void> {
+    await api.post('/me/cards', { cardIds });
+  }
+};
+```
 
-### 🛡️ Tratamento de Erros
-- ✅ Modal de erros global
-- ✅ Páginas de erro customizadas
-- ✅ Logs detalhados
-- ✅ Analytics de erros
+#### **3. Composable Pattern**
+```typescript
+// Exemplo: useAuthForm
+export function useAuthForm(type: 'login' | 'register') {
+  const loading = ref(false);
+  const error = ref<string | null>(null);
+  
+  const onSubmit = async (values: any) => {
+    loading.value = true;
+    try {
+      if (type === 'login') {
+        await authStore.login(values.email, values.password);
+      } else {
+        await authStore.register(values.name, values.email, values.password);
+      }
+    } catch (err: any) {
+      error.value = err.message;
+    } finally {
+      loading.value = false;
+    }
+  };
+  
+  return { onSubmit, loading, error };
+}
+```
 
-## 🛠️ Tecnologias
+### **Fluxo de Dados**
+```
+User Action → Component → Composable → Store → Service → API
+     ↑                                                      ↓
+     ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
+```
 
-### Frontend
-- **[Vue 3](https://vuejs.org/)** - Framework progressivo
-- **[TypeScript](https://www.typescriptlang.org/)** - Tipagem estática
-- **[Vite](https://vitejs.dev/)** - Build tool e dev server
-- **[Pinia](https://pinia.vuejs.org/)** - Gerenciamento de estado
-- **[Vue Router](https://router.vuejs.org/)** - Roteamento
-- **[SASS](https://sass-lang.com/)** - Pré-processador CSS
+## 🎨 UX/UI
 
-### Validação e Formulários
-- **[Zod](https://zod.dev/)** - Validação de schemas
-- **[VeeValidate](https://vee-validate.logaretm.com/)** - Validação de formulários
+### **Princípios de Design**
 
-### Testes
-- **[Vitest](https://vitest.dev/)** - Framework de testes
-- **[Vue Test Utils](https://test-utils.vuejs.org/)** - Utilitários para testes
-- **[Testing Library](https://testing-library.com/)** - Utilitários de teste
+#### **1. Interface Intuitiva**
+- **Navegação clara** com breadcrumbs e indicadores visuais
+- **Feedback imediato** para todas as ações do usuário
+- **Estados de loading** bem definidos
+- **Mensagens de erro** contextuais e acionáveis
 
-### Deploy e Performance
-- **[Vercel](https://vercel.com/)** - Plataforma de deploy
-- **[GitHub Actions](https://github.com/features/actions)** - CI/CD
-- **[PWA](https://web.dev/progressive-web-apps/)** - Progressive Web App
+#### **2. Experiência Responsiva**
+```scss
+// Mobile-first approach
+@media (max-width: 768px) {
+  .cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+  }
+}
+```
 
-### Analytics e Monitoramento
-- **[Google Analytics](https://analytics.google.com/)** - Analytics
-- **[Error Tracking]** - Rastreamento de erros
+#### **3. Acessibilidade**
+- **Contraste adequado** entre elementos
+- **Navegação por teclado** implementada
+- **Labels semânticos** para screen readers
+- **Focus states** visíveis
+
+### **Fluxos de Usuário**
+
+#### **1. Registro e Login**
+```
+Página inicial → Login/Registro → Validação → Dashboard
+```
+
+#### **2. Gerenciamento de Cartas**
+```
+Dashboard → Minhas Cartas → Adicionar Cartas → Seleção → Confirmação
+```
+
+#### **3. Criação de Trocas**
+```
+Dashboard → Nova Troca → Selecionar Ofertas → Selecionar Desejos → Revisar → Criar
+```
+
+## 🧩 Componentização
+
+### **Estrutura de Componentes**
+
+#### **1. Componentes Comuns (Reutilizáveis)**
+```typescript
+// BaseButton.vue - Componente base para botões
+interface Props {
+  variant?: 'primary' | 'secondary' | 'outlined';
+  size?: 'small' | 'medium' | 'large';
+  loading?: boolean;
+  disabled?: boolean;
+}
+
+// BaseModal.vue - Modal reutilizável
+interface Props {
+  modelValue: boolean;
+  title: string;
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+}
+```
+
+#### **2. Componentes de Features**
+```typescript
+// LoginForm.vue - Formulário específico
+// RegisterForm.vue - Formulário específico
+// CreateTradeModal.vue - Modal complexo com steps
+// AddCardModal.vue - Modal com seleção múltipla
+```
+
+#### **3. Componentes de Layout**
+```typescript
+// Header.vue - Cabeçalho com navegação
+// Sidebar.vue - Menu lateral
+// Container.vue - Container responsivo
+```
+
+### **Reutilização de Componentes**
+
+#### **Exemplo: Card Component**
+```vue
+<!-- Card.vue - Componente reutilizável -->
+<template>
+  <v-card 
+    :variant="variant" 
+    :size="size"
+    :selectable="selectable"
+    :selected="selected"
+    @click="handleClick"
+  >
+    <v-img :src="card.imageUrl" :alt="card.name" />
+    <v-card-title>{{ card.name }}</v-card-title>
+    <v-card-text v-if="showDescription">
+      {{ truncateDescription(card.description) }}
+    </v-card-text>
+  </v-card>
+</template>
+```
+
+**Uso em diferentes contextos:**
+```vue
+<!-- Marketplace -->
+<Card :card="trade.card" variant="elevated" />
+
+<!-- Minhas Cartas -->
+<Card :card="card" selectable :selected="isSelected" @select="toggleSelection" />
+
+<!-- Modal de Adição -->
+<Card :card="card" size="sm" variant="compact" />
+```
+
+## 📝 Tipagem
+
+### **Tipos Bem Definidos**
+
+#### **1. Tipos de Entidade**
+```typescript
+// types/cards.ts
+export interface Card {
+  id: string;
+  name: string;
+  description: string;
+  imageUrl: string;
+  createdAt: string;
+}
+
+// types/trades.ts
+export interface Trade {
+  id: string;
+  userId: string;
+  createdAt: string;
+  user: {
+    name: string;
+  };
+  tradeCards: TradeCard[];
+}
+
+export interface TradeCard {
+  id: string;
+  cardId: string;
+  tradeId: string;
+  type: 'OFFERING' | 'RECEIVING';
+  card: Card;
+}
+```
+
+#### **2. Tipos de Formulário**
+```typescript
+// schemas/login.schema.ts
+export const loginSchema = z.object({
+  email: z.string().email('E-mail inválido'),
+  password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
+});
+
+export type LoginForm = z.infer<typeof loginSchema>;
+```
+
+#### **3. Tipos de API**
+```typescript
+// types/api.ts
+export interface ApiResponse<T> {
+  data: T;
+  status: number;
+  message?: string;
+}
+
+export interface PaginatedResponse<T> {
+  list: T[];
+  page: number;
+  rpp: number;
+  more: boolean;
+  total?: number;
+}
+```
+
+### **Validação com Zod**
+```typescript
+// Validação de formulários
+const schema = toFormValidator(loginSchema);
+
+// Validação de dados da API
+const validateCard = (data: unknown): Card => {
+  return cardSchema.parse(data);
+};
+```
+
+## ✅ Funcionalidades Implementadas
+
+### **Funcionalidades Obrigatórias**
+
+#### **1. Autenticação**
+- ✅ **Registro de usuário** - Formulário completo com validação
+- ✅ **Login/Logout** - Autenticação com JWT token
+- ✅ **Persistência de sessão** - localStorage com fallback
+- ✅ **Proteção de rotas** - Guard routes implementado
+
+#### **2. Gerenciamento de Cartas**
+- ✅ **Visualização de todas as cartas** - Paginação e busca
+- ✅ **Adição de cartas à coleção** - Seleção múltipla
+- ✅ **Detalhes de cartas** - Modal com informações completas
+- ✅ **Busca e filtros** - Busca por nome e descrição
+
+#### **3. Sistema de Trocas**
+- ✅ **Criação de solicitações de troca** - Modal com 3 etapas
+- ✅ **Seleção de cartas para oferecer** - Das cartas do usuário
+- ✅ **Seleção de cartas para receber** - De todas as cartas disponíveis
+- ✅ **Visualização de todas as trocas** - Marketplace público
+- ✅ **Gerenciamento de trocas próprias** - Lista e exclusão
+- ✅ **Exclusão de trocas** - Com confirmação
+
+#### **4. Marketplace Público**
+- ✅ **Acesso para visitantes** - Sem necessidade de login
+- ✅ **Visualização de trocas abertas** - Com paginação
+- ✅ **Interface para não autenticados** - Botões de login/registro
+
+### **Funcionalidades Extras**
+
+#### **1. Tratamento de Erros**
+- ✅ **Modal de erros global** - Centralizado
+- ✅ **Páginas de erro customizadas** - 404, 500, etc.
+- ✅ **Logs detalhados** - Console e analytics
+- ✅ **Retry mechanisms** - Para falhas de API
+
+#### **2. Deploy**
+- ✅ **Vercel** - Configurado e funcionando
+- ✅ **GitHub Actions** - CI/CD automático
+- ✅ **Variáveis de ambiente** - Configuradas
+- ✅ **Headers de segurança** - Implementados
+
+#### **3. Cache**
+- ✅ **Store de cache** - Pinia store para cache
+- ✅ **Cache de cartas** - TTL configurável
+- ✅ **Service Worker** - Para PWA
+
+## 🔧 Escolhas Técnicas
+
+### **Framework e Bibliotecas**
+
+#### **1. Vue 3 + Composition API**
+**Justificativa:** Framework moderno com excelente performance, reatividade granular e TypeScript nativo.
+
+```typescript
+// Exemplo de composable reativo
+export function useCardSelection() {
+  const selectedCards = ref<string[]>([]);
+  
+  const isSelected = (cardId: string) => selectedCards.value.includes(cardId);
+  const toggleCard = (cardId: string) => {
+    const index = selectedCards.value.indexOf(cardId);
+    if (index > -1) {
+      selectedCards.value.splice(index, 1);
+    } else {
+      selectedCards.value.push(cardId);
+    }
+  };
+  
+  return { selectedCards, isSelected, toggleCard };
+}
+```
+
+#### **2. Pinia para Gerenciamento de Estado**
+**Justificativa:** Store oficial do Vue 3, TypeScript nativo, devtools integradas.
+
+```typescript
+// Store com TypeScript
+export const useCardsStore = defineStore('cards', () => {
+  const allCards = ref<Card[]>([]);
+  const userCards = ref<Card[]>([]);
+  const loading = ref(false);
+  const error = ref<string | null>(null);
+  
+  // Computed properties reativas
+  const hasUserCards = computed(() => userCards.value.length > 0);
+  const totalUserCards = computed(() => userCards.value.length);
+  
+  return { allCards, userCards, loading, error, hasUserCards, totalUserCards };
+});
+```
+
+#### **3. Vuetify 3 para UI**
+**Justificativa:** Componentes Material Design, responsivos, acessíveis e TypeScript nativo.
+
+#### **4. Zod + VeeValidate para Validação**
+**Justificativa:** Validação type-safe, schemas reutilizáveis, integração perfeita com TypeScript.
+
+```typescript
+// Schema de validação
+export const tradeSchema = z.object({
+  cards: z.array(z.object({
+    cardId: z.string().uuid(),
+    type: z.enum(['OFFERING', 'RECEIVING'])
+  })).min(2, 'Deve ter pelo menos uma carta para oferecer e uma para receber')
+});
+```
+
+### **Arquitetura de Build**
+
+#### **1. Vite como Build Tool**
+**Justificativa:** Extremamente rápido, HMR instantâneo, configuração simples.
+
+#### **2. TypeScript Strict Mode**
+**Justificativa:** Detecção de erros em tempo de compilação, melhor DX.
+
+```json
+{
+  "compilerOptions": {
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  }
+}
+```
 
 ## 📦 Instalação
 
-### Pré-requisitos
+### **Pré-requisitos**
+- Node.js 18+
+- npm ou yarn
 
-- **Node.js** 18+ ([Download](https://nodejs.org/))
-- **npm** ou **yarn**
-- **Git**
-
-### Passos
+### **Passos**
 
 1. **Clone o repositório**
    ```bash
@@ -123,14 +465,6 @@ O **Cartalia** é um marketplace moderno para troca de cartas colecionáveis, de
    ```bash
    cp env.example .env
    ```
-   
-   Edite o arquivo `.env` com suas configurações:
-   ```env
-   VITE_API_BASE_URL=https://cards-marketplace-api-2fjj.onrender.com
-   VITE_APP_NAME=Cartalia
-   VITE_APP_VERSION=1.0.0
-   VITE_APP_ENVIRONMENT=development
-   ```
 
 4. **Execute o projeto**
    ```bash
@@ -142,107 +476,20 @@ O **Cartalia** é um marketplace moderno para troca de cartas colecionáveis, de
    http://localhost:5173
    ```
 
-## 🏗️ Estrutura do Projeto
-
-```
-cartalia/
-├── public/                 # Arquivos públicos
-│   ├── manifest.json      # PWA manifest
-│   ├── sw.js             # Service Worker
-│   ├── robots.txt        # SEO
-│   └── sitemap.xml       # Sitemap
-├── src/
-│   ├── components/       # Componentes Vue
-│   │   ├── common/       # Componentes comuns
-│   │   ├── features/     # Componentes específicos
-│   │   └── layout/       # Componentes de layout
-│   ├── views/           # Páginas da aplicação
-│   ├── stores/          # Stores Pinia
-│   ├── services/        # Serviços de API
-│   ├── utils/           # Utilitários
-│   ├── types/           # Tipos TypeScript
-│   ├── styles/          # Estilos globais
-│   ├── router/          # Configuração de rotas
-│   └── test/            # Configuração de testes
-├── .github/             # GitHub Actions
-├── docs/                # Documentação adicional
-└── vercel.json          # Configuração Vercel
-```
-
-### Organização dos Componentes
-
-```
-src/components/
-├── common/              # Componentes reutilizáveis
-│   ├── BaseButton.vue
-│   ├── BaseInput.vue
-│   ├── ErrorModal.vue
-│   └── UserAvatar.vue
-├── features/            # Componentes específicos
-│   ├── auth/           # Autenticação
-│   ├── cards/          # Gerenciamento de cartas
-│   ├── dashboard/      # Dashboard
-│   └── trades/         # Sistema de trocas
-└── layout/             # Componentes de layout
-    ├── Header.vue
-    ├── Footer.vue
-    └── Container.vue
-```
-
-## 🔧 Scripts Disponíveis
-
-```bash
-# Desenvolvimento
-npm run dev              # Inicia servidor de desenvolvimento
-npm run preview          # Preview do build de produção
-
-# Build
-npm run build            # Build de produção
-npm run analyze          # Análise do bundle
-
-# Testes
-npm run test             # Executa testes em modo watch
-npm run test:run         # Executa testes uma vez
-npm run test:ui          # Interface visual para testes
-npm run test:coverage    # Cobertura de testes
-
-# Deploy
-npm run deploy           # Deploy para produção
-npm run deploy:preview   # Deploy de preview
-
-# Qualidade
-npm run lint             # Linting do código
-npm run type-check       # Verificação de tipos
-```
-
-## 📱 PWA
-
-O Cartalia é uma **Progressive Web App** com as seguintes funcionalidades:
-
-### ✨ Funcionalidades PWA
-- **Instalação**: Pode ser instalado como app nativo
-- **Offline**: Funciona sem conexão com internet
-- **Cache**: Recursos cacheados para performance
-- **Push Notifications**: Preparado para notificações
-
-### 🔧 Configuração
-- **Service Worker**: `public/sw.js`
-- **Manifest**: `public/manifest.json`
-- **Meta Tags**: Configuradas no `index.html`
-
 ## 🧪 Testes
 
-### Estrutura de Testes
+### **Estrutura de Testes**
 ```
-src/
-├── components/__tests__/    # Testes de componentes
-├── stores/__tests__/        # Testes de stores
-├── utils/__tests__/         # Testes de utilitários
-└── test/                    # Configuração de testes
-    └── setup.ts            # Setup global
+src/tests/
+├── unit/              # Testes unitários
+│   ├── stores/        # Testes de stores
+│   ├── composables/   # Testes de composables
+│   └── utils/         # Testes de utilitários
+├── components/        # Testes de componentes
+└── setup.ts          # Configuração global
 ```
 
-### Executando Testes
+### **Executando Testes**
 ```bash
 # Todos os testes
 npm run test:run
@@ -252,53 +499,53 @@ npm run test:ui
 
 # Cobertura de testes
 npm run test:coverage
-
-# Testes específicos
-npm run test -- --run src/components/__tests__/
 ```
 
-### Cobertura de Testes
-- ✅ **Stores**: Autenticação, erros
-- ✅ **Utilitários**: Validação, tratamento de erros
-- ✅ **Componentes**: Botões, inputs, modais
-- ✅ **Integração**: Fluxos principais
+### **Exemplo de Teste**
+```typescript
+// stores/auth.test.ts
+describe('Auth Store', () => {
+  it('should login user successfully', async () => {
+    const authStore = useAuthStore();
+    await authStore.login('test@example.com', 'password');
+    
+    expect(authStore.isAuthenticated).toBe(true);
+    expect(authStore.user).toBeDefined();
+  });
+});
+```
 
 ## 🚀 Deploy
 
-### Deploy Automático
-O projeto está configurado com **GitHub Actions** para deploy automático:
+### **Deploy Automático**
+O projeto está configurado com GitHub Actions para deploy automático no Vercel:
 
 - **Pull Request**: Deploy de preview
 - **Push para main**: Deploy de produção
 
-### Plataforma
-- **Vercel**: Deploy e hospedagem
-- **Domínio**: `https://cartalia.vercel.app`
+### **URL de Produção**
+```
+https://cartalia.vercel.app
+```
 
-### Configuração
-Veja o arquivo [DEPLOY.md](./DEPLOY.md) para instruções detalhadas de deploy.
+### **Configuração**
+Veja o arquivo [DEPLOY.md](./DEPLOY.md) para instruções detalhadas.
 
 ## 📚 Documentação
 
-### 📖 Documentação Técnica
+### **Documentação Técnica**
 - [Arquitetura](./docs/ARCHITECTURE.md) - Estrutura e padrões
 - [API](./docs/API.md) - Documentação da API
 - [Componentes](./docs/COMPONENTS.md) - Guia de componentes
 - [Testes](./docs/TESTING.md) - Estratégia de testes
 
-### 🎯 Guias de Uso
+### **Guias de Uso**
 - [Manual do Usuário](./docs/USER_GUIDE.md) - Como usar a aplicação
 - [FAQ](./docs/FAQ.md) - Perguntas frequentes
-- [Troubleshooting](./docs/TROUBLESHOOTING.md) - Solução de problemas
-
-### 🔧 Desenvolvimento
-- [Setup](./docs/SETUP.md) - Configuração do ambiente
-- [Padrões](./docs/PATTERNS.md) - Convenções de código
-- [Commits](./docs/COMMITS.md) - Padrão de commits
 
 ## 🤝 Contribuindo
 
-### Estrutura de Branches
+### **Estrutura de Branches**
 ```
 main                    # Branch principal
 ├── feat/              # Novas funcionalidades
@@ -309,7 +556,7 @@ main                    # Branch principal
 └── docs/              # Documentação
 ```
 
-### Padrão de Commits
+### **Padrão de Commits**
 ```
 feat: adicionar funcionalidade de login
 fix: corrigir validação de formulário
@@ -320,44 +567,68 @@ chore: atualizar dependências
 docs: adicionar documentação da API
 ```
 
-### Processo de Contribuição
-1. **Fork** o projeto
-2. **Crie** uma branch para sua feature
-3. **Commit** suas mudanças
-4. **Push** para a branch
-5. **Abra** um Pull Request
+## 🎯 Critérios de Avaliação
 
-## 📄 Licença
+### **Arquitetura** ✅
+- **Separação clara** entre camadas (components, stores, services)
+- **Responsabilidades bem definidas** em cada camada
+- **Padrões consistentes** em todo o projeto
+- **Escalabilidade** considerada na estrutura
 
-Este projeto foi desenvolvido como parte do teste técnico para a vaga de **Front-End Pleno** na **INMETA**.
+### **UX** ✅
+- **Interface intuitiva** e fácil de navegar
+- **Feedback visual** para todas as ações
+- **Responsividade** em todos os dispositivos
+- **Acessibilidade** implementada
+
+### **Componentização** ✅
+- **Componentes reutilizáveis** bem definidos
+- **Props tipadas** com TypeScript
+- **Composição** de componentes complexos
+- **Separação** entre lógica e apresentação
+
+### **Tipagem** ✅
+- **TypeScript strict mode** habilitado
+- **Interfaces bem definidas** para todas as entidades
+- **Validação type-safe** com Zod
+- **IntelliSense** completo em todo o projeto
+
+### **Correção** ✅
+- **Todas as funcionalidades** solicitadas implementadas
+- **API integration** completa
+- **Validações** de formulários funcionando
+- **Tratamento de erros** implementado
+
+### **Qualidade do Código** ✅
+- **Código limpo** e fácil de entender
+- **Padrões consistentes** em todo o projeto
+- **Sem code smells** ou anti-patterns
+- **Manutenibilidade** alta
+
+### **Escolhas Técnicas** ✅
+- **Vue 3 + Composition API** - Framework moderno
+- **Pinia** - Gerenciamento de estado oficial
+- **TypeScript** - Tipagem estática
+- **Vuetify** - UI framework robusto
+- **Vite** - Build tool performático
+
+### **Commits** ✅
+- **Commits bem divididos** por funcionalidade
+- **Mensagens descritivas** seguindo convenções
+- **Histórico limpo** demonstrando evolução
+- **Branches organizadas** por tipo
 
 ---
 
-## 🎯 Status do Projeto
+## 📞 Contato
 
-### ✅ Implementado
-- [x] Autenticação completa
-- [x] Gerenciamento de cartas
-- [x] Sistema de trocas
-- [x] Dashboard
-- [x] Tratamento de erros
-- [x] Testes unitários
-- [x] PWA
-- [x] Deploy automático
-- [x] Analytics
-- [x] Documentação
-
-### 🚀 Próximas Funcionalidades
-- [ ] Notificações push
-- [ ] Chat entre usuários
-- [ ] Sistema de avaliações
-- [ ] Filtros avançados
-- [ ] Exportação de dados
-- [ ] Temas dark/light
+**Desenvolvido por:** Wanderson Kenedy Soares  
+**Email:** [devwk.c@gmail.com](mailto:devwk.c@gmail.com)  
+**LinkedIn:** [linkedin.com/in/wanderson-kenedy-soares](https://linkedin.com/in/wanderson-kenedy-soares)  
+**GitHub:** [github.com/wandskk](https://github.com/wandskk)
 
 ---
 
-**Desenvolvido com ❤️ por Wanderson Kenedy**
-**Contato**: [devwk.c@gmail.com](mailto:devwk.c@gmail.com)
-**LinkedIn**: [linkedin.com/in/wanderson-kenedy-soares](https://linkedin.com/in/wanderson-kenedy-soares)
-**GitHub**: [github.com/wandskk](https://github.com/wandskk)
+**Projeto desenvolvido como teste técnico para vaga de Front-End Pleno na INMETA**  
+**Data:** Julho 2024  
+**Versão:** 1.0.0
