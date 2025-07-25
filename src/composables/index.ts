@@ -9,4 +9,5 @@ export { useTradeFilters } from './useTradeFilters';
 export { useLoadingState } from './useLoadingState';
 export { useCardSelection } from './useCardSelection';
 export { useSearch } from './useSearch';
-export { usePagination } from './usePagination'; 
+export { usePagination } from './usePagination';
+export { useSteps } from './useSteps'; 
