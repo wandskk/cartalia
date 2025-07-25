@@ -128,8 +128,8 @@ function handlePageChange(page: number) {
 }
 
 // Watch for external changes
-watch(() => props.selectedCards, (newSelection) => {
-  cardSelection.selectedCards.value = [...newSelection];
+watch(() => props.selectedCards, () => {
+  cardSelection.selectedCards.value = [...props.selectedCards];
 }, { deep: true });
 
 watch(() => props.searchQuery, (newQuery) => {
@@ -137,7 +137,7 @@ watch(() => props.searchQuery, (newQuery) => {
 });
 
 // Emit changes back to parent
-watch(cardSelection.selectedCards, (newSelection) => {
+watch(cardSelection.selectedCards, () => {
   // This will be handled by the parent component
 }, { deep: true });
 

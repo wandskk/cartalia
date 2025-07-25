@@ -79,8 +79,9 @@ export function usePagination(options: UsePaginationOptions = {}) {
   }
 
   function setItemsPerPage(items: number): void {
-    if (items > 0 && items <= maxItemsPerPage) {
-      itemsPerPage.value = items;
+    if (items > 0) {
+      const limitedItems = Math.min(items, maxItemsPerPage);
+      itemsPerPage.value = limitedItems;
       // Reset to first page when changing items per page
       currentPage.value = 1;
     }

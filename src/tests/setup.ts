@@ -1,72 +1,46 @@
-import { configDefaults, defineConfig } from 'vitest/config';
-import { resolve } from 'path';
-import vue from '@vitejs/plugin-vue';
-
-// Configuração global do Vitest
-export default defineConfig({
-  plugins: [vue()],
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: ['./src/tests/setup.ts'],
-    include: ['src/tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-    exclude: [
-      ...configDefaults.exclude,
-      'src/tests/e2e/**/*',
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/cypress/**',
-      '**/.{idea,git,cache,output,temp}/**',
-      '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*'
-    ],
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-      exclude: [
-        'coverage/**',
-        'dist/**',
-        'packages/*/test{,s}/**',
-        '**/*.d.ts',
-        'cypress/**',
-        'test{,s}/**',
-        'test{,-*}.{js,cjs,mjs,ts,tsx,jsx}',
-        '**/*{.,-}test.{js,cjs,mjs,ts,tsx,jsx}',
-        '**/*{.,-}spec.{js,cjs,mjs,ts,tsx,jsx}',
-        '**/__tests__/**',
-        '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
-        '**/.{idea,git,cache,output,temp}/**',
-        '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*'
-      ],
-      thresholds: {
-        global: {
-          branches: 80,
-          functions: 80,
-          lines: 80,
-          statements: 80
-        }
-      }
-    }
-  },
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, './src'),
-      '~': resolve(__dirname, './src')
-    }
-  }
-});
-
-// Setup global para todos os testes
 import { vi, beforeEach, afterEach } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
-import { VueWrapper, mount } from '@vue/test-utils';
+import { VueWrapper, mount, config } from '@vue/test-utils';
 import type { ComponentMountingOptions } from '@vue/test-utils';
+
+// Polyfills para Node.js
+if (typeof globalThis.TextEncoder === 'undefined') {
+  const { TextEncoder, TextDecoder } = require('util');
+  globalThis.TextEncoder = TextEncoder;
+  globalThis.TextDecoder = TextDecoder;
+}
+
+// Stubs globais para componentes do Vuetify
+config.global = config.global || {};
+config.global.stubs = {
+  ...(config.global.stubs || {}),
+  'v-card': {
+    template: '<div class="v-card" :class="$attrs.class" v-bind="$attrs"><slot /></div>',
+    props: ['hover', 'clickable', 'variant']
+  },
+  'v-img': {
+    template: '<img class="v-img" v-bind="$attrs" />',
+    props: ['src', 'alt', 'width', 'height', 'cover']
+  },
+  'v-progress-circular': {
+    template: '<div class="v-progress-circular" v-bind="$attrs" :style="{ width: $attrs.size + \'px\', height: $attrs.size + \'px\' }"><slot /></div>',
+    props: ['size', 'width', 'color']
+  }
+};
 
 // Mock do localStorage
 const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
+  _data: {} as Record<string, string>,
+  getItem: vi.fn((key: string) => localStorageMock._data[key] || null),
+  setItem: vi.fn((key: string, value: string) => {
+    localStorageMock._data[key] = value;
+  }),
+  removeItem: vi.fn((key: string) => {
+    delete localStorageMock._data[key];
+  }),
+  clear: vi.fn(() => {
+    localStorageMock._data = {};
+  }),
   length: 0,
   key: vi.fn()
 };

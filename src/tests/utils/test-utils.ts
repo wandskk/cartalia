@@ -1,7 +1,5 @@
 import { vi, type Mock, beforeEach, afterEach, expect } from 'vitest';
 import { nextTick } from 'vue';
-import type { ComponentMountingOptions } from '@vue/test-utils';
-import { mountWithPinia } from '../setup';
 
 // Helper para aguardar próximos ticks do Vue
 export async function waitForNextTick() {

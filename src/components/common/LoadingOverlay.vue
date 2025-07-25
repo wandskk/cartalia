@@ -1,5 +1,5 @@
 <template>
-  <div v-if="loading" class="loading-overlay">
+  <div v-if="loading" class="loading-overlay" :class="{ 'overlay': overlay }">
     <div class="loading-content">
       <v-progress-circular
         :size="size"
@@ -32,7 +32,7 @@ interface Props {
   overlay?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   loading: false,
   message: '',
   size: 48,

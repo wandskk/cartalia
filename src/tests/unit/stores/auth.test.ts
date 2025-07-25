@@ -95,11 +95,13 @@ describe('Auth Store', () => {
       vi.mocked(AuthServices.getUserProfile).mockResolvedValue(mockUsers[0]);
 
       const store = useAuthStore();
+      store.token = 'mock-token'; // Set token first
       
-      await store.fetchUserProfile();
+      const result = await store.fetchUserProfile();
 
       expect(AuthServices.getUserProfile).toHaveBeenCalled();
       expect(store.user).toEqual(mockUsers[0]);
+      expect(result).toEqual(mockUsers[0]);
     });
 
     it('deve lidar com erro ao buscar perfil', async () => {
@@ -107,6 +109,7 @@ describe('Auth Store', () => {
       vi.mocked(AuthServices.getUserProfile).mockRejectedValue(error);
 
       const store = useAuthStore();
+      store.token = 'mock-token'; // Set token first
       
       await expect(store.fetchUserProfile()).rejects.toThrow('Unauthorized');
     });

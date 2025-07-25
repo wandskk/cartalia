@@ -143,7 +143,7 @@
         </div>
       </v-card-actions>
     </v-card>
-  </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -153,9 +153,8 @@ import { useTradesStore } from '../../../stores/trades';
 import { useLoadingStore } from '../../../stores/loading';
 import { useNotificationStore } from '../../../stores/notification';
 import { useSteps } from '../../../composables/useSteps';
-import { useCardSelection } from '../../../composables/useCardSelection';
 import { useSearch } from '../../../composables/useSearch';
-import { arrayFormatters } from '../../../utils/formatters';
+
 import TradeStepCardSelection from './TradeStepCardSelection.vue';
 import TradePreviewStep from './TradePreviewStep.vue';
 import type { Card } from '../../../types/cards';
@@ -192,8 +191,7 @@ const steps = useSteps({
   }
 });
 
-const offeringSelection = useCardSelection();
-const receivingSelection = useCardSelection();
+
 const offeringSearch = useSearch({ debounceMs: 500 });
 const receivingSearch = useSearch({ debounceMs: 500 });
 

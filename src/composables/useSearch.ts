@@ -21,13 +21,17 @@ export function useSearch(options: UseSearchOptions = {}) {
   const searchTimeout = ref<NodeJS.Timeout | null>(null);
 
   const isValidQuery = computed(() => {
-    const query = searchQuery.value.trim();
+    const query = searchQuery.value?.trim() || '';
+    // Empty query is valid when minLength is 0
+    if (query.length === 0) {
+      return minLength === 0;
+    }
     return query.length >= minLength && query.length <= maxLength;
   });
 
-  const hasQuery = computed(() => searchQuery.value.trim().length > 0);
+  const hasQuery = computed(() => (searchQuery.value?.trim() || '').length > 0);
 
-  const isEmpty = computed(() => searchQuery.value.trim().length === 0);
+  const isEmpty = computed(() => (searchQuery.value?.trim() || '').length === 0);
 
   // Debounce search query
   watch(
@@ -38,13 +42,13 @@ export function useSearch(options: UseSearchOptions = {}) {
       }
 
       searchTimeout.value = setTimeout(() => {
-        debouncedQuery.value = newQuery;
+        debouncedQuery.value = newQuery || '';
       }, debounceMs);
     }
   );
 
-  function setQuery(query: string): void {
-    searchQuery.value = query;
+  function setQuery(query: string | null | undefined): void {
+    searchQuery.value = query || '';
   }
 
   function clearQuery(): void {
@@ -75,7 +79,7 @@ export function useSearch(options: UseSearchOptions = {}) {
     searchFields: (keyof T)[],
     query: string = debouncedQuery.value
   ): T[] {
-    if (!query.trim()) return items;
+    if (!query?.trim()) return items;
 
     const searchTerm = query.toLowerCase().trim();
     
@@ -95,7 +99,7 @@ export function useSearch(options: UseSearchOptions = {}) {
     searchFunction: (query: string) => Promise<T[]>,
     query: string = debouncedQuery.value
   ): Promise<T[]> {
-    if (!query.trim()) return [];
+    if (!query?.trim()) return [];
 
     startSearch();
     try {

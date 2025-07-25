@@ -1,32 +1,32 @@
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { useLoadingStore } from "./stores/loading"
-import { useErrorStore } from "./stores/error"
-import MainLayout from "./components/layout/MainLayout.vue"
-import Loading from "./components/common/Loading.vue"
-import Notification from "./components/common/Notification.vue"
-import ErrorModal from "./components/common/ErrorModal.vue"
-import ErrorBoundary from "./components/common/ErrorBoundary.vue"
+import { defineComponent } from "vue";
+import { useLoadingStore } from "./stores/loading";
+import { useErrorStore } from "./stores/error";
+import MainLayout from "./components/layout/MainLayout.vue";
+import Loading from "./components/common/Loading.vue";
+import Notification from "./components/common/Notification.vue";
+import ErrorModal from "./components/common/ErrorModal.vue";
+import ErrorBoundary from "./components/common/ErrorBoundary.vue";
 
 export default defineComponent({
-  name: 'App',
+  name: "App",
   components: {
     MainLayout,
     Loading,
     Notification,
     ErrorModal,
-    ErrorBoundary
+    ErrorBoundary,
   },
   setup() {
-    const loadingStore = useLoadingStore()
-    const errorStore = useErrorStore()
+    const loadingStore = useLoadingStore();
+    const errorStore = useErrorStore();
 
     return {
       loadingStore,
-      errorStore
-    }
-  }
-})
+      errorStore,
+    };
+  },
+});
 </script>
 
 <template>

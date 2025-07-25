@@ -50,5 +50,8 @@ export default defineConfig({
       '@': resolve(__dirname, './src'),
       '~': resolve(__dirname, './src')
     }
+  },
+  define: {
+    global: 'globalThis'
   }
 }); 

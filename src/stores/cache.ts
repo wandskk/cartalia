@@ -137,6 +137,8 @@ export const useCacheStore = defineStore('cache', () => {
     TRADE_DETAIL: (id: string) => `trade-${id}`,
   } as const;
 
+
+
   return {
     // State
     cache,

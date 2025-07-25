@@ -29,10 +29,10 @@ export function useSteps(options: UseStepsOptions) {
 
   const totalSteps = computed(() => steps.length);
   const isFirstStep = computed(() => currentStep.value === 0);
-  const isLastStep = computed(() => currentStep.value === totalSteps.value - 1);
-  const canGoNext = computed(() => !isLastStep.value);
-  const canGoBack = computed(() => !isFirstStep.value && allowBackward);
-  const progress = computed(() => ((currentStep.value + 1) / totalSteps.value) * 100);
+  const isLastStep = computed(() => totalSteps.value === 0 || currentStep.value === totalSteps.value - 1);
+  const canGoNext = computed(() => totalSteps.value > 0 && !isLastStep.value);
+  const canGoBack = computed(() => totalSteps.value > 0 && !isFirstStep.value && allowBackward);
+  const progress = computed(() => totalSteps.value === 0 ? 0 : ((currentStep.value + 1) / totalSteps.value) * 100);
 
   const currentStepData = computed(() => steps[currentStep.value]);
   const nextStepData = computed(() => 

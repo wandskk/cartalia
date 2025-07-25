@@ -1,3 +1,15 @@
 export * from './api';
 export * from './stores';
-export * from './data'; 
+export { 
+  mockUsers,
+  mockTradeCards,
+  mockApiResponses,
+  mockFormData,
+  mockErrors,
+  mockPagination,
+  mockSearchData,
+  mockFilterData,
+  createMockUser,
+  createMockCard,
+  createMockTrade
+} from './data'; 

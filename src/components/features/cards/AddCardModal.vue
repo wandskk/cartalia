@@ -226,7 +226,7 @@ function handleCardClick(cardId: string) {
   cardSelection.toggleCard(cardId);
 }
 
-function handleCardSelect(card: CardType, selected: boolean) {
+function handleCardSelect(card: CardType) {
   cardSelection.selectCard(card.id);
 }
 

@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { AuthServices } from "../services/modules/auth";
 
 interface User {
@@ -11,17 +11,23 @@ interface User {
 export const useAuthStore = defineStore("auth", () => {
   const user = ref<User | null>(null);
   const token = ref<string | null>(localStorage.getItem("tokenCartalia"));
-  const isAuthenticated = ref<boolean>(!!token.value);
+  const isAuthenticated = computed(() => !!token.value && !!user.value);
 
+  // Initialize user from localStorage
   const storedUser = localStorage.getItem("userCartalia");
   if (storedUser) {
-    user.value = JSON.parse(storedUser);
+    try {
+      user.value = JSON.parse(storedUser);
+    } catch (error) {
+      console.error('Erro ao parsear dados do usuário do localStorage:', error);
+      localStorage.removeItem("userCartalia");
+      user.value = null;
+    }
   }
 
   function setUser(data: User, authToken: string) {
     user.value = data;
     token.value = authToken;
-    isAuthenticated.value = true;
     localStorage.setItem("tokenCartalia", authToken);
     localStorage.setItem("userCartalia", JSON.stringify(data));
   }
@@ -29,7 +35,6 @@ export const useAuthStore = defineStore("auth", () => {
   function logout() {
     user.value = null;
     token.value = null;
-    isAuthenticated.value = false;
     localStorage.removeItem("tokenCartalia");
     localStorage.removeItem("userCartalia");
   }
@@ -45,13 +50,17 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   async function fetchUserProfile() {
-    if (!token.value) return;
+    if (!token.value) {
+      throw new Error('No token available');
+    }
     
     try {
       const userData = await AuthServices.getUserProfile();
       setUser(userData, token.value);
+      return userData;
     } catch (error) {
       console.error('Erro ao buscar perfil do usuário:', error);
+      throw error;
     }
   }
 
