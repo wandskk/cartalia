@@ -452,7 +452,7 @@ export const tradeSchema = z.object({
 
 1. **Clone o repositório**
    ```bash
-   git clone https://github.com/seu-usuario/cartalia.git
+   git clone https://github.com/wandskk/cartalia.git
    cd cartalia
    ```
 
@@ -525,7 +525,7 @@ O projeto está configurado com GitHub Actions para deploy automático no Vercel
 
 ### **URL de Produção**
 ```
-https://cartalia.vercel.app
+[https://cartalia.vercel.app](https://cartalia-rho.vercel.app/marketplace)
 ```
 
 ### **Configuração**
