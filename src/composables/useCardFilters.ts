@@ -1,10 +1,27 @@
-import { ref, computed, type Ref } from 'vue';
+import { computed, type Ref } from 'vue';
+import { useFilters } from './useFilters';
 import type { Card } from '../types';
 
 export function useCardFilters(cards: Ref<Card[]>) {
-  const searchQuery = ref('');
-  const currentFilter = ref('all');
-  const viewMode = ref<'grid' | 'list'>('grid');
+  const {
+    searchQuery,
+    currentFilter,
+    viewMode,
+    filteredItems: filteredCards,
+    setFilter,
+    setSearchQuery,
+    setViewMode,
+    clearFilters
+  } = useFilters(cards, {
+    searchFields: ['name', 'description'],
+    additionalFilters: {
+      recent: (card: Card) => {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        return new Date(card.createdAt) > thirtyDaysAgo;
+      }
+    }
+  });
 
   const recentCards = computed(() => {
     const thirtyDaysAgo = new Date();
@@ -13,46 +30,6 @@ export function useCardFilters(cards: Ref<Card[]>) {
       (card) => new Date(card.createdAt) > thirtyDaysAgo
     ).length;
   });
-
-  const filteredCards = computed(() => {
-    let filtered = cards.value;
-
-    if (searchQuery.value) {
-      const query = searchQuery.value.toLowerCase();
-      filtered = filtered.filter(
-        (card) =>
-          card.name.toLowerCase().includes(query) ||
-          card.description.toLowerCase().includes(query)
-      );
-    }
-
-    if (currentFilter.value === 'recent') {
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      filtered = filtered.filter(
-        (card) => new Date(card.createdAt) > thirtyDaysAgo
-      );
-    }
-
-    return filtered;
-  });
-
-  function setFilter(filter: string) {
-    currentFilter.value = filter;
-  }
-
-  function setSearchQuery(query: string) {
-    searchQuery.value = query;
-  }
-
-  function setViewMode(mode: 'grid' | 'list') {
-    viewMode.value = mode;
-  }
-
-  function clearFilters() {
-    searchQuery.value = '';
-    currentFilter.value = 'all';
-  }
 
   return {
     searchQuery,

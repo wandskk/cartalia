@@ -10,4 +10,9 @@ export { useLoadingState } from './useLoadingState';
 export { useCardSelection } from './useCardSelection';
 export { useSearch } from './useSearch';
 export { usePagination } from './usePagination';
-export { useSteps } from './useSteps'; 
+export { useSteps } from './useSteps';
+
+// Novos composables genéricos
+export { useFilters } from './useFilters';
+export { useAsyncState } from './useAsyncState';
+export { useModal } from './useModal'; 
