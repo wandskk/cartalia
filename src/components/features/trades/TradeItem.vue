@@ -14,33 +14,17 @@
         </div>
         
         <div v-if="showActions">
-          <v-menu v-model="menuOpen" location="bottom end">
-            <template v-slot:activator="{ props }">
-              <v-btn
-                v-bind="props"
-                icon
-                variant="text"
-                size="small"
-              >
-                <v-icon>mdi-dots-vertical</v-icon>
-              </v-btn>
-            </template>
-            <v-list density="compact" min-width="120">
-              <v-list-item
-                v-if="canEdit"
-                @click="handleEdit"
-                prepend-icon="mdi-pencil"
-                title="Editar"
-              />
-              <v-list-item
-                v-if="canDelete"
-                @click="handleDelete"
-                prepend-icon="mdi-delete"
-                title="Excluir"
-                class="text-error"
-              />
-            </v-list>
-          </v-menu>
+          <v-btn
+            v-if="canDelete"
+            @click="handleDelete"
+            icon
+            variant="text"
+            size="small"
+            color="error"
+            title="Excluir"
+          >
+            <v-icon>mdi-delete</v-icon>
+          </v-btn>
         </div>
       </div>
 
@@ -178,7 +162,6 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'edit', trade: Trade): void;
   (e: 'delete', trade: Trade): void;
 }
 
@@ -191,7 +174,6 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>();
 
 const authStore = useAuthStore();
-const menuOpen = ref(false);
 
 const formattedDate = computed(() => {
   return new Date(props.trade.createdAt).toLocaleDateString('pt-BR', {
@@ -213,10 +195,6 @@ const receivingCards = computed(() => {
 
 const isOwner = computed(() => {
   return authStore.user?.id === props.trade.userId;
-});
-
-const canEdit = computed(() => {
-  return isOwner.value;
 });
 
 const canDelete = computed(() => {
@@ -243,13 +221,7 @@ const statusColor = computed(() => {
   }
 });
 
-function handleEdit() {
-  menuOpen.value = false;
-  emit('edit', props.trade);
-}
-
 function handleDelete() {
-  menuOpen.value = false;
   emit('delete', props.trade);
 }
 </script>

@@ -59,7 +59,6 @@
           :show-actions="true"
           :show-status="true"
           status="active"
-          @edit="handleEdit"
           @delete="handleDelete"
         />
       </div>
@@ -82,7 +81,6 @@ interface Props {
 interface Emits {
   (e: "retry"): void;
   (e: "delete", trade: Trade): void;
-  (e: "edit", trade: Trade): void;
 }
 
 withDefaults(defineProps<Props>(), {
@@ -95,10 +93,6 @@ const emit = defineEmits<Emits>();
 
 function retry() {
   emit("retry");
-}
-
-function handleEdit(trade: Trade) {
-  emit("edit", trade);
 }
 
 function handleDelete(trade: Trade) {

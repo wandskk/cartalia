@@ -32,7 +32,6 @@
               :view-mode="viewMode"
               @retry="fetchUserTrades"
               @delete="handleDeleteTrade"
-              @edit="handleEditTrade"
             />
           </div>
         </v-card-text>
@@ -123,10 +122,6 @@ async function confirmDelete() {
   } catch (err: any) {
     notification.show(err.message || "Erro ao excluir troca", "error");
   }
-}
-
-function handleEditTrade() {
-  notification.show("Funcionalidade de edição em desenvolvimento", "info");
 }
 
 function handleTradeCreated() {
