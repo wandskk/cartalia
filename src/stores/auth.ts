@@ -44,5 +44,16 @@ export const useAuthStore = defineStore("auth", () => {
     await login(email, password);
   }
 
-  return { user, token, isAuthenticated, login, register, logout };
+  async function fetchUserProfile() {
+    if (!token.value) return;
+    
+    try {
+      const userData = await AuthServices.getUserProfile();
+      setUser(userData, token.value);
+    } catch (error) {
+      console.error('Erro ao buscar perfil do usuário:', error);
+    }
+  }
+
+  return { user, token, isAuthenticated, login, register, logout, fetchUserProfile };
 });

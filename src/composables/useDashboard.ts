@@ -37,6 +37,7 @@ export function useDashboard() {
 
   async function fetchData() {
     await Promise.all([
+      authStore.fetchUserProfile(), // Sincroniza dados do usuário
       cardsStore.fetchUserCards(),
       tradesStore.fetchAllTrades(),
     ]);
