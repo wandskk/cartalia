@@ -28,8 +28,8 @@
             :loading="loading"
             :show-pagination="showLocalPagination"
             :total-items="totalFilteredTrades"
-            :items-per-page="localPagination.rpp"
-            :current-page="localPagination.page"
+            :items-per-page="pagination.itemsPerPage.value"
+            :current-page="pagination.currentPage.value"
           />
 
           <div class="trades-content">
@@ -76,6 +76,8 @@ import { useTradesStore } from "../stores/trades";
 import { useAuthStore } from "../stores/auth";
 import { useNotificationStore } from "../stores/notification";
 import { useTradeFilters } from "../composables/useTradeFilters";
+import { usePagination } from "../composables/usePagination";
+import { useLoadingState } from "../composables/useLoadingState";
 import Container from "../components/common/Container.vue";
 import PageHeader from "../components/common/PageHeader.vue";
 import MyTradeList from "../components/features/trades/MyTradeList.vue";
@@ -92,10 +94,19 @@ const tradesStore = useTradesStore();
 const authStore = useAuthStore();
 const notification = useNotificationStore();
 
-const loading = computed(() => tradesStore.loading);
+// Store computed properties
 const error = computed(() => tradesStore.error);
 const userTrades = computed(() => tradesStore.userTrades);
 
+// Composables
+const { isLoading: loading, withLoading } = useLoadingState();
+const pagination = usePagination({
+  initialItemsPerPage: 12
+});
+
+const { filteredTrades, updateFilters } = useTradeFilters(userTrades);
+
+// Local state
 const viewMode = ref<"grid" | "list">("grid");
 const showCreateModal = ref(false);
 const showDeleteModal = ref(false);
@@ -103,37 +114,28 @@ const showCardDetailModal = ref(false);
 const selectedCardId = ref<string>("");
 const tradeToDelete = ref<Trade | null>(null);
 
-// Paginação local para filtros
-const localPagination = ref({
-  page: 1,
-  rpp: 12
-});
-
-const { filteredTrades, updateFilters } = useTradeFilters(userTrades);
-
 const totalFilteredTrades = computed(() => {
   return filteredTrades.value.length;
 });
 
 const showLocalPagination = computed(() => {
-  return totalFilteredTrades.value > localPagination.value.rpp;
+  return totalFilteredTrades.value > pagination.itemsPerPage.value;
 });
 
 const paginatedTradesList = computed(() => {
-  const startIndex = (localPagination.value.page - 1) * localPagination.value.rpp;
-  const endIndex = startIndex + localPagination.value.rpp;
-  return filteredTrades.value.slice(startIndex, endIndex);
+  pagination.setTotalItems(filteredTrades.value.length);
+  return pagination.paginateItems(filteredTrades.value);
 });
 
 function handleFiltersChange(newFilters: { search: string }) {
   // Converter para o formato esperado pelo useTradeFilters
   updateFilters({ searchTerm: newFilters.search });
   // Reset para primeira página quando filtrar
-  localPagination.value.page = 1;
+  pagination.firstPage();
 }
 
 function handleLocalPageChange(page: number) {
-  localPagination.value.page = page;
+  pagination.setPage(page);
 }
 
 onMounted(() => {
@@ -145,8 +147,10 @@ onMounted(() => {
 });
 
 async function fetchUserTrades() {
-  // Carregar mais trades da API para ter dados suficientes para filtragem
-  await tradesStore.fetchAllTrades(1, 50, true); // Carregar 50 trades de uma vez
+  await withLoading(async () => {
+    // Carregar mais trades da API para ter dados suficientes para filtragem
+    await tradesStore.fetchAllTrades(1, 50, true); // Carregar 50 trades de uma vez
+  }, "Carregando suas trades...");
 }
 
 async function handleDeleteTrade(trade: Trade) {

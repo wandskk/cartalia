@@ -88,6 +88,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useCardsStore } from "../stores/cards";
 import { useAuthStore } from "../stores/auth";
 import { useNotificationStore } from "../stores/notification";
+import { useLoadingState } from "../composables/useLoadingState";
 import Container from "../components/common/Container.vue";
 import LoadingSpinner from "../components/common/LoadingSpinner.vue";
 
@@ -97,8 +98,10 @@ const cardsStore = useCardsStore();
 const authStore = useAuthStore();
 const notification = useNotificationStore();
 
+// Composables
+const { isLoading: loading, withLoading } = useLoadingState();
+
 const cardId = computed(() => route.params.id as string);
-const loading = computed(() => cardsStore.loading);
 const error = computed(() => cardsStore.error);
 const selectedCard = computed(() => cardsStore.selectedCard);
 const userCards = computed(() => cardsStore.userCards);
@@ -120,11 +123,13 @@ onMounted(() => {
 });
 
 async function fetchCard() {
-  try {
-    await cardsStore.fetchCardById(cardId.value);
-  } catch (err: any) {
-    notification.show(err.message || "Erro ao carregar carta", "error");
-  }
+  await withLoading(async () => {
+    try {
+      await cardsStore.fetchCardById(cardId.value);
+    } catch (err: any) {
+      notification.show(err.message || "Erro ao carregar carta", "error");
+    }
+  }, "Carregando detalhes da carta...");
 }
 
 function goBack() {
@@ -139,12 +144,14 @@ function handleImageError(event: Event) {
 async function addToCollection() {
   if (!selectedCard.value) return;
 
-  try {
-    await cardsStore.addCardsToUser([selectedCard.value.id]);
-    notification.show("Carta adicionada à sua coleção!", "success");
-  } catch (err: any) {
-    notification.show(err.message || "Erro ao adicionar carta", "error");
-  }
+  await withLoading(async () => {
+    try {
+      await cardsStore.addCardsToUser([selectedCard.value!.id]);
+      notification.show("Carta adicionada à sua coleção!", "success");
+    } catch (err: any) {
+      notification.show(err.message || "Erro ao adicionar carta", "error");
+    }
+  }, "Adicionando carta à coleção...");
 }
 
 function addToTrade() {

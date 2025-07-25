@@ -41,8 +41,8 @@
             <Pagination
               v-if="filteredCards.length > 0"
               :total-items="filteredCards.length"
-              :items-per-page="itemsPerPage"
-              :current-page="currentPage"
+              :items-per-page="pagination.itemsPerPage.value"
+              :current-page="pagination.currentPage.value"
               @page-change="handlePageChange"
             />
           </v-card-text>
@@ -61,9 +61,10 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useCardsStore } from "../stores/cards";
 import { useAuthStore } from "../stores/auth";
-import { useLoadingStore } from "../stores/loading";
 import { useCardFilters } from "../composables/useCardFilters";
 import { useCardStates } from "../composables/useCardStates";
+import { usePagination } from "../composables/usePagination";
+import { useLoadingState } from "../composables/useLoadingState";
 import Container from "../components/common/Container.vue";
 import Pagination from "../components/common/Pagination.vue";
 import CardsHeader from "../components/features/cards/CardsHeader.vue";
@@ -80,19 +81,23 @@ import type { Card } from "../types";
 const router = useRouter();
 const cardsStore = useCardsStore();
 const authStore = useAuthStore();
-const loadingStore = useLoadingStore();
+
+// Composables
+const { isLoading: loading, withLoading } = useLoadingState();
+const pagination = usePagination({
+  initialItemsPerPage: 12
+});
 
 const showAddForm = ref(false);
 const showCardDetail = ref(false);
 const selectedCardId = ref<string>("");
-const currentPage = ref(1);
-const itemsPerPage = ref(12);
 
-const loading = computed(() => cardsStore.loading);
+// Store computed properties
 const error = computed(() => cardsStore.error);
 const userCards = computed(() => cardsStore.userCards);
 const totalUserCards = computed(() => cardsStore.totalUserCards);
 
+// Card filters
 const {
   searchQuery,
   currentFilter,
@@ -104,38 +109,31 @@ const {
   setViewMode,
 } = useCardFilters(userCards);
 
-const paginatedCards = computed(() => {
-  const startIndex = (currentPage.value - 1) * itemsPerPage.value;
-  const endIndex = startIndex + itemsPerPage.value;
-  return filteredCards.value.slice(startIndex, endIndex);
-});
-
+// Card states
 const { hasError, isEmpty } = useCardStates(loading, error, userCards);
+
+// Paginated cards
+const paginatedCards = computed(() => {
+  pagination.setTotalItems(filteredCards.value.length);
+  return pagination.paginateItems(filteredCards.value);
+});
 
 onMounted(async () => {
   if (authStore.isAuthenticated) {
-    loadingStore.startLoading();
-    try {
-      await fetchUserCards();
-    } finally {
-      loadingStore.stopLoading();
-    }
+    await fetchUserCards();
   } else {
     router.push("/login");
   }
 });
 
 watch([searchQuery, currentFilter], () => {
-  currentPage.value = 1;
+  pagination.firstPage();
 });
 
 async function fetchUserCards() {
-  loadingStore.startLoading();
-  try {
+  await withLoading(async () => {
     await cardsStore.fetchUserCards();
-  } finally {
-    loadingStore.stopLoading();
-  }
+  }, "Carregando suas cartas...");
 }
 
 function handleCardClick(card: Card) {
@@ -144,7 +142,7 @@ function handleCardClick(card: Card) {
 }
 
 function handlePageChange(page: number) {
-  currentPage.value = page;
+  pagination.setPage(page);
 }
 </script>
 
