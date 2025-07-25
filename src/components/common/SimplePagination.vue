@@ -10,7 +10,7 @@
       Anterior
     </v-btn>
 
-    <div class="text-body-2 text-grey font-weight-medium min-width-100 text-center">
+    <div class="text-body-2 text-grey font-weight-medium min-width-100 text-center pagination-text">
       Página {{ currentPage }}
     </div>
 
@@ -57,6 +57,11 @@ function handlePageChange(page: number) {
 </script>
 
 <style scoped>
+.pagination-text {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 @media (max-width: 768px) {
   .d-flex {
     gap: 12px;
@@ -64,6 +69,11 @@ function handlePageChange(page: number) {
   
   .text-body-2 {
     min-width: 80px;
+  }
+  
+  .pagination-text {
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 }
 </style>

@@ -6,6 +6,11 @@
           <div class="d-flex align-center ga-2 mb-4">
             <v-icon size="24" color="primary">mdi-upload</v-icon>
             <h3 class="text-h6 font-weight-bold">Cartas que você oferece</h3>
+            <v-spacer></v-spacer>
+            <v-btn @click="showCardSelector = 'offering'" color="primary" size="small" variant="elevated">
+              <v-icon>mdi-plus</v-icon>
+              Adicionar Carta
+            </v-btn>
           </div>
 
           <div class="selected-cards">
@@ -39,6 +44,11 @@
           <div class="d-flex align-center ga-2 mb-4">
             <v-icon size="24" color="secondary">mdi-download</v-icon>
             <h3 class="text-h6 font-weight-bold">Cartas que você quer receber</h3>
+            <v-spacer></v-spacer>
+            <v-btn @click="showCardSelector = 'receiving'" color="primary" size="small" variant="elevated">
+              <v-icon>mdi-plus</v-icon>
+              Adicionar Carta
+            </v-btn>
           </div>
           
           <div class="selected-cards">

@@ -25,26 +25,17 @@
               </p>
             </div>
 
-            <div class="search-section mb-4">
-              <div class="d-flex align-center ga-4 flex-wrap">
-                <div class="flex-grow-1 min-width-250">
-                  <SearchInput
-                    v-model="offeringSearchQuery"
-                    placeholder="Buscar suas cartas..."
-                    :disabled="cardsStore.loading"
-                  />
-                </div>
-
-                <SimplePagination
-                  v-if="totalFilteredOfferingCards > userCardsPagination.rpp"
-                  :total-items="totalFilteredOfferingCards"
-                  :items-per-page="userCardsPagination.rpp"
-                  :current-page="userCardsPagination.page"
-                  :loading="cardsStore.loading"
-                  @page-change="handleOfferingPageChange"
-                />
-              </div>
-            </div>
+            <SearchWithPagination
+              v-model:search-query="offeringSearchQuery"
+              placeholder="Buscar suas cartas..."
+              :disabled="cardsStore.loading"
+              :show-pagination="totalFilteredOfferingCards > userCardsPagination.rpp"
+              :total-items="totalFilteredOfferingCards"
+              :items-per-page="userCardsPagination.rpp"
+              :current-page="userCardsPagination.page"
+              :loading="cardsStore.loading"
+              @page-change="handleOfferingPageChange"
+            />
 
             <div
               v-if="cardsStore.loading"
@@ -108,26 +99,17 @@
               </p>
             </div>
 
-            <div class="search-section mb-4">
-              <div class="d-flex align-center ga-4 flex-wrap">
-                <div class="flex-grow-1 min-width-250">
-                                      <SearchInput
-                      v-model="receivingSearchQuery"
-                      placeholder="Buscar cartas disponíveis..."
-                      :disabled="cardsStore.loading"
-                    />
-                  </div>
-
-                  <SimplePagination
-                    v-if="filteredReceivingCards.length > allCardsPagination.rpp"
-                    :total-items="filteredReceivingCards.length"
-                    :items-per-page="allCardsPagination.rpp"
-                    :current-page="allCardsPagination.page"
-                    :loading="cardsStore.loading"
-                    @page-change="handleReceivingPageChange"
-                  />
-              </div>
-            </div>
+            <SearchWithPagination
+              v-model:search-query="receivingSearchQuery"
+              placeholder="Buscar cartas disponíveis..."
+              :disabled="cardsStore.loading"
+              :show-pagination="Math.ceil(totalFilteredReceivingCards / allCardsPagination.rpp) > 1"
+              :total-items="totalFilteredReceivingCards"
+              :items-per-page="allCardsPagination.rpp"
+              :current-page="allCardsPagination.page"
+              :loading="cardsStore.loading"
+              @page-change="handleReceivingPageChange"
+            />
 
             <div
               v-if="cardsStore.loading"
@@ -244,10 +226,9 @@ import { useTradesStore } from "../../../stores/trades";
 import { useNotificationStore } from "../../../stores/notification";
 
 import Card from "../../common/Card.vue";
-import SearchInput from "../../common/SearchInput.vue";
-import SimplePagination from "../../common/SimplePagination.vue";
 import TradePreview from "./TradePreview.vue";
 import type { Card as CardType } from "../../../types";
+import SearchWithPagination from "../../common/SearchWithPagination.vue";
 
 interface Props {
   modelValue: boolean;
@@ -293,7 +274,7 @@ const userCardsPagination = ref({
 
 const allCardsPagination = ref({
   page: 1,
-  rpp: 12,
+  rpp: 12, // Aumentado de 6 para 12
   total: 0,
 });
 
@@ -337,7 +318,11 @@ const filteredReceivingCards = computed(() => {
     );
   }
 
-  return filtered;
+  const startIndex =
+    (allCardsPagination.value.page - 1) * allCardsPagination.value.rpp;
+  const endIndex = startIndex + allCardsPagination.value.rpp;
+
+  return filtered.slice(startIndex, endIndex);
 });
 
 const totalFilteredOfferingCards = computed(() => {
@@ -355,25 +340,20 @@ const totalFilteredOfferingCards = computed(() => {
   return filtered.length;
 });
 
-const disabledReceivingCards = computed(() => {
-  const disabledIds = new Set<string>();
+const totalFilteredReceivingCards = computed(() => {
+  let filtered = allCards.value;
 
-  // Adiciona IDs das cartas que o usuário já tem
-  userCards.value.forEach((card) => {
-    disabledIds.add(card.id);
-  });
+  if (receivingSearchQuery.value) {
+    const query = receivingSearchQuery.value.toLowerCase();
+    filtered = filtered.filter(
+      (card) =>
+        card.name.toLowerCase().includes(query) ||
+        card.description.toLowerCase().includes(query)
+    );
+  }
 
-  // Adiciona IDs das cartas que o usuário está oferecendo
-  selectedOfferingCards.value.forEach((cardId) => {
-    disabledIds.add(cardId);
-  });
-
-  return disabledIds;
+  return filtered.length;
 });
-
-const isCardDisabled = (cardId: string) => {
-  return disabledReceivingCards.value.has(cardId);
-};
 
 const canProceedToNextStep = computed(() => {
   if (currentStep.value === 0) {
@@ -436,6 +416,11 @@ watch(offeringSearchQuery, () => {
   userCardsPagination.value.total = totalFilteredOfferingCards.value;
 });
 
+watch(receivingSearchQuery, () => {
+  allCardsPagination.value.page = 1;
+  allCardsPagination.value.total = totalFilteredReceivingCards.value;
+});
+
 // Methods
 async function loadData() {
   try {
@@ -456,11 +441,9 @@ async function loadUserCards() {
 
 async function loadAllCards() {
   try {
-    await cardsStore.fetchAllCards(
-      allCardsPagination.value.page,
-      allCardsPagination.value.rpp
-    );
-    allCardsPagination.value.total = cardsStore.pagination.total;
+    // Carregar todas as cartas de uma vez para fazer paginação local
+    await cardsStore.fetchAllCards(1, 1000); // Carregar muitas cartas de uma vez
+    allCardsPagination.value.total = totalFilteredReceivingCards.value;
   } catch (error) {
     console.error("Erro ao carregar todas as cartas:", error);
   }
@@ -473,7 +456,7 @@ async function handleOfferingPageChange(page: number) {
 
 async function handleReceivingPageChange(page: number) {
   allCardsPagination.value.page = page;
-  await loadAllCards();
+  allCardsPagination.value.total = totalFilteredReceivingCards.value;
 }
 
 function resetForm() {
@@ -508,8 +491,6 @@ function toggleOfferingCard(cardId: string) {
 }
 
 function toggleReceivingCard(cardId: string) {
-  if (isCardDisabled(cardId)) return;
-
   const index = selectedReceivingCards.value.indexOf(cardId);
   if (index > -1) {
     selectedReceivingCards.value.splice(index, 1);
@@ -532,8 +513,6 @@ function handleOfferingCardSelect(card: CardType, selected: boolean) {
 }
 
 function handleReceivingCardSelect(card: CardType, selected: boolean) {
-  if (isCardDisabled(card.id)) return;
-
   if (selected) {
     if (!selectedReceivingCards.value.includes(card.id)) {
       selectedReceivingCards.value.push(card.id);

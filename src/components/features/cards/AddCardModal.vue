@@ -6,27 +6,22 @@
     @update:model-value="$emit('update:modelValue', $event)"
   >
     <div class="add-card-modal">
-      <div class="d-flex align-center justify-center ga-4 flex-wrap search-section mb-6">
-        <SearchInput
-          v-model="searchQuery"
-          placeholder="Buscar cartas..."
-          :disabled="initialLoading"
-        />
-
-        <SimplePagination
-          v-if="
-            filteredCards.length > 0 &&
-            !initialLoading &&
-            !searchLoading &&
-            !loadingStore.isLoading
-          "
-          :total-items="cardsStore.pagination.total || filteredCards.length"
-          :items-per-page="itemsPerPage"
-          :current-page="currentPage"
-          :loading="loading"
-          @page-change="handlePageChange"
-        />
-      </div>
+      <SearchWithPagination
+        v-model:search-query="searchQuery"
+        placeholder="Buscar cartas..."
+        :disabled="initialLoading"
+        :show-pagination="
+          filteredCards.length > 0 &&
+          !initialLoading &&
+          !searchLoading &&
+          !loadingStore.isLoading
+        "
+        :total-items="cardsStore.pagination.total || filteredCards.length"
+        :items-per-page="itemsPerPage"
+        :current-page="currentPage"
+        :loading="loading"
+        @page-change="handlePageChange"
+      />
 
       <div
         v-if="initialLoading || searchLoading || loading"
@@ -54,30 +49,16 @@
           v-for="card in paginatedCards"
           :key="card.id"
           :card="card"
-          :selectable="!isCardOwned(card.id)"
+          :selectable="true"
           :selected="selectedCards.includes(card.id)"
-          :clickable="!isCardOwned(card.id)"
+          :clickable="true"
           size="sm"
           variant="compact"
           :show-description="true"
           :max-description-length="80"
-          :class="{ 'owned-card': isCardOwned(card.id) }"
           @click="handleCardClick(card.id)"
           @select="handleCardSelect"
-        >
-          <template v-if="isCardOwned(card.id)" #overlay>
-            <div class="owned-overlay">
-              <v-chip
-                color="success"
-                size="x-small"
-                variant="elevated"
-                class="owned-badge"
-              >
-                ✓ Já possui
-              </v-chip>
-            </div>
-          </template>
-        </Card>
+        />
       </div>
 
       <div
@@ -162,9 +143,8 @@ import { useLoadingStore } from "../../../stores/loading";
 import { useNotificationStore } from "../../../stores/notification";
 import BaseModal from "../../common/BaseModal.vue";
 import Card from "../../common/Card.vue";
-import SimplePagination from "../../common/SimplePagination.vue";
+import SearchWithPagination from "../../common/SearchWithPagination.vue";
 import type { Card as CardType } from "../../../types";
-import SearchInput from "../../common/SearchInput.vue";
 
 interface Props {
   modelValue: boolean;
@@ -197,9 +177,6 @@ const isOpen = computed({
 
 const loading = computed(() => cardsStore.loading);
 const allCards = computed(() => cardsStore.allCards);
-const userCards = computed(() => cardsStore.userCards);
-
-const userCardIds = computed(() => userCards.value.map((card) => card.id));
 
 const paginatedCards = computed(() => {
   return filteredCards.value;
@@ -267,7 +244,6 @@ watch(
 async function fetchAllCards() {
   initialLoading.value = true;
   try {
-    await cardsStore.fetchUserCards();
     await cardsStore.fetchAllCards(currentPage.value, itemsPerPage.value);
   } finally {
     initialLoading.value = false;
@@ -292,14 +268,8 @@ function toggleCardSelection(cardId: string) {
   }
 }
 
-function isCardOwned(cardId: string): boolean {
-  return userCardIds.value.includes(cardId);
-}
-
 function handleCardClick(cardId: string) {
-  if (!isCardOwned(cardId)) {
-    toggleCardSelection(cardId);
-  }
+  toggleCardSelection(cardId);
 }
 
 function handleCardSelect(card: CardType, selected: boolean) {
@@ -353,32 +323,6 @@ async function handleAddCards() {
   max-height: 400px;
   overflow-y: auto;
   padding: 4px;
-}
-
-.owned-card {
-  opacity: 0.6;
-  filter: grayscale(30%);
-  pointer-events: none;
-  position: relative;
-}
-
-.owned-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(var(--v-theme-success), 0.1);
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
-  padding: 8px;
-  z-index: 10;
-}
-
-.owned-card:hover {
-  transform: none !important;
-  box-shadow: none !important;
 }
 
 @media (max-width: 768px) {
