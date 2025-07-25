@@ -8,4 +8,5 @@ export { useCardStates } from './useCardStates';
 export { useTradeFilters } from './useTradeFilters';
 export { useLoadingState } from './useLoadingState';
 export { useCardSelection } from './useCardSelection';
-export { useSearch } from './useSearch'; 
+export { useSearch } from './useSearch';
+export { usePagination } from './usePagination'; 

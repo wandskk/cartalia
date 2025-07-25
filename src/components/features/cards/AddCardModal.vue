@@ -7,45 +7,36 @@
   >
     <div class="add-card-modal">
       <SearchWithPagination
-        v-model:search-query="searchQuery"
+        :search-query="search.searchQuery.value"
         placeholder="Buscar cartas..."
         :disabled="initialLoading"
         :show-pagination="
           filteredCards.length > 0 &&
           !initialLoading &&
-          !searchLoading &&
+          !search.isSearching.value &&
           !loadingStore.isLoading
         "
         :total-items="cardsStore.pagination.total || filteredCards.length"
         :items-per-page="itemsPerPage"
         :current-page="currentPage"
         :loading="loading"
+        @update:search-query="search.setQuery"
         @page-change="handlePageChange"
       />
 
-      <div
-        v-if="initialLoading || searchLoading || loading"
-        class="d-flex flex-column align-center justify-center py-15"
-      >
-        <LoadingSpinner size="large" class="mb-4" />
-        <p class="text-grey text-center">
-          {{
-            initialLoading
-              ? "Carregando cartas disponíveis..."
-              : searchLoading
-              ? "Buscando cartas..."
-              : "Carregando página..."
-          }}
-        </p>
-      </div>
+      <LoadingOverlay 
+        :loading="initialLoading || search.isSearching.value || loading"
+        :message="getLoadingMessage()"
+        :size="32"
+      />
 
-      <div v-else-if="!loadingStore.isLoading && !loading" class="cards-grid">
+      <div v-if="!loadingStore.isLoading && !loading" class="cards-grid">
         <Card
           v-for="card in paginatedCards"
           :key="card.id"
           :card="card"
           :selectable="true"
-          :selected="selectedCards.includes(card.id)"
+          :selected="cardSelection.isSelected(card.id)"
           :clickable="true"
           size="sm"
           variant="compact"
@@ -57,44 +48,44 @@
       </div>
 
       <div
-        v-else-if="loadingStore.isLoading"
+        v-if="loadingStore.isLoading"
         class="d-flex flex-column align-center justify-center py-15"
       >
         <LoadingSpinner size="large" class="mb-4" />
         <p class="text-grey text-center">Adicionando cartas à sua coleção...</p>
       </div>
 
-      <div
-        v-if="
-          filteredCards.length === 0 &&
-          !initialLoading &&
-          !searchLoading &&
-          !searchQuery
-        "
-        class="d-flex flex-column align-center justify-center py-15 text-center"
-      >
-        <v-icon size="64" color="grey-lighten-1" class="mb-4"
-          >mdi-magnify</v-icon
+              <div
+          v-if="
+            filteredCards.length === 0 &&
+            !initialLoading &&
+            !search.isSearching.value &&
+            !search.hasQuery.value
+          "
+          class="d-flex flex-column align-center justify-center py-15 text-center"
         >
-        <h3 class="text-h6 mb-2 text-grey">Nenhuma carta encontrada</h3>
-        <p class="text-body-2 text-grey">Nenhuma carta disponível no sistema</p>
-      </div>
+          <v-icon size="64" color="grey-lighten-1" class="mb-4"
+            >mdi-magnify</v-icon
+          >
+          <h3 class="text-h6 mb-2 text-grey">Nenhuma carta encontrada</h3>
+          <p class="text-body-2 text-grey">Nenhuma carta disponível no sistema</p>
+        </div>
 
-      <div
-        v-if="
-          filteredCards.length === 0 &&
-          !initialLoading &&
-          !searchLoading &&
-          searchQuery
-        "
-        class="d-flex flex-column align-center justify-center py-15 text-center"
-      >
-        <v-icon size="64" color="grey-lighten-1" class="mb-4"
-          >mdi-magnify</v-icon
+        <div
+          v-if="
+            filteredCards.length === 0 &&
+            !initialLoading &&
+            !search.isSearching.value &&
+            search.hasQuery.value
+          "
+          class="d-flex flex-column align-center justify-center py-15 text-center"
         >
-        <h3 class="text-h6 mb-2 text-grey">Nenhuma carta encontrada</h3>
-        <p class="text-body-2 text-grey">Tente ajustar sua busca</p>
-      </div>
+          <v-icon size="64" color="grey-lighten-1" class="mb-4"
+            >mdi-magnify</v-icon
+          >
+          <h3 class="text-h6 mb-2 text-grey">Nenhuma carta encontrada</h3>
+          <p class="text-body-2 text-grey">Tente ajustar sua busca</p>
+        </div>
     </div>
 
     <template #footer>
@@ -110,14 +101,12 @@
           <v-btn
             @click="handleAddCards"
             color="primary"
-            :disabled="selectedCards.length === 0 || loadingStore.isLoading"
+            :disabled="!cardSelection.hasSelection || loadingStore.isLoading"
             :loading="loadingStore.isLoading"
           >
             <span v-if="loadingStore.isLoading">Adicionando...</span>
             <span v-else
-              >Adicionar {{ selectedCards.length }} Carta{{
-                selectedCards.length !== 1 ? "s" : ""
-              }}</span
+              >Adicionar {{ arrayFormatters.formatCount(cardSelection.selectedCount.value, 'carta') }}</span
             >
           </v-btn>
         </div>
@@ -131,9 +120,13 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useCardsStore } from "../../../stores/cards";
 import { useLoadingStore } from "../../../stores/loading";
 import { useNotificationStore } from "../../../stores/notification";
+import { useCardSelection } from "../../../composables/useCardSelection";
+import { useSearch } from "../../../composables/useSearch";
+import { arrayFormatters } from "../../../utils/formatters";
 import BaseModal from "../../common/BaseModal.vue";
 import Card from "../../common/Card.vue";
 import LoadingSpinner from "../../common/LoadingSpinner.vue";
+import LoadingOverlay from "../../common/LoadingOverlay.vue";
 import SearchWithPagination from "../../common/SearchWithPagination.vue";
 import type { Card as CardType } from "../../../types";
 
@@ -152,14 +145,15 @@ const emit = defineEmits<Emits>();
 const cardsStore = useCardsStore();
 const loadingStore = useLoadingStore();
 const notificationStore = useNotificationStore();
-const searchQuery = ref("");
-const selectedCards = ref<string[]>([]);
-const initialLoading = ref(false);
 
+// Composables
+const cardSelection = useCardSelection();
+const search = useSearch({ debounceMs: 500 });
+
+// Estado local
+const initialLoading = ref(false);
 const currentPage = ref(1);
 const itemsPerPage = ref(12);
-const searchTimeout = ref<NodeJS.Timeout | null>(null);
-const searchLoading = ref(false);
 
 const isOpen = computed({
   get: () => props.modelValue,
@@ -174,18 +168,7 @@ const paginatedCards = computed(() => {
 });
 
 const filteredCards = computed(() => {
-  let filtered = allCards.value;
-
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase();
-    filtered = filtered.filter(
-      (card) =>
-        card.name.toLowerCase().includes(query) ||
-        card.description.toLowerCase().includes(query)
-    );
-  }
-
-  return filtered;
+  return search.filterByQuery(allCards.value, ['name', 'description'], search.debouncedQuery.value);
 });
 
 onMounted(() => {
@@ -201,34 +184,23 @@ watch(
       fetchAllCards();
     } else {
       currentPage.value = 1;
-      searchQuery.value = "";
+      search.clearQuery();
+      cardSelection.clearSelection();
     }
   }
 );
 
 watch(
-  () => searchQuery.value,
+  () => search.debouncedQuery.value,
   async () => {
     currentPage.value = 1;
 
-    if (searchTimeout.value) {
-      clearTimeout(searchTimeout.value);
+    if (search.debouncedQuery.value) {
+      await search.performSearch(async (query) => {
+        await cardsStore.fetchAllCards(1, itemsPerPage.value, query);
+        return allCards.value;
+      });
     }
-
-    searchTimeout.value = setTimeout(async () => {
-      if (searchQuery.value) {
-        searchLoading.value = true;
-        try {
-          await cardsStore.fetchAllCards(
-            1,
-            itemsPerPage.value,
-            searchQuery.value
-          );
-        } finally {
-          searchLoading.value = false;
-        }
-      }
-    }, 500);
   }
 );
 
@@ -246,52 +218,38 @@ async function handlePageChange(page: number) {
   await cardsStore.fetchAllCards(
     page,
     itemsPerPage.value,
-    searchQuery.value || undefined
+    search.debouncedQuery.value || undefined
   );
 }
 
-function toggleCardSelection(cardId: string) {
-  const index = selectedCards.value.indexOf(cardId);
-  if (index > -1) {
-    selectedCards.value.splice(index, 1);
-  } else {
-    selectedCards.value.push(cardId);
-  }
-}
-
 function handleCardClick(cardId: string) {
-  toggleCardSelection(cardId);
+  cardSelection.toggleCard(cardId);
 }
 
 function handleCardSelect(card: CardType, selected: boolean) {
-  if (selected) {
-    if (!selectedCards.value.includes(card.id)) {
-      selectedCards.value.push(card.id);
-    }
-  } else {
-    const index = selectedCards.value.indexOf(card.id);
-    if (index > -1) {
-      selectedCards.value.splice(index, 1);
-    }
-  }
+  cardSelection.selectCard(card.id);
+}
+
+function getLoadingMessage(): string {
+  if (initialLoading.value) return "Carregando cartas disponíveis...";
+  if (search.isSearching.value) return "Buscando cartas...";
+  return "Carregando página...";
 }
 
 async function handleAddCards() {
-  if (selectedCards.value.length === 0) return;
+  if (!cardSelection.hasSelection.value) return;
 
   loadingStore.startLoading();
 
   try {
-    await cardsStore.addCardsToUser(selectedCards.value);
+    await cardsStore.addCardsToUser(cardSelection.selectedCards.value);
 
     notificationStore.show(
-      `${selectedCards.value.length} carta${
-        selectedCards.value.length !== 1 ? "s" : ""
-      } adicionada${selectedCards.value.length !== 1 ? "s" : ""} com sucesso!`,
+      `${arrayFormatters.formatCount(cardSelection.selectedCount.value, 'carta')} adicionada com sucesso!`,
       "success"
     );
 
-    selectedCards.value = [];
+    cardSelection.clearSelection();
     emit("cards-added");
     emit("update:modelValue", false);
   } catch (error: any) {

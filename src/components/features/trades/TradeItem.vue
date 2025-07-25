@@ -9,7 +9,7 @@
           </div>
           <div class="d-flex align-center">
             <v-icon size="16" color="grey" class="mr-2">mdi-identifier</v-icon>
-            <span class="text-caption text-grey">#{{ trade.id.slice(0, 8) }}</span>
+            <span class="text-caption text-grey">{{ formattedId }}</span>
           </div>
         </div>
         
@@ -37,36 +37,14 @@
                 Oferecendo
               </h4>
               <div class="cards-preview">
-                <v-card
+                <CardPreview
                   v-for="tradeCard in offeringCards" 
                   :key="tradeCard.id"
-                  class="card-preview mb-3"
-                  variant="outlined"
-                  hover
-                  @click="handleCardClick(tradeCard.card)"
-                  style="cursor: pointer;"
-                >
-                  <div class="d-flex align-center pa-3">
-                    <div class="card-image mr-3">
-                      <v-img
-                        :src="tradeCard.card.imageUrl"
-                        :alt="tradeCard.card.name"
-                        width="48"
-                        height="68"
-                        class="rounded"
-                        cover
-                      />
-                    </div>
-                    <div class="flex-grow-1">
-                      <div class="text-subtitle-2 font-weight-medium mb-1">
-                        {{ tradeCard.card.name }}
-                      </div>
-                      <div class="text-caption text-grey line-clamp-2">
-                        {{ tradeCard.card.description }}
-                      </div>
-                    </div>
-                  </div>
-                </v-card>
+                  :card="tradeCard.card"
+                  size="sm"
+                  class="mb-3"
+                  @click="handleCardClick"
+                />
               </div>
             </div>
           </v-col>
@@ -86,36 +64,14 @@
                 Recebendo
               </h4>
               <div class="cards-preview">
-                <v-card
+                <CardPreview
                   v-for="tradeCard in receivingCards" 
                   :key="tradeCard.id"
-                  class="card-preview mb-3"
-                  variant="outlined"
-                  hover
-                  @click="handleCardClick(tradeCard.card)"
-                  style="cursor: pointer;"
-                >
-                  <div class="d-flex align-center pa-3">
-                    <div class="card-image mr-3">
-                      <v-img
-                        :src="tradeCard.card.imageUrl"
-                        :alt="tradeCard.card.name"
-                        width="48"
-                        height="68"
-                        class="rounded"
-                        cover
-                      />
-                    </div>
-                    <div class="flex-grow-1">
-                      <div class="text-subtitle-2 font-weight-medium mb-1">
-                        {{ tradeCard.card.name }}
-                      </div>
-                      <div class="text-caption text-grey line-clamp-2">
-                        {{ tradeCard.card.description }}
-                      </div>
-                    </div>
-                  </div>
-                </v-card>
+                  :card="tradeCard.card"
+                  size="sm"
+                  class="mb-3"
+                  @click="handleCardClick"
+                />
               </div>
             </div>
           </v-col>
@@ -129,7 +85,7 @@
       <div class="d-flex align-center">
         <div class="d-flex align-center mr-4">
           <v-icon size="16" color="grey" class="mr-1">mdi-cards</v-icon>
-          <span class="text-caption text-grey">{{ trade.tradeCards.length }} cartas</span>
+          <span class="text-caption text-grey">{{ cardsCountText }}</span>
         </div>
         <div class="d-flex align-center">
           <v-icon size="16" color="grey" class="mr-1">mdi-account</v-icon>
@@ -156,6 +112,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useAuthStore } from '../../../stores/auth';
+import { dateFormatters, textFormatters, arrayFormatters, statusFormatters } from '../../../utils/formatters';
+import CardPreview from '../../common/CardPreview.vue';
 import type { Trade } from '../../../types';
 import type { Card } from '../../../types/cards';
 
@@ -182,13 +140,11 @@ const emit = defineEmits<Emits>();
 const authStore = useAuthStore();
 
 const formattedDate = computed(() => {
-  return new Date(props.trade.createdAt).toLocaleDateString('pt-BR', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  return dateFormatters.formatDate(props.trade.createdAt);
+});
+
+const formattedId = computed(() => {
+  return textFormatters.formatId(props.trade.id);
 });
 
 const offeringCards = computed(() => {
@@ -208,23 +164,15 @@ const canDelete = computed(() => {
 });
 
 const statusText = computed(() => {
-  switch (props.status) {
-    case 'active': return 'Ativa';
-    case 'completed': return 'Concluída';
-    case 'expired': return 'Expirada';
-    case 'pending': return 'Pendente';
-    default: return 'Ativa';
-  }
+  return statusFormatters.formatTradeStatus(props.status);
 });
 
 const statusColor = computed(() => {
-  switch (props.status) {
-    case 'active': return 'success';
-    case 'completed': return 'primary';
-    case 'expired': return 'error';
-    case 'pending': return 'warning';
-    default: return 'success';
-  }
+  return statusFormatters.getStatusColor(props.status);
+});
+
+const cardsCountText = computed(() => {
+  return arrayFormatters.formatCount(props.trade.tradeCards.length, 'carta');
 });
 
 function handleCardClick(card: Card) {
@@ -243,22 +191,6 @@ function handleDelete() {
 
 .trade-item:hover {
   transform: translateY(-2px);
-}
-
-.card-preview {
-  transition: border-color 0.2s ease;
-}
-
-.card-preview:hover {
-  border-color: rgb(var(--v-theme-primary)) !important;
-}
-
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  line-height: 1.3;
 }
 
 .trade-arrow {
