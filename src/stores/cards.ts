@@ -66,18 +66,12 @@ export const useCardsStore = defineStore('cards', () => {
         const response: CardListResponse = await CardServices.getAllCards(page, rpp, search);
         allCards.value = response.list;
         
-        let calculatedTotal = 0;
-        if (response.more) {
-          calculatedTotal = page * rpp + rpp;
-        } else {
-          calculatedTotal = page * rpp;
-        }
-        
+        const total = response.total || (response.more ? (page * rpp + rpp) : (page * rpp));
         pagination.value = {
           page: response.page,
           rpp: response.rpp,
           more: response.more,
-          total: calculatedTotal
+          total: total
         };
       }
     } catch (err: any) {

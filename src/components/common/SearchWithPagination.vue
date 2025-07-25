@@ -20,6 +20,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import SearchInput from './SearchInput.vue';
 import SimplePagination from './SimplePagination.vue';
 
@@ -42,14 +43,19 @@ interface Emits {
 const props = withDefaults(defineProps<Props>(), {
   placeholder: 'Buscar...',
   disabled: false,
-  showPagination: false,
+  showPagination: true,
   totalItems: 0,
   itemsPerPage: 12,
   currentPage: 1,
   loading: false
 });
 
-const { placeholder, disabled, showPagination, totalItems, itemsPerPage, currentPage, loading } = props;
+// Forçar reatividade com computed
+const showPagination = computed(() => props.showPagination);
+const totalItems = computed(() => props.totalItems);
+const itemsPerPage = computed(() => props.itemsPerPage);
+const currentPage = computed(() => props.currentPage);
+const loading = computed(() => props.loading);
 
 const emit = defineEmits<Emits>();
 

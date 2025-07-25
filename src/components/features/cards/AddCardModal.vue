@@ -11,12 +11,10 @@
         placeholder="Buscar cartas..."
         :disabled="initialLoading"
         :show-pagination="
-          filteredCards.length > 0 &&
-          !initialLoading &&
-          !search.isSearching.value &&
-          !loadingStore.isLoading
+          cardsStore.pagination.total > itemsPerPage &&
+          !initialLoading
         "
-        :total-items="cardsStore.pagination.total || filteredCards.length"
+        :total-items="cardsStore.pagination.total"
         :items-per-page="itemsPerPage"
         :current-page="currentPage"
         :loading="loading"
@@ -25,14 +23,14 @@
       />
 
       <LoadingOverlay 
-        :loading="initialLoading || search.isSearching.value || loading"
+        :loading="initialLoading || search.isSearching.value"
         :message="getLoadingMessage()"
         :size="32"
       />
 
       <div v-if="!loadingStore.isLoading && !loading" class="cards-grid">
         <Card
-          v-for="card in paginatedCards"
+          v-for="card in allCards"
           :key="card.id"
           :card="card"
           :selectable="true"
@@ -48,16 +46,16 @@
       </div>
 
       <div
-        v-if="loadingStore.isLoading"
+        v-if="loading && !loadingStore.isLoading"
         class="d-flex flex-column align-center justify-center py-15"
       >
         <LoadingSpinner size="large" class="mb-4" />
-        <p class="text-grey text-center">Adicionando cartas à sua coleção...</p>
+        <p class="text-grey text-center">Carregando página...</p>
       </div>
 
               <div
           v-if="
-            filteredCards.length === 0 &&
+            allCards.length === 0 &&
             !initialLoading &&
             !search.isSearching.value &&
             !search.hasQuery.value
@@ -73,7 +71,7 @@
 
         <div
           v-if="
-            filteredCards.length === 0 &&
+            allCards.length === 0 &&
             !initialLoading &&
             !search.isSearching.value &&
             search.hasQuery.value
@@ -160,13 +158,7 @@ const isOpen = computed({
 const loading = computed(() => cardsStore.loading);
 const allCards = computed(() => cardsStore.allCards);
 
-const paginatedCards = computed(() => {
-  return filteredCards.value;
-});
 
-const filteredCards = computed(() => {
-  return search.filterByQuery(allCards.value, ['name', 'description'], search.debouncedQuery.value);
-});
 
 onMounted(() => {
   if (isOpen.value) {
@@ -174,10 +166,16 @@ onMounted(() => {
   }
 });
 
+// Debug: Log para verificar se a paginação está sendo calculada corretamente
+watch(() => cardsStore.pagination, (pagination) => {
+  console.log('AddCardModal - pagination changed:', pagination);
+}, { deep: true });
+
 watch(
   () => isOpen.value,
   (isOpen) => {
     if (isOpen) {
+      console.log('AddCardModal - modal opened, fetching cards');
       fetchAllCards();
     } else {
       currentPage.value = 1;
@@ -191,20 +189,16 @@ watch(
   () => search.debouncedQuery.value,
   async () => {
     currentPage.value = 1;
-
-    if (search.debouncedQuery.value) {
-      await search.performSearch(async (query) => {
-        await cardsStore.fetchAllCards(1, itemsPerPage.value, query);
-        return allCards.value;
-      });
-    }
+    await cardsStore.fetchAllCards(1, itemsPerPage.value, search.debouncedQuery.value || undefined);
   }
 );
 
 async function fetchAllCards() {
   initialLoading.value = true;
   try {
+    console.log('AddCardModal - fetchAllCards - page:', currentPage.value, 'itemsPerPage:', itemsPerPage.value);
     await cardsStore.fetchAllCards(currentPage.value, itemsPerPage.value);
+    console.log('AddCardModal - fetchAllCards - completed, pagination:', cardsStore.pagination);
   } finally {
     initialLoading.value = false;
   }

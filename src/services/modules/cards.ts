@@ -4,21 +4,11 @@ import type { Card, CardListResponse, AddCardsForm } from '../../types';
 
 export const CardServices = {
   async getAllCards(page = 1, rpp = 10, search?: string): Promise<CardListResponse> {
-    const cacheStore = useCacheStore();
-    const cacheKey = `cards-${page}-${rpp}-${search || 'all'}`;
-    
-    const cached = cacheStore.get<CardListResponse>(cacheKey);
-    if (cached) {
-      return cached;
-    }
-    
     let url = `/cards?page=${page}&rpp=${rpp}`;
     if (search) {
       url += `&search=${encodeURIComponent(search)}`;
     }
     const response = await api.get(url);
-    
-    cacheStore.set(cacheKey, response.data, 2 * 60 * 1000);
     
     return response.data;
   },

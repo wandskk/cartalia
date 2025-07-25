@@ -1,5 +1,5 @@
 <template>
-  <div v-if="totalPages > 1" class="d-flex align-center justify-center ga-4 py-4">
+  <div v-if="totalPages > 1 && totalItems > 0" class="d-flex align-center justify-center ga-4 py-4">
     <v-btn
       :disabled="currentPage === 1 || loading"
       variant="outlined"
@@ -45,9 +45,9 @@ const props = withDefaults(defineProps<Props>(), {
 });
 const emit = defineEmits<Emits>();
 
-const totalPages = computed(() =>
-  Math.ceil(props.totalItems / props.itemsPerPage)
-);
+const totalPages = computed(() => {
+  return Math.ceil(props.totalItems / props.itemsPerPage);
+});
 
 function handlePageChange(page: number) {
   if (page >= 1 && page <= totalPages.value && page !== props.currentPage && !props.loading) {
