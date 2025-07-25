@@ -2,7 +2,7 @@
 export { loginSchema, type LoginSchema } from './login.schema';
 export { registerSchema, type RegisterSchema } from './register.schema';
 
-// Schemas de cards
+// Schemas de cartas
 export { addCardsSchema, type AddCardsSchema } from './cards.schema';
 
 // Schemas de trades
@@ -18,4 +18,7 @@ export {
   validatePassword,
   validateName,
   validateUuid
-} from './common.schema'; 
+} from './common.schema';
+
+// Schemas de modais
+export * from './modals.schema'; 

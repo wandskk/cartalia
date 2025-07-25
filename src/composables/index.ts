@@ -6,4 +6,6 @@ export { useTradeCreation } from './useTradeCreation';
 export { useCardFilters } from './useCardFilters';
 export { useCardStates } from './useCardStates'; 
 export { useTradeFilters } from './useTradeFilters';
-export { useLoadingState } from './useLoadingState'; 
+export { useLoadingState } from './useLoadingState';
+export { useCardSelection } from './useCardSelection';
+export { useSearch } from './useSearch'; 

@@ -1,20 +1,23 @@
-// Tipos de autenticação
-export * from './auth';
-
-// Tipos de cards
-export * from './cards';
-
-// Tipos de trades
-export * from './trades';
-
-// Tipos comuns
-export * from './common';
-
-// Tipos de API
+// API Types
 export * from './api';
 
-// Tipos de stores
+// Auth Types
+export * from './auth';
+
+// Card Types
+export * from './cards';
+
+// Common Types
+export * from './common';
+
+// Component Types
+export * from './components';
+
+// Store Types
 export * from './store';
 
-// Tipos de componentes
-export * from './components'; 
+// Trade Types
+export * from './trades';
+
+// Modal Types
+export * from './modals'; 
