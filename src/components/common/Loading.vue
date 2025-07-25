@@ -1,6 +1,6 @@
 <template>
-  <div class="loading-overlay">
-    <div class="spinner"></div>
+  <div class="loading-overlay d-flex align-center justify-center">
+    <v-progress-circular indeterminate color="primary" size="56" />
   </div>
 </template>
 
@@ -12,22 +12,6 @@
   height: 100vh;
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 99999;
-}
-.spinner {
-  width: 56px;
-  height: 56px;
-  border: 7px solid #ccc;
-  border-top: 7px solid #333;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 </style>
