@@ -397,7 +397,6 @@ async function handleReceivingPageChange(page: number) {
 }
 
 function handleCardClick(card: Card) {
-  console.log("Card clicked:", card);
 }
 
 async function createTrade() {

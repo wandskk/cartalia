@@ -11,8 +11,7 @@
         placeholder="Buscar cartas..."
         :disabled="initialLoading"
         :show-pagination="
-          cardsStore.pagination.total > itemsPerPage &&
-          !initialLoading
+          cardsStore.pagination.total > itemsPerPage && !initialLoading
         "
         :total-items="cardsStore.pagination.total"
         :items-per-page="itemsPerPage"
@@ -22,7 +21,7 @@
         @page-change="handlePageChange"
       />
 
-      <LoadingOverlay 
+      <LoadingOverlay
         :loading="initialLoading || search.isSearching.value"
         :message="getLoadingMessage()"
         :size="32"
@@ -53,37 +52,37 @@
         <p class="text-grey text-center">Carregando página...</p>
       </div>
 
-              <div
-          v-if="
-            allCards.length === 0 &&
-            !initialLoading &&
-            !search.isSearching.value &&
-            !search.hasQuery.value
-          "
-          class="d-flex flex-column align-center justify-center py-15 text-center"
+      <div
+        v-if="
+          allCards.length === 0 &&
+          !initialLoading &&
+          !search.isSearching.value &&
+          !search.hasQuery.value
+        "
+        class="d-flex flex-column align-center justify-center py-15 text-center"
+      >
+        <v-icon size="64" color="grey-lighten-1" class="mb-4"
+          >mdi-magnify</v-icon
         >
-          <v-icon size="64" color="grey-lighten-1" class="mb-4"
-            >mdi-magnify</v-icon
-          >
-          <h3 class="text-h6 mb-2 text-grey">Nenhuma carta encontrada</h3>
-          <p class="text-body-2 text-grey">Nenhuma carta disponível no sistema</p>
-        </div>
+        <h3 class="text-h6 mb-2 text-grey">Nenhuma carta encontrada</h3>
+        <p class="text-body-2 text-grey">Nenhuma carta disponível no sistema</p>
+      </div>
 
-        <div
-          v-if="
-            allCards.length === 0 &&
-            !initialLoading &&
-            !search.isSearching.value &&
-            search.hasQuery.value
-          "
-          class="d-flex flex-column align-center justify-center py-15 text-center"
+      <div
+        v-if="
+          allCards.length === 0 &&
+          !initialLoading &&
+          !search.isSearching.value &&
+          search.hasQuery.value
+        "
+        class="d-flex flex-column align-center justify-center py-15 text-center"
+      >
+        <v-icon size="64" color="grey-lighten-1" class="mb-4"
+          >mdi-magnify</v-icon
         >
-          <v-icon size="64" color="grey-lighten-1" class="mb-4"
-            >mdi-magnify</v-icon
-          >
-          <h3 class="text-h6 mb-2 text-grey">Nenhuma carta encontrada</h3>
-          <p class="text-body-2 text-grey">Tente ajustar sua busca</p>
-        </div>
+        <h3 class="text-h6 mb-2 text-grey">Nenhuma carta encontrada</h3>
+        <p class="text-body-2 text-grey">Tente ajustar sua busca</p>
+      </div>
     </div>
 
     <template #footer>
@@ -104,7 +103,9 @@
           >
             <span v-if="loadingStore.isLoading">Adicionando...</span>
             <span v-else
-              >Adicionar {{ cardSelection.selectedCount.value }} carta{{ cardSelection.selectedCount.value !== 1 ? 's' : '' }}</span
+              >Adicionar {{ cardSelection.selectedCount.value }} carta{{
+                cardSelection.selectedCount.value !== 1 ? "s" : ""
+              }}</span
             >
           </v-btn>
         </div>
@@ -158,24 +159,16 @@ const isOpen = computed({
 const loading = computed(() => cardsStore.loading);
 const allCards = computed(() => cardsStore.allCards);
 
-
-
 onMounted(() => {
   if (isOpen.value) {
     fetchAllCards();
   }
 });
 
-// Debug: Log para verificar se a paginação está sendo calculada corretamente
-watch(() => cardsStore.pagination, (pagination) => {
-  console.log('AddCardModal - pagination changed:', pagination);
-}, { deep: true });
-
 watch(
   () => isOpen.value,
   (isOpen) => {
     if (isOpen) {
-      console.log('AddCardModal - modal opened, fetching cards');
       fetchAllCards();
     } else {
       currentPage.value = 1;
@@ -189,16 +182,18 @@ watch(
   () => search.debouncedQuery.value,
   async () => {
     currentPage.value = 1;
-    await cardsStore.fetchAllCards(1, itemsPerPage.value, search.debouncedQuery.value || undefined);
+    await cardsStore.fetchAllCards(
+      1,
+      itemsPerPage.value,
+      search.debouncedQuery.value || undefined
+    );
   }
 );
 
 async function fetchAllCards() {
   initialLoading.value = true;
   try {
-    console.log('AddCardModal - fetchAllCards - page:', currentPage.value, 'itemsPerPage:', itemsPerPage.value);
     await cardsStore.fetchAllCards(currentPage.value, itemsPerPage.value);
-    console.log('AddCardModal - fetchAllCards - completed, pagination:', cardsStore.pagination);
   } finally {
     initialLoading.value = false;
   }
@@ -236,7 +231,7 @@ async function handleAddCards() {
     await cardsStore.addCardsToUser(cardSelection.selectedCards.value);
 
     notificationStore.show(
-      `${cardSelection.selectedCount.value} carta${cardSelection.selectedCount.value !== 1 ? 's' : ''} adicionada com sucesso!`,
+      `${cardSelection.selectedCount.value} carta${cardSelection.selectedCount.value !== 1 ? "s" : ""} adicionada com sucesso!`,
       "success"
     );
 
