@@ -4,7 +4,7 @@
       <v-icon size="32" color="primary">mdi-cards</v-icon>
     </div>
     <div class="logo-text">
-      <span class="logo-title">Cartalia</span>
+      <span class="logo-title">Cartália</span>
       <span class="logo-subtitle">Trading Cards</span>
     </div>
   </div>
