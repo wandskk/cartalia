@@ -11,10 +11,11 @@ describe('Formatters', () => {
     });
 
     it('should format date time correctly', () => {
-      const date = new Date('2024-01-15T10:30:00Z');
+      const date = new Date(2024, 0, 15, 10, 30, 0); // 15 de janeiro de 2024, 10:30
       const result = formatDateTime(date);
       expect(result).toContain('15');
       expect(result).toContain('10:30');
+      expect(result).toContain('jan');
     });
 
     it('should format relative time correctly', () => {
@@ -71,7 +72,7 @@ describe('Formatters', () => {
 
     it('should truncate text correctly', () => {
       const result = truncateText('This is a long text', 10);
-      expect(result).toBe('This is a...');
+      expect(result).toBe('This is...');
     });
 
     it('should capitalize first letter correctly', () => {
