@@ -1,43 +1,50 @@
 <template>
   <div class="error-view">
     <Container>
-      <div class="error-content">
-        <div class="error-icon">
-          <span v-if="errorCode === '404'">🔍</span>
-          <span v-else-if="errorCode === '500'">⚡</span>
-          <span v-else-if="errorCode === '403'">🔒</span>
-          <span v-else>❌</span>
+      <div class="d-flex flex-column align-center justify-center text-center" style="max-width: 600px; margin: 0 auto;">
+        <div class="mb-6">
+          <v-icon 
+            size="80" 
+            :color="iconColor"
+            class="mb-6"
+          >
+            {{ iconName }}
+          </v-icon>
         </div>
 
-        <h1 class="error-title">{{ title }}</h1>
-        <p class="error-message">{{ message }}</p>
+        <h1 class="text-h3 font-weight-bold mb-4">{{ title }}</h1>
+        <p class="text-body-1 text-grey mb-8">{{ message }}</p>
 
-        <div class="error-actions">
-          <BaseButton @click="goBack" color="secondary">
-            ← Voltar
-          </BaseButton>
+        <div class="d-flex flex-wrap justify-center ga-4 mb-10">
+          <v-btn @click="goBack" color="secondary" variant="outlined" prepend-icon="mdi-arrow-left">
+            Voltar
+          </v-btn>
           
-          <BaseButton @click="goHome" color="primary">
+          <v-btn @click="goHome" color="primary" variant="elevated" prepend-icon="mdi-home">
             Ir para Home
-          </BaseButton>
+          </v-btn>
           
-          <BaseButton 
+          <v-btn 
             v-if="errorCode === '500'" 
             @click="retry" 
-            color="accent"
+            color="warning"
+            variant="elevated"
+            prepend-icon="mdi-refresh"
           >
             Tentar Novamente
-          </BaseButton>
+          </v-btn>
         </div>
 
-        <div v-if="errorCode === '404'" class="error-suggestions">
-          <h3>Sugestões:</h3>
-          <ul>
-            <li>Verifique se o endereço está correto</li>
-            <li>Use o menu de navegação para encontrar o que procura</li>
-            <li>Volte para a página anterior</li>
-          </ul>
-        </div>
+        <v-card v-if="errorCode === '404'" class="error-suggestions" elevation="2">
+          <v-card-text class="pa-6">
+            <h3 class="text-h6 font-weight-bold mb-4">Sugestões:</h3>
+            <ul class="text-body-1 text-grey">
+              <li class="mb-2">Verifique se o endereço está correto</li>
+              <li class="mb-2">Use o menu de navegação para encontrar o que procura</li>
+              <li>Volte para a página anterior</li>
+            </ul>
+          </v-card-text>
+        </v-card>
       </div>
     </Container>
   </div>
@@ -47,12 +54,29 @@
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Container from '../components/common/Container.vue';
-import BaseButton from '../components/common/BaseButton.vue';
 
 const route = useRoute();
 const router = useRouter();
 
 const errorCode = computed(() => route.params.code as string || '404');
+
+const iconName = computed(() => {
+  switch (errorCode.value) {
+    case '404': return 'mdi-magnify';
+    case '500': return 'mdi-lightning-bolt';
+    case '403': return 'mdi-lock';
+    default: return 'mdi-alert-circle';
+  }
+});
+
+const iconColor = computed(() => {
+  switch (errorCode.value) {
+    case '404': return 'warning';
+    case '500': return 'error';
+    case '403': return 'error';
+    default: return 'error';
+  }
+});
 
 const title = computed(() => {
   switch (errorCode.value) {
@@ -93,100 +117,24 @@ function retry() {
 }
 </script>
 
-<style scoped lang="scss">
-@use '../styles/_variables.scss' as *;
-
+<style scoped>
 .error-view {
   min-height: 100vh;
-  background: $gray-50;
+  background: linear-gradient(135deg, rgb(var(--v-theme-grey-lighten-5)) 0%, white 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px 0;
+}
 
-  .error-content {
-    text-align: center;
-    max-width: 600px;
-    margin: 0 auto;
+.error-suggestions {
+  border-radius: 12px;
+  border: 1px solid rgba(var(--v-theme-primary), 0.1);
+}
 
-    .error-icon {
-      font-size: 80px;
-      margin-bottom: 24px;
-      display: block;
-    }
-
-    .error-title {
-      margin: 0 0 16px 0;
-      color: $black;
-      font-size: 36px;
-      font-weight: 700;
-      line-height: 1.2;
-    }
-
-    .error-message {
-      margin: 0 0 32px 0;
-      color: $gray-600;
-      font-size: 18px;
-      line-height: 1.5;
-    }
-
-    .error-actions {
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      margin-bottom: 40px;
-      flex-wrap: wrap;
-
-      @media (max-width: 480px) {
-        flex-direction: column;
-        align-items: center;
-      }
-    }
-
-    .error-suggestions {
-      text-align: left;
-      background: $white;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-
-      h3 {
-        margin: 0 0 16px 0;
-        color: $black;
-        font-size: 18px;
-        font-weight: 600;
-      }
-
-      ul {
-        margin: 0;
-        padding-left: 20px;
-        color: $gray-700;
-        font-size: 16px;
-        line-height: 1.6;
-
-        li {
-          margin-bottom: 8px;
-
-          &:last-child {
-            margin-bottom: 0;
-          }
-        }
-      }
-    }
-
-    @media (max-width: 768px) {
-      .error-icon {
-        font-size: 60px;
-      }
-
-      .error-title {
-        font-size: 28px;
-      }
-
-      .error-message {
-        font-size: 16px;
-      }
-    }
+@media (max-width: 768px) {
+  .error-view {
+    padding: 16px 0;
   }
 }
 </style> 
