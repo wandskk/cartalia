@@ -69,6 +69,7 @@ import { useAuthStore } from '../../../stores/auth';
 import { useNotificationStore } from '../../../stores/notification';
 import TradeItem from './TradeItem.vue';
 import SimplePagination from '../../common/SimplePagination.vue';
+import LoadingSpinner from '../../common/LoadingSpinner.vue';
 import type { Trade } from '../../../types';
 import type { Card } from '../../../types/cards';
 

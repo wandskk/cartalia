@@ -15,6 +15,7 @@
 </script>
 
 <style scoped lang="scss">
+@use "sass:color";
 .logo {
   display: flex;
   align-items: center;
@@ -29,7 +30,7 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, $primary 0%, darken($primary, 10%) 100%);
+  background: linear-gradient(135deg, $primary 0%, color.adjust($primary, $lightness: -10%) 100%);
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba($primary, 0.3);
 }

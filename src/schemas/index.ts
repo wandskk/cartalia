@@ -18,7 +18,7 @@ export {
   validatePassword,
   validateName,
   validateUuid
-} from './common.schema';
+} from './common.schema'; 
 
 // Schemas de modais
 export * from './modals.schema'; 

@@ -65,12 +65,10 @@ import { useLoadingStore } from "../stores/loading";
 import { useCardFilters } from "../composables/useCardFilters";
 import { useCardStates } from "../composables/useCardStates";
 import Container from "../components/common/Container.vue";
-
 import Pagination from "../components/common/Pagination.vue";
 import CardsHeader from "../components/features/cards/CardsHeader.vue";
 import CardStats from "../components/features/cards/CardStats.vue";
 import CardsFilters from "../components/features/cards/CardsFilters.vue";
-
 import CardsErrorState from "../components/features/cards/CardsErrorState.vue";
 import CardsEmptyState from "../components/features/cards/CardsEmptyState.vue";
 import CardsNoResults from "../components/features/cards/CardsNoResults.vue";
