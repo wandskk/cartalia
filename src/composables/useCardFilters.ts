@@ -28,7 +28,7 @@ export function useCardFilters(cards: Ref<Card[]>) {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     return cards.value.filter(
       (card) => new Date(card.createdAt) > thirtyDaysAgo
-    ).length;
+    );
   });
 
   return {
