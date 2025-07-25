@@ -167,13 +167,13 @@ describe('useApi', () => {
 
   describe.skip('error store integration', () => {
     it('should add API error to error store', async () => {
-      setActivePinia(createPinia()); // garante que useApi e o teste compartilham a mesma store
+      setActivePinia(createPinia());
 
       const { useErrorStore } = await import('../../../stores/error');
       const errorStore = useErrorStore();
       errorStore.errors = [];
 
-      const api = useApi(); // crie a instância do composable depois de setActivePinia
+      const api = useApi();
       const mockError = new Error('API Error');
       const mockApiCall = vi.fn().mockRejectedValue(mockError);
       await api.execute(mockApiCall);
