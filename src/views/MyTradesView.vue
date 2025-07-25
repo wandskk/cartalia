@@ -22,11 +22,19 @@
 
       <v-card class="trades-section" elevation="2">
         <v-card-text class="pa-6">
-          <TradeFilters v-model="filters" @filter="handleFiltersChange" />
+          <TradeFilters 
+            @filters-change="handleFiltersChange"
+            @page-change="handleLocalPageChange"
+            :loading="loading"
+            :show-pagination="showLocalPagination"
+            :total-items="totalFilteredTrades"
+            :items-per-page="localPagination.rpp"
+            :current-page="localPagination.page"
+          />
 
           <div class="trades-content">
             <MyTradeList
-              :trades="filteredTrades"
+              :trades="paginatedTradesList"
               :loading="loading"
               :error="error"
               :view-mode="viewMode"
@@ -87,6 +95,7 @@ const notification = useNotificationStore();
 const loading = computed(() => tradesStore.loading);
 const error = computed(() => tradesStore.error);
 const userTrades = computed(() => tradesStore.userTrades);
+const pagination = computed(() => tradesStore.pagination);
 
 const viewMode = ref<"grid" | "list">("grid");
 const showCreateModal = ref(false);
@@ -95,14 +104,37 @@ const showCardDetailModal = ref(false);
 const selectedCardId = ref<string>("");
 const tradeToDelete = ref<Trade | null>(null);
 
-const filters = ref({
-  searchTerm: "",
+// Paginação local para filtros
+const localPagination = ref({
+  page: 1,
+  rpp: 12
 });
 
 const { filteredTrades, updateFilters } = useTradeFilters(userTrades);
 
-function handleFiltersChange(newFilters: { searchTerm: string }) {
-  updateFilters(newFilters);
+const totalFilteredTrades = computed(() => {
+  return filteredTrades.value.length;
+});
+
+const showLocalPagination = computed(() => {
+  return totalFilteredTrades.value > localPagination.value.rpp;
+});
+
+const paginatedTradesList = computed(() => {
+  const startIndex = (localPagination.value.page - 1) * localPagination.value.rpp;
+  const endIndex = startIndex + localPagination.value.rpp;
+  return filteredTrades.value.slice(startIndex, endIndex);
+});
+
+function handleFiltersChange(newFilters: { search: string }) {
+  // Converter para o formato esperado pelo useTradeFilters
+  updateFilters({ searchTerm: newFilters.search });
+  // Reset para primeira página quando filtrar
+  localPagination.value.page = 1;
+}
+
+function handleLocalPageChange(page: number) {
+  localPagination.value.page = page;
 }
 
 onMounted(() => {
@@ -114,7 +146,8 @@ onMounted(() => {
 });
 
 async function fetchUserTrades() {
-  await tradesStore.fetchAllTrades();
+  // Carregar mais trades da API para ter dados suficientes para filtragem
+  await tradesStore.fetchAllTrades(1, 50, true); // Carregar 50 trades de uma vez
 }
 
 async function handleDeleteTrade(trade: Trade) {

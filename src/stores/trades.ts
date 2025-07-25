@@ -28,18 +28,26 @@ export const useTradesStore = defineStore('trades', () => {
 
   const totalUserTrades = computed(() => userTrades.value.length);
 
-  async function fetchAllTrades(page = 1, rpp = 10) {
+  async function fetchAllTrades(page = 1, rpp = 10, reset = false) {
     loading.value = true;
     loadingStore.startLoading();
     error.value = null;
     
     try {
       const response: TradeListResponse = await TradeServices.getAllTrades(page, rpp);
-      allTrades.value = response.list;
+      
+      if (reset || page === 1) {
+        // Reset ou primeira página: substituir todos os trades
+        allTrades.value = response.list;
+      } else {
+        // Páginas subsequentes: acumular trades
+        allTrades.value = [...allTrades.value, ...response.list];
+      }
+      
       pagination.value = {
         page: response.page,
         rpp: response.rpp,
-        total: response.list.length,
+        total: allTrades.value.length,
         more: response.more
       };
     } catch (err: any) {
@@ -50,8 +58,8 @@ export const useTradesStore = defineStore('trades', () => {
     }
   }
 
-  async function fetchUserTrades(page = 1, rpp = 10) {
-    await fetchAllTrades(page, rpp);
+  async function fetchUserTrades(page = 1, rpp = 10, reset = false) {
+    await fetchAllTrades(page, rpp, reset);
   }
 
   async function createTrade(tradeData: CreateTradeForm) {
@@ -61,7 +69,7 @@ export const useTradesStore = defineStore('trades', () => {
     
     try {
       await TradeServices.createTrade(tradeData);
-      await fetchAllTrades();
+      await fetchAllTrades(1, pagination.value.rpp, true); // Reset para primeira página
     } catch (err: any) {
       error.value = err.message || 'Erro ao criar troca';
       throw err;
@@ -78,7 +86,7 @@ export const useTradesStore = defineStore('trades', () => {
     
     try {
       await TradeServices.deleteTrade(tradeId);
-      await fetchAllTrades();
+      await fetchAllTrades(1, pagination.value.rpp, true); // Reset para primeira página
     } catch (err: any) {
       error.value = err.message || 'Erro ao deletar troca';
     } finally {
@@ -89,6 +97,16 @@ export const useTradesStore = defineStore('trades', () => {
 
   function clearError() {
     error.value = null;
+  }
+
+  function clearTrades() {
+    allTrades.value = [];
+    pagination.value = {
+      page: 1,
+      rpp: 10,
+      total: 0,
+      more: false
+    };
   }
 
   return {
@@ -103,6 +121,7 @@ export const useTradesStore = defineStore('trades', () => {
     fetchUserTrades,
     createTrade,
     deleteTrade,
-    clearError
+    clearError,
+    clearTrades
   };
 }); 

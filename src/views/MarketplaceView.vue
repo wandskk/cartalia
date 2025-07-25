@@ -30,13 +30,21 @@
 
         <v-card class="trades-section" elevation="2">
           <v-card-text class="pa-6">
-            <TradeFilters @filters-change="handleFiltersChange" />
+            <TradeFilters 
+              @filters-change="handleFiltersChange"
+              @page-change="handleLocalPageChange"
+              :loading="loading"
+              :show-pagination="showLocalPagination"
+              :total-items="totalFilteredTrades"
+              :items-per-page="localPagination.rpp"
+              :current-page="localPagination.page"
+            />
 
             <TradeList
-              :trades="filteredTradesList"
+              :trades="paginatedTradesList"
               :loading="loading"
               :error="error"
-              :show-pagination="true"
+              :show-pagination="false"
               :pagination="pagination"
               @retry="fetchTrades"
               @page-change="handlePageChange"
@@ -79,6 +87,12 @@ const { filteredTrades, updateFilters } = useMarketplaceFilters();
 const showCardDetailModal = ref(false);
 const selectedCardId = ref<string>("");
 
+// Paginação local para filtros
+const localPagination = ref({
+  page: 1,
+  rpp: 12
+});
+
 const loading = computed(() => tradesStore.loading);
 const error = computed(() => tradesStore.error);
 const trades = computed(() => tradesStore.allTrades);
@@ -89,8 +103,22 @@ const filteredTradesList = computed(() => {
   return filteredTrades.value(trades.value);
 });
 
-const filteredTradesCount = computed(() => {
+const totalFilteredTrades = computed(() => {
   return filteredTradesList.value.length;
+});
+
+const showLocalPagination = computed(() => {
+  return totalFilteredTrades.value > localPagination.value.rpp;
+});
+
+const paginatedTradesList = computed(() => {
+  const startIndex = (localPagination.value.page - 1) * localPagination.value.rpp;
+  const endIndex = startIndex + localPagination.value.rpp;
+  return filteredTradesList.value.slice(startIndex, endIndex);
+});
+
+const filteredTradesCount = computed(() => {
+  return totalFilteredTrades.value;
 });
 
 onMounted(() => {
@@ -98,11 +126,20 @@ onMounted(() => {
 });
 
 async function fetchTrades() {
-  await tradesStore.fetchAllTrades();
+  // Carregar mais trades da API para ter dados suficientes para filtragem
+  await tradesStore.fetchAllTrades(1, 50, true); // Carregar 50 trades de uma vez
 }
 
 async function handlePageChange(page: number) {
-  await tradesStore.fetchAllTrades(page, pagination.value.rpp);
+  // Carregar mais trades da API se necessário
+  if (page > Math.ceil(trades.value.length / pagination.value.rpp)) {
+    const nextPage = Math.ceil(trades.value.length / pagination.value.rpp) + 1;
+    await tradesStore.fetchAllTrades(nextPage, pagination.value.rpp, false);
+  }
+}
+
+function handleLocalPageChange(page: number) {
+  localPagination.value.page = page;
 }
 
 async function handleDeleteTrade(tradeId: string) {
@@ -111,6 +148,8 @@ async function handleDeleteTrade(tradeId: string) {
 
 function handleFiltersChange(newFilters: any) {
   updateFilters(newFilters);
+  // Reset para primeira página quando filtrar
+  localPagination.value.page = 1;
 }
 
 function handleCardClick(card: Card) {
