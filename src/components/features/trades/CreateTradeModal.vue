@@ -349,28 +349,24 @@ function handleReceivingCardSelect(card: Card, selected: boolean) {
   }
 }
 
-// Pagination handlers
-async function handleOfferingPageChange(page: number) {
-  userCardsPagination.value.page = page;
-  userCardsPagination.value.total = totalFilteredOfferingCards.value;
-}
-
-async function handleReceivingPageChange(page: number) {
-  allCardsPagination.value.page = page;
-  allCardsPagination.value.total = totalFilteredReceivingCards.value;
-}
-
 // Search handlers
 function handleOfferingSearchChange(query: string) {
   offeringSearchQuery.value = query;
-  userCardsPagination.value.page = 1;
-  userCardsPagination.value.total = totalFilteredOfferingCards.value;
+  userCardsPagination.value.page = 1; // Reset para primeira página
 }
 
 function handleReceivingSearchChange(query: string) {
   receivingSearchQuery.value = query;
-  allCardsPagination.value.page = 1;
-  allCardsPagination.value.total = totalFilteredReceivingCards.value;
+  allCardsPagination.value.page = 1; // Reset para primeira página
+}
+
+// Pagination handlers
+async function handleOfferingPageChange(page: number) {
+  userCardsPagination.value.page = page;
+}
+
+async function handleReceivingPageChange(page: number) {
+  allCardsPagination.value.page = page;
 }
 
 function handleCardClick(card: Card) {

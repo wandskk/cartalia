@@ -15,7 +15,7 @@
       :placeholder="searchPlaceholder"
       :disabled="loading"
       :show-pagination="showPagination"
-      :total-items="totalItems"
+      :total-items="totalFilteredItems"
       :items-per-page="itemsPerPage"
       :current-page="currentPage"
       :loading="loading"
@@ -31,7 +31,7 @@
 
     <div v-if="!loading" class="cards-grid flex-grow-1">
       <Card
-        v-for="card in filteredCards"
+        v-for="card in paginatedCards"
         :key="card.id"
         :card="card"
         :selectable="true"
@@ -47,7 +47,7 @@
     </div>
 
     <div
-      v-if="filteredCards.length === 0 && !loading"
+      v-if="paginatedCards.length === 0 && !loading"
       class="d-flex flex-column align-center justify-center py-15 text-center"
     >
       <v-icon size="64" color="grey-lighten-1" class="mb-4">{{ emptyIcon }}</v-icon>
@@ -109,9 +109,18 @@ const filteredCards = computed(() => {
   return search.filterByQuery(props.cards, ['name', 'description'], search.debouncedQuery.value);
 });
 
+const totalFilteredItems = computed(() => {
+  return filteredCards.value.length;
+});
+
+const paginatedCards = computed(() => {
+  const startIndex = (props.currentPage - 1) * props.itemsPerPage;
+  const endIndex = startIndex + props.itemsPerPage;
+  return filteredCards.value.slice(startIndex, endIndex);
+});
+
 const showPagination = computed(() => {
-  return filteredCards.value.length > 0 && 
-         filteredCards.value.length > props.itemsPerPage;
+  return totalFilteredItems.value > props.itemsPerPage;
 });
 
 // Methods

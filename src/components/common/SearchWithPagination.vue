@@ -5,7 +5,7 @@
       :placeholder="placeholder"
       :disabled="disabled"
       class="flex-grow-1"
-      @update:model-value="$emit('update:searchQuery', $event)"
+      @update:model-value="handleSearchChange"
     />
 
     <SimplePagination
@@ -14,7 +14,7 @@
       :items-per-page="itemsPerPage"
       :current-page="currentPage"
       :loading="loading"
-      @page-change="$emit('page-change', $event)"
+      @page-change="handlePageChange"
     />
   </div>
 </template>
@@ -39,7 +39,7 @@ interface Emits {
   (e: 'page-change', page: number): void;
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   placeholder: 'Buscar...',
   disabled: false,
   showPagination: false,
@@ -49,7 +49,15 @@ withDefaults(defineProps<Props>(), {
   loading: false
 });
 
-defineEmits<Emits>();
+const emit = defineEmits<Emits>();
+
+function handleSearchChange(value: string) {
+  emit('update:searchQuery', value);
+}
+
+function handlePageChange(page: number) {
+  emit('page-change', page);
+}
 </script>
 
 <style scoped>
