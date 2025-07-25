@@ -40,7 +40,6 @@ watch(filters, (newFilters) => {
 <style scoped>
 .search-section {
   width: 100%;
-  max-width: 400px;
 }
 
 @media (max-width: 768px) {

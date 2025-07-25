@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex justify-space-between align-center mb-6 flex-wrap ga-4">
     <div class="d-flex align-center ga-4 flex-grow-1 min-width-0">
-      <div class="flex-grow-1" style="max-width: 300px;">
+      <div class="flex-grow-1">
         <SearchInput
           :model-value="searchQuery"
           placeholder="Buscar cartas..."

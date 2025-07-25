@@ -5,60 +5,78 @@
         <LoadingSpinner text="Carregando detalhes da carta..." />
       </div>
 
-      <div v-else-if="error" class="error-state">
-        <p class="error-message">{{ error }}</p>
-        <BaseButton @click="fetchCard" color="primary"
-          >Tentar novamente</BaseButton
-        >
+      <div v-else-if="error" class="d-flex flex-column align-center justify-center py-10 text-center">
+        <v-icon size="48" color="error" class="mb-4">mdi-alert-circle</v-icon>
+        <p class="text-error text-body-1 mb-4">{{ error }}</p>
+        <v-btn @click="fetchCard" color="primary" variant="elevated">
+          Tentar novamente
+        </v-btn>
       </div>
 
-      <div v-else-if="!selectedCard" class="not-found-state">
-        <h2>Carta não encontrada</h2>
-        <p>A carta que você está procurando não existe ou foi removida.</p>
-        <BaseButton @click="goBack" color="primary">Voltar</BaseButton>
+      <div v-else-if="!selectedCard" class="d-flex flex-column align-center justify-center py-10 text-center">
+        <v-icon size="48" color="warning" class="mb-4">mdi-card-off</v-icon>
+        <h2 class="text-h5 font-weight-bold mb-2">Carta não encontrada</h2>
+        <p class="text-body-1 text-grey mb-4">A carta que você está procurando não existe ou foi removida.</p>
+        <v-btn @click="goBack" color="primary" variant="elevated">Voltar</v-btn>
       </div>
 
       <div v-else class="card-detail-content">
-        <div class="header">
-          <BaseButton @click="goBack" color="secondary"> ← Voltar </BaseButton>
+        <div class="mb-6">
+          <v-btn @click="goBack" color="secondary" variant="outlined" prepend-icon="mdi-arrow-left">
+            Voltar
+          </v-btn>
         </div>
 
-        <div class="card-detail">
-          <div class="card-image-section">
-            <div class="card-image">
-              <img
-                :src="selectedCard.imageUrl"
-                :alt="selectedCard.name"
-                @error="handleImageError"
-              />
-            </div>
-          </div>
+        <v-card class="card-detail" elevation="2">
+          <v-card-text class="pa-6">
+            <div class="d-flex flex-column flex-md-row align-start ga-6">
+              <div class="d-flex justify-center mb-4 mb-md-0">
+                <v-img
+                  :src="selectedCard.imageUrl"
+                  :alt="selectedCard.name"
+                  width="300"
+                  height="420"
+                  class="rounded-lg elevation-3"
+                  @error="handleImageError"
+                  cover
+                />
+              </div>
 
-          <div class="card-info-section">
-            <div class="card-header">
-              <h1 class="card-name">{{ selectedCard.name }}</h1>
-            </div>
+              <div class="flex-grow-1">
+                <div class="mb-6">
+                  <h1 class="text-h4 font-weight-bold mb-2">{{ selectedCard.name }}</h1>
+                </div>
 
-            <div class="card-description">
-              <h3>Descrição</h3>
-              <p>{{ selectedCard.description }}</p>
-            </div>
+                <div class="mb-6">
+                  <h3 class="text-h6 font-weight-bold mb-3">Descrição</h3>
+                  <p class="text-body-1">{{ selectedCard.description }}</p>
+                </div>
 
-            <div class="card-actions">
-              <BaseButton v-if="isUserCard" @click="addToTrade" color="primary">
-                Usar em Troca
-              </BaseButton>
+                <div class="d-flex flex-wrap ga-3">
+                  <v-btn 
+                    v-if="isUserCard" 
+                    @click="addToTrade" 
+                    color="primary" 
+                    variant="elevated"
+                    prepend-icon="mdi-swap-horizontal"
+                  >
+                    Usar em Troca
+                  </v-btn>
 
-              <BaseButton
-                @click="addToCollection"
-                color="secondary"
-                :disabled="isUserCard"
-              >
-                {{ isUserCard ? "Já na sua coleção" : "Adicionar à Coleção" }}
-              </BaseButton>
+                  <v-btn
+                    @click="addToCollection"
+                    :color="isUserCard ? 'grey' : 'secondary'"
+                    :variant="isUserCard ? 'tonal' : 'elevated'"
+                    :disabled="isUserCard"
+                    prepend-icon="mdi-plus"
+                  >
+                    {{ isUserCard ? "Já na sua coleção" : "Adicionar à Coleção" }}
+                  </v-btn>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </v-card-text>
+        </v-card>
       </div>
     </Container>
   </div>
@@ -71,7 +89,6 @@ import { useCardsStore } from "../stores/cards";
 import { useAuthStore } from "../stores/auth";
 import { useNotificationStore } from "../stores/notification";
 import Container from "../components/common/Container.vue";
-import BaseButton from "../components/common/BaseButton.vue";
 import LoadingSpinner from "../components/common/LoadingSpinner.vue";
 
 const route = useRoute();
@@ -103,201 +120,47 @@ onMounted(() => {
 });
 
 async function fetchCard() {
-  if (cardId.value) {
+  try {
     await cardsStore.fetchCardById(cardId.value);
+  } catch (err: any) {
+    notification.show(err.message || "Erro ao carregar carta", "error");
   }
-}
-
-function handleImageError(event: Event) {
-  const target = event.target as HTMLImageElement;
-  target.src = "/placeholder-card.jpg";
 }
 
 function goBack() {
   router.back();
 }
 
-function addToTrade() {
-  notification.show("Funcionalidade em desenvolvimento", "info");
+function handleImageError(event: Event) {
+  const img = event.target as HTMLImageElement;
+  img.src = "/placeholder-card.jpg";
 }
 
 async function addToCollection() {
-  if (!selectedCard.value || isUserCard.value) return;
+  if (!selectedCard.value) return;
 
   try {
     await cardsStore.addCardsToUser([selectedCard.value.id]);
     notification.show("Carta adicionada à sua coleção!", "success");
   } catch (err: any) {
-    notification.show(
-      err.message || "Erro ao adicionar carta à coleção",
-      "error"
-    );
+    notification.show(err.message || "Erro ao adicionar carta", "error");
   }
+}
+
+function addToTrade() {
+  if (!selectedCard.value) return;
+  router.push(`/my-trades?card=${selectedCard.value.id}`);
 }
 </script>
 
-<style scoped lang="scss">
-@use "../styles/_variables.scss" as *;
-
+<style scoped>
 .card-detail-view {
   min-height: 100vh;
-  background: $gray-50;
-  padding: 24px 0;
+  background: linear-gradient(135deg, rgb(var(--v-theme-grey-lighten-5)) 0%, white 100%);
+}
 
-  .loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 80px 20px;
-    color: $gray-600;
-
-    .loading-spinner {
-      width: 48px;
-      height: 48px;
-      border: 4px solid $gray-200;
-      border-top: 4px solid $primary;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 16px;
-    }
-
-    @keyframes spin {
-      0% {
-        transform: rotate(0deg);
-      }
-      100% {
-        transform: rotate(360deg);
-      }
-    }
-  }
-
-  .error-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 80px 20px;
-    text-align: center;
-
-    .error-message {
-      color: $error;
-      margin-bottom: 16px;
-      font-size: 16px;
-    }
-  }
-
-  .not-found-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 80px 20px;
-    text-align: center;
-
-    h2 {
-      margin: 0 0 16px 0;
-      color: $black;
-      font-size: 24px;
-      font-weight: 600;
-    }
-
-    p {
-      margin: 0 0 24px 0;
-      color: $gray-600;
-      font-size: 16px;
-    }
-  }
-
-  .card-detail-content {
-    .header {
-      margin-bottom: 24px;
-    }
-
-    .card-detail {
-      background: $white;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
-
-      @media (min-width: 768px) {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0;
-      }
-
-      .card-image-section {
-        background: $gray-100;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 40px;
-
-        .card-image {
-          max-width: 400px;
-          width: 100%;
-
-          img {
-            width: 100%;
-            height: auto;
-            border-radius: 8px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-          }
-        }
-      }
-
-      .card-info-section {
-        padding: 32px;
-
-        .card-header {
-          margin-bottom: 24px;
-
-          .card-name {
-            margin: 0 0 12px 0;
-            color: $black;
-            font-size: 28px;
-            font-weight: 700;
-            line-height: 1.2;
-          }
-
-          .card-meta {
-            .card-date {
-              font-size: 14px;
-              color: $gray-500;
-            }
-          }
-        }
-
-        .card-description {
-          margin-bottom: 32px;
-
-          h3 {
-            margin: 0 0 12px 0;
-            color: $black;
-            font-size: 18px;
-            font-weight: 600;
-          }
-
-          p {
-            margin: 0;
-            color: $gray-700;
-            font-size: 16px;
-            line-height: 1.6;
-            white-space: pre-line;
-          }
-        }
-
-        .card-actions {
-          display: flex;
-          gap: 12px;
-          flex-wrap: wrap;
-
-          @media (max-width: 480px) {
-            flex-direction: column;
-          }
-        }
-      }
-    }
-  }
+.card-detail {
+  border-radius: 16px;
+  border: 1px solid rgba(var(--v-theme-primary), 0.1);
 }
 </style>

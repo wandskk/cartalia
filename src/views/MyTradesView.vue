@@ -22,9 +22,7 @@
 
       <v-card class="trades-section" elevation="2">
         <v-card-text class="pa-6">
-          <div class="d-flex justify-space-between align-end flex-wrap ga-4">
-            <TradeFilters v-model="filters" @filter="handleFiltersChange" />
-          </div>
+          <TradeFilters v-model="filters" @filter="handleFiltersChange" />
 
           <div class="trades-content">
             <MyTradeList

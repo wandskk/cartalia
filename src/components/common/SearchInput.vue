@@ -45,6 +45,6 @@ watch(() => props.modelValue, (newValue) => {
 
 <style scoped>
 .search-input {
-  min-width: 180px;
+  width: 100%;
 }
 </style> 

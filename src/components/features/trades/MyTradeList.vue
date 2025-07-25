@@ -1,30 +1,52 @@
 <template>
   <div class="my-trade-list">
-    <div v-if="loading && trades.length === 0" class="d-flex flex-column align-center justify-center py-10 text-grey">
+    <div
+      v-if="loading && trades.length === 0"
+      class="d-flex flex-column align-center justify-center py-10 text-grey"
+    >
       <LoadingSpinner text="Carregando suas trocas..." />
     </div>
 
-    <div v-else-if="error && trades.length === 0" class="error-state">
-      <div class="error-icon">⚠️</div>
-      <p class="error-message">{{ error }}</p>
-      <BaseButton @click="retry" color="primary">Tentar novamente</BaseButton>
+    <div
+      v-else-if="error && trades.length === 0"
+      class="d-flex flex-column align-center justify-center py-10 text-center"
+    >
+      <v-icon size="48" color="error" class="mb-4">mdi-alert-circle</v-icon>
+      <p class="text-error text-body-1 mb-4">{{ error }}</p>
+      <v-btn @click="retry" color="primary" variant="elevated"
+        >Tentar novamente</v-btn
+      >
     </div>
 
-    <div v-else-if="trades.length === 0" class="empty-state">
-      <div class="empty-content">
-        <div class="empty-icon">🃏</div>
-        <h3>Você ainda não tem trocas</h3>
-        <p>Crie sua primeira troca para começar a negociar!</p>
-        <BaseButton color="primary" class="create-btn">
-          <span class="btn-icon">+</span>
+    <div
+      v-else-if="trades.length === 0"
+      class="d-flex align-center justify-center py-10"
+    >
+      <div class="text-center" style="max-width: 400px">
+        <div class="mb-4" style="font-size: 64px">🃏</div>
+        <h3 class="text-h5 font-weight-bold mb-4">Você ainda não tem trocas</h3>
+        <p class="text-body-1 text-grey mb-6">
+          Crie sua primeira troca para começar a negociar!
+        </p>
+        <v-btn
+          color="primary"
+          variant="elevated"
+          class="d-flex align-center ga-2"
+        >
+          <v-icon>mdi-plus</v-icon>
           Criar Primeira Troca
-        </BaseButton>
+        </v-btn>
       </div>
     </div>
 
     <div v-else class="trades-content">
-      <div class="trades-header">
-        <h3>{{ trades.length }} troca{{ trades.length !== 1 ? 's' : '' }} encontrada{{ trades.length !== 1 ? 's' : '' }}</h3>
+      <div class="mb-4">
+        <h3 class="text-h6 font-weight-bold text-grey-darken-2">
+          {{ trades.length }} troca{{
+            trades.length !== 1 ? "s" : ""
+          }}
+          encontrada{{ trades.length !== 1 ? "s" : "" }}
+        </h3>
       </div>
 
       <div :class="['trades-grid', `view-${viewMode}`]">
@@ -44,7 +66,6 @@
 </template>
 
 <script setup lang="ts">
-import BaseButton from "../../common/BaseButton.vue";
 import TradeItem from "./TradeItem.vue";
 import LoadingSpinner from "../../common/LoadingSpinner.vue";
 import type { Trade } from "../../../types";
@@ -83,170 +104,13 @@ function handleDelete(trade: Trade) {
 }
 </script>
 
-<style scoped lang="scss">
-@use "../../../styles/_variables.scss" as *;
-
-.my-trade-list {
-  .loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 80px 20px;
-    color: $gray-600;
-
-    .loading-spinner {
-      width: 48px;
-      height: 48px;
-      border: 4px solid $gray-200;
-      border-top: 4px solid $primary;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 16px;
-    }
-
-    @keyframes spin {
-      0% {
-        transform: rotate(0deg);
-      }
-      100% {
-        transform: rotate(360deg);
-      }
-    }
-  }
-
-  .error-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 80px 20px;
-    text-align: center;
-
-    .error-icon {
-      font-size: 48px;
-      margin-bottom: 16px;
-    }
-
-    .error-message {
-      color: $error;
-      margin-bottom: 16px;
-      font-size: 16px;
-    }
-  }
-
-  .empty-state {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 80px 20px;
-
-    .empty-content {
-      text-align: center;
-      max-width: 400px;
-
-      .empty-icon {
-        font-size: 64px;
-        margin-bottom: 16px;
-      }
-
-      h3 {
-        margin: 0 0 16px 0;
-        color: $black;
-        font-size: 24px;
-        font-weight: 600;
-      }
-
-      p {
-        margin: 0 0 24px 0;
-        color: $gray-600;
-        font-size: 16px;
-        line-height: 1.5;
-      }
-
-      .create-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 12px 24px;
-        font-weight: 600;
-        border-radius: 12px;
-
-        .btn-icon {
-          font-size: 18px;
-          font-weight: bold;
-        }
-      }
-    }
-  }
-
-  .trades-content {
-    .trades-header {
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid $gray-200;
-
-      h3 {
-        margin: 0;
-        color: $gray-700;
-        font-size: 18px;
-        font-weight: 500;
-      }
-    }
-
-    .trades-grid {
-      display: grid;
-      gap: 20px;
-
-      &.view-grid {
-        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-
-        @media (max-width: 768px) {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      &.view-list {
-        grid-template-columns: 1fr;
-      }
-    }
-  }
+<style scoped>
+.trades-grid {
+  display: grid;
+  gap: 16px;
 }
 
-@media (max-width: 768px) {
-  .my-trade-list {
-    .trades-content {
-      .trades-header {
-        margin-bottom: 16px;
-        padding-bottom: 12px;
-
-        h3 {
-          font-size: 16px;
-        }
-      }
-
-      .trades-grid {
-        gap: 16px;
-      }
-    }
-
-    .empty-state {
-      padding: 60px 16px;
-
-      .empty-content {
-        .empty-icon {
-          font-size: 48px;
-        }
-
-        h3 {
-          font-size: 20px;
-        }
-
-        p {
-          font-size: 14px;
-        }
-      }
-    }
-  }
+.trades-grid.view-grid {
+  grid-template-columns: 1fr;
 }
 </style>
