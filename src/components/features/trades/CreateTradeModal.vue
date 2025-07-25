@@ -1,378 +1,240 @@
 <template>
-  <BaseModal
-    v-model="isOpen"
-    title="Criar Nova Troca"
-    size="xl"
-    @update:model-value="$emit('update:modelValue', $event)"
-  >
-    <div class="create-trade-modal d-flex flex-column" style="max-height: 80vh">
-      <!-- Step 1: Select Offering Cards -->
-      <div
-        v-if="currentStep === 0"
-        class="step-content flex-grow-1 d-flex flex-column overflow-hidden"
-      >
-        <div class="step-header text-center mb-6">
-          <h3 class="text-h5 mb-2">
-            <v-icon color="primary" class="mr-2">mdi-export</v-icon>
-            Cartas que você oferece
-          </h3>
-          <p class="text-body-2 text-grey">
-            Selecione as cartas da sua coleção que deseja trocar
-          </p>
-        </div>
-
-        <div class="search-section mb-4">
-          <div class="d-flex align-center ga-4 flex-wrap">
-            <div class="flex-grow-1" style="min-width: 250px">
-              <SearchInput
-                v-model="offeringSearchQuery"
-                placeholder="Buscar suas cartas..."
-                :disabled="cardsStore.loading"
-              />
-            </div>
-
-            <SimplePagination
-              v-if="totalFilteredOfferingCards > userCardsPagination.rpp"
-              :total-items="totalFilteredOfferingCards"
-              :items-per-page="userCardsPagination.rpp"
-              :current-page="userCardsPagination.page"
-              :loading="cardsStore.loading"
-              @page-change="handleOfferingPageChange"
-            />
-          </div>
-        </div>
-
-        <div
-          v-if="cardsStore.loading"
-          class="d-flex flex-column align-center justify-center py-15"
-        >
-          <v-progress-circular
-            indeterminate
-            color="primary"
-            size="48"
-            class="mb-4"
-          />
-          <p class="text-grey text-center">Carregando suas cartas...</p>
-        </div>
-
-        <div v-else class="cards-grid flex-grow-1">
-          <Card
-            v-for="card in filteredOfferingCards"
-            :key="card.id"
-            :card="card"
-            :selectable="true"
-            :selected="selectedOfferingCards.includes(card.id)"
-            :clickable="true"
-            size="sm"
-            variant="compact"
-            :show-description="true"
-            :max-description-length="80"
-            @click="toggleOfferingCard(card.id)"
-            @select="handleOfferingCardSelect"
-          />
-        </div>
-
-        <div
-          v-if="filteredOfferingCards.length === 0 && !cardsStore.loading"
-          class="d-flex flex-column align-center justify-center py-15 text-center"
-        >
-          <v-icon size="64" color="grey-lighten-1" class="mb-4"
-            >mdi-cards</v-icon
-          >
-          <h3 class="text-h6 mb-2 text-grey">Nenhuma carta encontrada</h3>
-          <p class="text-body-2 text-grey" v-if="offeringSearchQuery">
-            Tente ajustar sua busca
-          </p>
-          <p class="text-body-2 text-grey" v-else>
-            Você precisa ter cartas na sua coleção para criar uma troca
-          </p>
-        </div>
-      </div>
-
-      <!-- Step 2: Select Receiving Cards -->
-      <div
-        v-if="currentStep === 1"
-        class="step-content flex-grow-1 d-flex flex-column overflow-hidden"
-      >
-        <div class="step-header text-center mb-6">
-          <h3 class="text-h5 mb-2">
-            <v-icon color="primary" class="mr-2">mdi-import</v-icon>
-            Cartas que você quer receber
-          </h3>
-          <p class="text-body-2 text-grey">
-            Selecione as cartas que deseja receber em troca
-          </p>
-        </div>
-
-        <div class="search-section mb-4">
-          <div class="d-flex align-center ga-4 flex-wrap">
-            <div class="flex-grow-1" style="min-width: 250px">
-              <SearchInput
-                v-model="receivingSearchQuery"
-                placeholder="Buscar cartas disponíveis..."
-                :disabled="cardsStore.loading"
-              />
-            </div>
-
-            <SimplePagination
-              v-if="allCardsPagination.total > allCardsPagination.rpp"
-              :total-items="allCardsPagination.total"
-              :items-per-page="allCardsPagination.rpp"
-              :current-page="allCardsPagination.page"
-              :loading="cardsStore.loading"
-              @page-change="handleReceivingPageChange"
-            />
-          </div>
-        </div>
-
-        <div
-          v-if="cardsStore.loading"
-          class="d-flex flex-column align-center justify-center py-15"
-        >
-          <v-progress-circular
-            indeterminate
-            color="primary"
-            size="48"
-            class="mb-4"
-          />
-          <p class="text-grey text-center">Carregando cartas disponíveis...</p>
-        </div>
-
-        <div v-else class="cards-grid flex-grow-1">
+  <v-dialog v-model="isOpen" max-width="1200" persistent>
+    <v-card>
+      <v-card-title class="d-flex justify-space-between align-center pa-6">
+        <span class="text-h5 font-weight-bold">Criar Nova Troca</span>
+        <v-btn icon variant="text" @click="closeModal">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </v-card-title>
+      
+      <v-card-text class="pa-0">
+        <div class="d-flex flex-column" style="max-height: 80vh">
+          <!-- Step 1: Select Offering Cards -->
           <div
-            v-for="card in filteredReceivingCards"
-            :key="card.id"
-            class="card-wrapper"
+            v-if="currentStep === 0"
+            class="step-content flex-grow-1 d-flex flex-column overflow-hidden pa-6"
           >
-            <v-chip
-              v-if="isCardDisabled(card.id)"
-              color="error"
-              size="x-small"
-              variant="elevated"
-              class="disabled-label"
-            >
-              Não disponível
-            </v-chip>
-            <Card
-              :card="card"
-              :selectable="!isCardDisabled(card.id)"
-              :selected="selectedReceivingCards.includes(card.id)"
-              :clickable="!isCardDisabled(card.id)"
-              :disabled="isCardDisabled(card.id)"
-              size="sm"
-              variant="compact"
-              :show-description="true"
-              :max-description-length="80"
-              @click="toggleReceivingCard(card.id)"
-              @select="handleReceivingCardSelect"
-            />
-          </div>
-        </div>
-
-        <div
-          v-if="filteredReceivingCards.length === 0 && !cardsStore.loading"
-          class="d-flex flex-column align-center justify-center py-15 text-center"
-        >
-          <v-icon size="64" color="grey-lighten-1" class="mb-4"
-            >mdi-magnify</v-icon
-          >
-          <h3 class="text-h6 mb-2 text-grey">Nenhuma carta encontrada</h3>
-          <p class="text-body-2 text-grey" v-if="receivingSearchQuery">
-            Tente ajustar sua busca
-          </p>
-          <p class="text-body-2 text-grey" v-else>
-            Nenhuma carta disponível no sistema
-          </p>
-        </div>
-      </div>
-
-      <!-- Step 3: Review and Confirm -->
-      <div
-        v-if="currentStep === 2"
-        class="step-content flex-grow-1 d-flex flex-column overflow-hidden"
-      >
-        <div class="step-header text-center mb-6">
-          <h3 class="text-h5 mb-2">
-            <v-icon color="success" class="mr-2">mdi-check-circle</v-icon>
-            Revisar Troca
-          </h3>
-          <p class="text-body-2 text-grey">
-            Confirme os detalhes da sua troca antes de criar
-          </p>
-        </div>
-
-        <div class="trade-summary">
-          <div class="summary-section">
-            <h4
-              class="d-flex align-center mb-4 text-subtitle-1 font-weight-medium"
-            >
-              <v-icon color="primary" class="mr-2">mdi-export</v-icon>
-              Você oferece ({{ selectedOfferingCards.length }})
-            </h4>
-            <div class="selected-cards">
-              <v-card
-                v-for="cardId in selectedOfferingCards"
-                :key="cardId"
-                class="selected-card mb-3"
-                variant="outlined"
-              >
-                <div class="d-flex align-center pa-3">
-                  <v-img
-                    :src="getCardById(cardId)?.imageUrl"
-                    :alt="getCardById(cardId)?.name"
-                    width="40"
-                    height="56"
-                    class="rounded mr-3"
-                    cover
-                  />
-                  <span class="flex-grow-1 text-subtitle-2 font-weight-medium">
-                    {{ getCardById(cardId)?.name }}
-                  </span>
-                  <v-btn
-                    @click="removeOfferingCard(cardId)"
-                    icon
-                    variant="text"
-                    size="small"
-                    color="error"
-                    title="Remover carta"
-                  >
-                    <v-icon>mdi-close</v-icon>
-                  </v-btn>
-                </div>
-              </v-card>
+            <div class="step-header text-center mb-6">
+              <h3 class="text-h5 mb-2">
+                <v-icon color="primary" class="mr-2">mdi-export</v-icon>
+                Cartas que você oferece
+              </h3>
+              <p class="text-body-2 text-grey">
+                Selecione as cartas da sua coleção que deseja trocar
+              </p>
             </div>
-          </div>
 
-          <div class="trade-arrow d-flex justify-center align-center">
-            <v-avatar color="primary" size="48">
-              <v-icon color="white" size="20">mdi-swap-horizontal</v-icon>
-            </v-avatar>
-          </div>
-
-          <div class="summary-section">
-            <h4
-              class="d-flex align-center mb-4 text-subtitle-1 font-weight-medium"
-            >
-              <v-icon color="primary" class="mr-2">mdi-import</v-icon>
-              Você recebe ({{ selectedReceivingCards.length }})
-            </h4>
-            <div class="selected-cards">
-              <v-card
-                v-for="cardId in selectedReceivingCards"
-                :key="cardId"
-                class="selected-card mb-3"
-                variant="outlined"
-              >
-                <div class="d-flex align-center pa-3">
-                  <v-img
-                    :src="getCardById(cardId)?.imageUrl"
-                    :alt="getCardById(cardId)?.name"
-                    width="40"
-                    height="56"
-                    class="rounded mr-3"
-                    cover
+            <div class="search-section mb-4">
+              <div class="d-flex align-center ga-4 flex-wrap">
+                <div class="flex-grow-1" style="min-width: 250px">
+                  <SearchInput
+                    v-model="offeringSearchQuery"
+                    placeholder="Buscar suas cartas..."
+                    :disabled="cardsStore.loading"
                   />
-                  <span class="flex-grow-1 text-subtitle-2 font-weight-medium">
-                    {{ getCardById(cardId)?.name }}
-                  </span>
-                  <v-btn
-                    @click="removeReceivingCard(cardId)"
-                    icon
-                    variant="text"
-                    size="small"
-                    color="error"
-                    title="Remover carta"
-                  >
-                    <v-icon>mdi-close</v-icon>
-                  </v-btn>
                 </div>
-              </v-card>
-            </div>
-          </div>
-        </div>
 
-        <v-alert
-          v-if="!isTradeValid"
-          type="warning"
-          variant="tonal"
-          class="mt-4"
-        >
-          <template v-slot:prepend>
-            <v-icon>mdi-alert</v-icon>
-          </template>
-          {{ validationMessage }}
-        </v-alert>
-      </div>
-    </div>
-
-    <template #footer>
-      <div class="modal-footer">
-        <div class="footer-content">
-          <div class="step-indicator">
-            <div class="d-flex align-center ga-3">
-              <div class="d-flex ga-2">
-                <div
-                  v-for="(step, index) in steps"
-                  :key="step.id"
-                  :class="[
-                    'step-dot',
-                    {
-                      active: currentStep === index,
-                      completed: currentStep > index,
-                    },
-                  ]"
+                <SimplePagination
+                  v-if="totalFilteredOfferingCards > userCardsPagination.rpp"
+                  :total-items="totalFilteredOfferingCards"
+                  :items-per-page="userCardsPagination.rpp"
+                  :current-page="userCardsPagination.page"
+                  :loading="cardsStore.loading"
+                  @page-change="handleOfferingPageChange"
                 />
               </div>
-              <span class="text-caption text-grey font-weight-medium">
-                Passo {{ currentStep + 1 }} de {{ steps.length }}
-              </span>
+            </div>
+
+            <div
+              v-if="cardsStore.loading"
+              class="d-flex flex-column align-center justify-center py-15"
+            >
+              <v-progress-circular
+                indeterminate
+                color="primary"
+                size="48"
+                class="mb-4"
+              />
+              <p class="text-grey text-center">Carregando suas cartas...</p>
+            </div>
+
+            <div v-else class="cards-grid flex-grow-1">
+              <Card
+                v-for="card in filteredOfferingCards"
+                :key="card.id"
+                :card="card"
+                :selectable="true"
+                :selected="selectedOfferingCards.includes(card.id)"
+                :clickable="true"
+                size="sm"
+                variant="compact"
+                :show-description="true"
+                :max-description-length="80"
+                @click="toggleOfferingCard(card.id)"
+                @select="handleOfferingCardSelect"
+              />
+            </div>
+
+            <div
+              v-if="filteredOfferingCards.length === 0 && !cardsStore.loading"
+              class="d-flex flex-column align-center justify-center py-15 text-center"
+            >
+              <v-icon size="64" color="grey-lighten-1" class="mb-4"
+                >mdi-cards</v-icon
+              >
+              <h3 class="text-h6 mb-2 text-grey">Nenhuma carta encontrada</h3>
+              <p class="text-body-2 text-grey" v-if="offeringSearchQuery">
+                Tente ajustar sua busca
+              </p>
+              <p class="text-body-2 text-grey" v-else>
+                Você precisa ter cartas na sua coleção para criar uma troca
+              </p>
             </div>
           </div>
 
-          <div class="footer-actions">
-            <v-btn
-              @click="$emit('update:modelValue', false)"
-              variant="outlined"
-              color="grey"
-            >
-              Cancelar
-            </v-btn>
+          <!-- Step 2: Select Receiving Cards -->
+          <div
+            v-if="currentStep === 1"
+            class="step-content flex-grow-1 d-flex flex-column overflow-hidden pa-6"
+          >
+            <div class="step-header text-center mb-6">
+              <h3 class="text-h5 mb-2">
+                <v-icon color="primary" class="mr-2">mdi-import</v-icon>
+                Cartas que você quer receber
+              </h3>
+              <p class="text-body-2 text-grey">
+                Selecione as cartas que você deseja receber em troca
+              </p>
+            </div>
 
+            <div class="search-section mb-4">
+              <div class="d-flex align-center ga-4 flex-wrap">
+                <div class="flex-grow-1" style="min-width: 250px">
+                                      <SearchInput
+                      v-model="receivingSearchQuery"
+                      placeholder="Buscar cartas disponíveis..."
+                      :disabled="cardsStore.loading"
+                    />
+                  </div>
+
+                  <SimplePagination
+                    v-if="filteredReceivingCards.length > allCardsPagination.rpp"
+                    :total-items="filteredReceivingCards.length"
+                    :items-per-page="allCardsPagination.rpp"
+                    :current-page="allCardsPagination.page"
+                    :loading="cardsStore.loading"
+                    @page-change="handleReceivingPageChange"
+                  />
+              </div>
+            </div>
+
+            <div
+              v-if="cardsStore.loading"
+              class="d-flex flex-column align-center justify-center py-15"
+            >
+              <v-progress-circular
+                indeterminate
+                color="primary"
+                size="48"
+                class="mb-4"
+              />
+              <p class="text-grey text-center">Carregando cartas disponíveis...</p>
+            </div>
+
+            <div v-else class="cards-grid flex-grow-1">
+              <Card
+                v-for="card in filteredReceivingCards"
+                :key="card.id"
+                :card="card"
+                :selectable="true"
+                :selected="selectedReceivingCards.includes(card.id)"
+                :clickable="true"
+                size="sm"
+                variant="compact"
+                :show-description="true"
+                :max-description-length="80"
+                @click="toggleReceivingCard(card.id)"
+                @select="handleReceivingCardSelect"
+              />
+            </div>
+
+            <div
+              v-if="filteredReceivingCards.length === 0 && !cardsStore.loading"
+              class="d-flex flex-column align-center justify-center py-15 text-center"
+            >
+              <v-icon size="64" color="grey-lighten-1" class="mb-4"
+                >mdi-cards</v-icon
+              >
+              <h3 class="text-h6 mb-2 text-grey">Nenhuma carta encontrada</h3>
+              <p class="text-body-2 text-grey" v-if="receivingSearchQuery">
+                Tente ajustar sua busca
+              </p>
+              <p class="text-body-2 text-grey" v-else>
+                Não há cartas disponíveis no sistema
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 3: Review and Confirm -->
+          <div
+            v-if="currentStep === 2"
+            class="step-content flex-grow-1 d-flex flex-column overflow-hidden pa-6"
+          >
+            <div class="step-header text-center mb-6">
+              <h3 class="text-h5 mb-2">
+                <v-icon color="primary" class="mr-2">mdi-check-circle</v-icon>
+                Revisar Troca
+              </h3>
+              <p class="text-body-2 text-grey">
+                Confirme os detalhes da sua troca antes de criar
+              </p>
+            </div>
+
+            <TradePreview
+              :offering-cards="selectedOfferingCardsData"
+              :receiving-cards="selectedReceivingCardsData"
+              :loading="creating"
+              @create="createTrade"
+              @reset="resetForm"
+            />
+          </div>
+        </div>
+      </v-card-text>
+
+      <v-card-actions class="pa-6 pt-0">
+        <div class="d-flex justify-space-between align-center w-100">
+          <div class="d-flex ga-2">
             <v-btn
               v-if="currentStep > 0"
               @click="previousStep"
               variant="outlined"
-              color="grey"
+              :disabled="creating"
             >
-              <v-icon class="mr-1">mdi-arrow-left</v-icon>
+              <v-icon class="mr-2">mdi-arrow-left</v-icon>
               Voltar
             </v-btn>
+          </div>
 
+          <div class="d-flex ga-2">
+            <v-btn @click="closeModal" variant="outlined" :disabled="creating">
+              Cancelar
+            </v-btn>
             <v-btn
-              v-if="currentStep < steps.length - 1"
+              v-if="currentStep < 2"
               @click="nextStep"
               color="primary"
+              variant="elevated"
               :disabled="!canProceedToNextStep"
             >
-              Continuar
-              <v-icon class="ml-1">mdi-arrow-right</v-icon>
-            </v-btn>
-
-            <v-btn
-              v-if="currentStep === steps.length - 1"
-              @click="createTrade"
-              color="primary"
-              :disabled="!isTradeValid || creating"
-              :loading="creating"
-            >
-              <span v-if="creating">Criando troca...</span>
-              <span v-else>Criar Troca</span>
+              Próximo
+              <v-icon class="ml-2">mdi-arrow-right</v-icon>
             </v-btn>
           </div>
         </div>
-      </div>
-    </template>
-  </BaseModal>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -381,10 +243,10 @@ import { useCardsStore } from "../../../stores/cards";
 import { useTradesStore } from "../../../stores/trades";
 import { useNotificationStore } from "../../../stores/notification";
 
-import BaseModal from "../../common/BaseModal.vue";
 import Card from "../../common/Card.vue";
 import SearchInput from "../../common/SearchInput.vue";
 import SimplePagination from "../../common/SimplePagination.vue";
+import TradePreview from "./TradePreview.vue";
 import type { Card as CardType } from "../../../types";
 
 interface Props {
@@ -538,6 +400,17 @@ const validationMessage = computed(() => {
     return "Selecione pelo menos uma carta para receber";
   }
   return "";
+});
+
+const selectedOfferingCardsData = computed(() => {
+  return selectedOfferingCards.value
+    .map(id => getCardById(id))
+    .filter((c): c is CardType => !!c);
+});
+const selectedReceivingCardsData = computed(() => {
+  return selectedReceivingCards.value
+    .map(id => getCardById(id))
+    .filter((c): c is CardType => !!c);
 });
 
 // Lifecycle
@@ -725,6 +598,10 @@ async function createTrade() {
   } finally {
     creating.value = false;
   }
+}
+
+function closeModal() {
+  emit('update:modelValue', false);
 }
 </script>
 
