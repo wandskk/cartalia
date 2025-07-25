@@ -1,49 +1,58 @@
 <template>
   <div class="card-list">
-    <div v-if="loading" class="loading-state">
+    <div v-if="loading" class="d-flex flex-column align-center justify-center py-10 text-grey">
       <LoadingSpinner text="Carregando cartas..." />
     </div>
 
-    <div v-else-if="error" class="error-state">
-      <p class="error-message">{{ error }}</p>
-      <BaseButton @click="retry" color="primary">Tentar novamente</BaseButton>
+    <div v-else-if="error" class="d-flex flex-column align-center justify-center py-10 text-center">
+      <div class="mb-4 text-error">{{ error }}</div>
+      <v-btn @click="retry" color="primary" variant="elevated">Tentar novamente</v-btn>
     </div>
 
-    <div v-else-if="cards.length === 0" class="empty-state">
-      <p>Nenhuma carta encontrada.</p>
+    <div v-else-if="cards.length === 0" class="d-flex align-center justify-center py-10 text-grey">
+      <span>Nenhuma carta encontrada.</span>
     </div>
 
-    <div v-else class="cards-container" :class="viewModeClass">
-      <Card
+    <v-row v-else :class="viewMode === 'list' ? 'flex-column' : ''" class="mb-6" dense>
+      <v-col
         v-for="card in cards"
         :key="card.id"
-        :card="card"
-        :selectable="selectable"
-        :selected="isCardSelected(card)"
-        :clickable="clickable"
-        :size="viewMode === 'list' ? 'sm' : 'md'"
-        :variant="viewMode === 'list' ? 'compact' : 'default'"
-        :show-description="viewMode === 'list'"
-        :max-description-length="viewMode === 'list' ? 150 : 100"
-        @click="handleCardClick"
-        @select="handleCardSelect"
+        :cols="viewMode === 'list' ? 12 : 12"
+        :sm="viewMode === 'list' ? 12 : 6"
+        :md="viewMode === 'list' ? 12 : 4"
+        :lg="viewMode === 'list' ? 12 : 3"
+        class="mb-2"
       >
-        <template v-if="viewMode === 'list'" #actions>
-          <BaseButton size="small" @click.stop="handleCardClick(card)">
-            Ver detalhes
-          </BaseButton>
-        </template>
-      </Card>
-    </div>
+        <Card
+          :card="card"
+          :selectable="selectable"
+          :selected="isCardSelected(card)"
+          :clickable="clickable"
+          :size="viewMode === 'list' ? 'sm' : 'md'"
+          :variant="viewMode === 'list' ? 'compact' : 'default'"
+          :show-description="viewMode === 'list'"
+          :max-description-length="viewMode === 'list' ? 150 : 100"
+          @click="handleCardClick"
+          @select="handleCardSelect"
+        >
+          <template v-if="viewMode === 'list'" #actions>
+            <v-btn size="small" @click.stop="handleCardClick(card)">
+              Ver detalhes
+            </v-btn>
+          </template>
+        </Card>
+      </v-col>
+    </v-row>
 
-    <div v-if="showPagination && pagination.more" class="pagination">
-      <BaseButton 
+    <div v-if="showPagination && pagination.more" class="d-flex justify-center mt-6">
+      <v-btn 
         @click="loadMore" 
         :loading="loading"
         color="secondary"
+        variant="elevated"
       >
         Carregar mais
-      </BaseButton>
+      </v-btn>
     </div>
   </div>
 </template>
@@ -51,7 +60,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import Card from '../../common/Card.vue';
-import BaseButton from '../../common/BaseButton.vue';
 import LoadingSpinner from '../../common/LoadingSpinner.vue';
 import type { Card as CardType } from '../../../types';
 
@@ -95,8 +103,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>();
 
-const viewModeClass = computed(() => `cards-${props.viewMode}`);
-
 function isCardSelected(card: CardType): boolean {
   return props.selectedCards.some(selectedCard => selectedCard.id === card.id);
 }
@@ -119,83 +125,7 @@ function loadMore() {
 </script>
 
 <style scoped lang="scss">
-@use '../../../styles/_variables.scss' as *;
-
 .card-list {
   width: 100%;
-
-  .loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px;
-    color: $gray-600;
-  }
-
-  .error-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px;
-    text-align: center;
-
-    .error-message {
-      color: $error;
-      margin-bottom: 16px;
-      font-size: 16px;
-    }
-  }
-
-  .empty-state {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px;
-    color: $gray-500;
-    font-size: 16px;
-  }
-
-  .cards-container {
-    &.cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 24px;
-      margin-bottom: 32px;
-
-      @media (max-width: 1200px) {
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-        gap: 20px;
-      }
-
-      @media (max-width: 768px) {
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-        gap: 16px;
-      }
-
-      @media (max-width: 480px) {
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
-    }
-
-    &.cards-list {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      margin-bottom: 32px;
-
-      @media (max-width: 768px) {
-        gap: 12px;
-      }
-    }
-  }
-
-  .pagination {
-    display: flex;
-    justify-content: center;
-    margin-top: 32px;
-  }
 }
 </style> 
