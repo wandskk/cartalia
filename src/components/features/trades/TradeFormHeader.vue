@@ -1,7 +1,7 @@
 <template>
-  <div class="trade-form-header">
-    <h2>Criar Nova Troca</h2>
-    <p>Selecione as cartas que você quer oferecer e as que você quer receber</p>
+  <div class="text-center mb-8">
+    <h2 class="text-h4 font-weight-bold mb-3">Criar Nova Troca</h2>
+    <p class="text-body-1 text-grey">Selecione as cartas que você quer oferecer e as que você quer receber</p>
   </div>
 </template>
 

@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex flex-column align-center justify-center py-8 text-center">
-    <div class="mb-4" style="font-size: 48px; opacity: 0.6;">🔍</div>
+    <v-icon size="48" color="grey-lighten-1" class="mb-4">mdi-magnify</v-icon>
     <h3 class="text-h6 font-weight-bold mb-2">{{ title }}</h3>
     <p class="text-body-2 text-grey mb-0">{{ description }}</p>
   </div>

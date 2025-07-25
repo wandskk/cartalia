@@ -1,42 +1,36 @@
 <template>
   <div class="trade-actions">
-    <div class="actions-menu">
-      <button 
-        @click="toggleMenu"
-        class="menu-trigger"
-        type="button"
-        :aria-expanded="isMenuOpen"
-      >
-        <span class="dots">•••</span>
-      </button>
+    <v-menu v-model="isMenuOpen" location="bottom end">
+      <template v-slot:activator="{ props }">
+        <v-btn
+          v-bind="props"
+          icon
+          variant="text"
+          size="small"
+        >
+          <v-icon>mdi-dots-vertical</v-icon>
+        </v-btn>
+      </template>
       
-      <div v-if="isMenuOpen" class="menu-dropdown">
-        <button 
+      <v-list density="compact" min-width="120">
+        <v-list-item
           @click="handleEdit"
-          class="menu-item"
-          type="button"
-        >
-          <span class="icon">✏️</span>
-          Editar
-        </button>
-        
-        <button 
+          prepend-icon="mdi-pencil"
+          title="Editar"
+        />
+        <v-list-item
           @click="handleDelete"
-          class="menu-item delete"
-          type="button"
-        >
-          <span class="icon">🗑️</span>
-          Deletar
-        </button>
-      </div>
-    </div>
-
-    <div v-if="isMenuOpen" class="menu-overlay" @click="closeMenu"></div>
+          prepend-icon="mdi-delete"
+          title="Deletar"
+          class="text-error"
+        />
+      </v-list>
+    </v-menu>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref } from 'vue';
 
 interface Emits {
   (e: 'edit'): void;
@@ -47,40 +41,17 @@ const emit = defineEmits<Emits>();
 
 const isMenuOpen = ref(false);
 
-function toggleMenu() {
-  isMenuOpen.value = !isMenuOpen.value;
-}
-
-function closeMenu() {
-  isMenuOpen.value = false;
-}
-
 function handleEdit() {
-  closeMenu();
+  isMenuOpen.value = false;
   emit('edit');
 }
 
 function handleDelete() {
-  closeMenu();
+  isMenuOpen.value = false;
   if (confirm('Tem certeza que deseja deletar esta troca?')) {
     emit('delete');
   }
 }
-
-function handleClickOutside(event: Event) {
-  const target = event.target as Element;
-  if (!target.closest('.trade-actions')) {
-    closeMenu();
-  }
-}
-
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside);
-});
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside);
-});
 </script>
 
 <style scoped lang="scss">

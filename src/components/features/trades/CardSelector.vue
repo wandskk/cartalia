@@ -8,10 +8,14 @@
     </div>
 
     <div class="mb-4">
-      <BaseInput
+      <v-text-field
         v-model="searchTerm"
         :placeholder="searchPlaceholder"
         @input="handleSearch"
+        prepend-inner-icon="mdi-magnify"
+        variant="outlined"
+        density="compact"
+        hide-details
       />
     </div>
 
@@ -101,7 +105,6 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import BaseInput from '../../common/BaseInput.vue';
 import LoadingSpinner from '../../common/LoadingSpinner.vue';
 import type { Card } from '../../../types';
 

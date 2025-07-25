@@ -11,7 +11,7 @@
       :aria-label="view.title"
       class="text-none"
     >
-      {{ view.icon }}
+      <v-icon size="16">{{ view.icon }}</v-icon>
     </v-btn>
   </div>
 </template>
@@ -33,8 +33,8 @@ interface Emits {
 }
 
 const { modelValue, viewModes = [
-  { value: 'grid', icon: '⊞', title: 'Visualização em grade' },
-  { value: 'list', icon: '☰', title: 'Visualização em lista' }
+  { value: 'grid', icon: 'mdi-view-grid', title: 'Visualização em grade' },
+  { value: 'list', icon: 'mdi-view-list', title: 'Visualização em lista' }
 ] } = defineProps<Props>();
 
 const emit = defineEmits<Emits>();
