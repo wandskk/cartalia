@@ -81,26 +81,23 @@
 
     <v-divider />
 
-    <v-card-actions class="px-6 py-4">
-      <div class="d-flex align-center">
-        <div class="d-flex align-center mr-4">
-          <v-icon size="16" color="grey" class="mr-1">mdi-cards</v-icon>
-          <span class="text-caption text-grey">{{ cardsCountText }}</span>
+    <v-card-actions class="trade-footer">
+      <div class="trade-info">
+        <div class="trade-info-item">
+          <v-icon size="14" color="grey" class="mr-1">mdi-cards</v-icon>
+          <span class="trade-info-text">{{ cardsCountText }}</span>
         </div>
-        <div class="d-flex align-center">
-          <v-icon size="16" color="grey" class="mr-1">mdi-account</v-icon>
-          <span class="text-caption text-grey">{{ trade.user.name }}</span>
+        <div class="trade-info-item">
+          <v-icon size="14" color="grey" class="mr-1">mdi-account</v-icon>
+          <span class="trade-info-text">{{ trade.user.name }}</span>
         </div>
       </div>
       
-      <v-spacer />
-      
-      <div v-if="showStatus">
+      <div v-if="showStatus" class="trade-status">
         <v-chip
           :color="statusColor"
           variant="tonal"
           size="small"
-          class="text-uppercase"
         >
           {{ statusText }}
         </v-chip>
@@ -203,6 +200,50 @@ function handleDelete() {
 
 .trade-arrow {
   padding: 16px 0;
+}
+
+.trade-footer {
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.trade-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.trade-info-item {
+  display: flex;
+  align-items: center;
+}
+
+.trade-info-text {
+  font-size: 12px;
+  color: #6b7280;
+  word-break: break-word;
+}
+
+.trade-status {
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .trade-footer {
+    padding: 8px 12px;
+  }
+
+  .trade-info {
+    gap: 2px;
+  }
+
+  .trade-info-text {
+    font-size: 11px;
+  }
 }
 
 @media (max-width: 960px) {

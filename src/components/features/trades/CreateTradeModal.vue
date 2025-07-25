@@ -1,44 +1,38 @@
 <template>
-  <v-dialog v-model="isOpen" max-width="1200" persistent>
-    <v-card>
-      <v-card-title class="d-flex justify-space-between align-center pa-6">
-        <span class="text-h5 font-weight-bold">Criar Nova Troca</span>
+  <v-dialog v-model="isOpen" :max-width="isMobile ? '100%' : '1200'" persistent>
+    <v-card class="create-trade-modal">
+      <v-card-title class="modal-header">
+        <span class="modal-title">Criar Troca</span>
         <v-btn icon variant="text" @click="closeModal">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-card-title>
 
-      <v-card-text class="pa-0">
-        <div class="d-flex flex-column max-height-80vh">
-          <!-- Step Progress -->
-          <div class="step-progress pa-4">
-            <div class="d-flex justify-center mb-4">
-              <div class="d-flex align-center">
+      <v-card-text class="modal-content pa-0">
+        <div class="modal-body">
+          <!-- Step Progress - Minimal -->
+          <div class="step-progress">
+            <div class="step-progress-content">
+              <div
+                v-for="(step, index) in ['Oferecer', 'Receber', 'Revisar']"
+                :key="index"
+                class="step-item"
+              >
                 <div
-                  v-for="(step, index) in ['Oferecer', 'Receber', 'Revisar']"
-                  :key="index"
-                  class="d-flex align-center"
+                  class="step-indicator"
+                  :class="{
+                    'step-active': steps.currentStep.value === index,
+                    'step-completed': steps.currentStep.value > index,
+                    'step-pending': steps.currentStep.value < index,
+                  }"
                 >
-                  <div
-                    class="step-indicator d-flex align-center justify-center"
-                    :class="{
-                      'step-active': steps.currentStep.value === index,
-                      'step-completed': steps.currentStep.value > index,
-                      'step-pending': steps.currentStep.value < index,
-                    }"
+                  <v-icon
+                    v-if="steps.currentStep.value > index"
+                    size="16"
+                    color="white"
+                    >mdi-check</v-icon
                   >
-                    <v-icon
-                      v-if="steps.currentStep.value > index"
-                      size="16"
-                      color="white"
-                      >mdi-check</v-icon
-                    >
-                    <span v-else class="text-caption">{{ index + 1 }}</span>
-                  </div>
-                  <span class="text-caption ml-2 mr-4">{{ step }}</span>
-                  <v-icon v-if="index < 2" size="16" color="grey"
-                    >mdi-chevron-right</v-icon
-                  >
+                  <span v-else class="step-number">{{ index + 1 }}</span>
                 </div>
               </div>
             </div>
@@ -103,54 +97,50 @@
         </div>
       </v-card-text>
 
-      <!-- Footer Actions -->
-      <v-card-actions class="pa-6">
-        <div class="d-flex justify-space-between w-100">
-          <v-btn
-            v-if="steps.canGoBack"
-            @click="previousStep"
-            variant="outlined"
-            color="grey"
-          >
-            <v-icon class="mr-2">mdi-arrow-left</v-icon>
-            Voltar
-          </v-btn>
-          <div v-else></div>
+      <!-- Footer Actions - Minimal -->
+      <v-card-actions class="modal-footer">
+        <v-btn
+          v-if="steps.canGoBack"
+          @click="previousStep"
+          variant="outlined"
+          color="grey"
+          class="footer-btn"
+        >
+          Voltar
+        </v-btn>
 
-          <div class="d-flex gap-3">
-            <v-btn @click="closeModal" variant="outlined" color="grey">
-              Cancelar
-            </v-btn>
+        <v-btn
+          v-if="steps.canGoNext && steps.currentStep.value < 2"
+          @click="nextStep"
+          color="primary"
+          :disabled="!canProceedToNextStep"
+          class="footer-btn"
+        >
+          Continuar
+        </v-btn>
 
-            <v-btn
-              v-if="steps.canGoNext && steps.currentStep.value < 2"
-              @click="nextStep"
-              color="primary"
-              :disabled="!canProceedToNextStep"
-            >
-              Continuar
-              <v-icon class="ml-2">mdi-arrow-right</v-icon>
-            </v-btn>
+        <v-btn
+          v-if="steps.currentStep.value === 2"
+          @click="createTrade"
+          color="success"
+          :loading="loadingStore.isLoading"
+          :disabled="!canCreateTrade"
+          class="footer-btn"
+        >
+          <span v-if="loadingStore.isLoading">Criando...</span>
+          <span v-else>Criar</span>
+        </v-btn>
 
-            <v-btn
-              v-if="steps.currentStep.value === 2"
-              @click="createTrade"
-              color="success"
-              :loading="loadingStore.isLoading"
-              :disabled="!canCreateTrade"
-            >
-              <span v-if="loadingStore.isLoading">Criando...</span>
-              <span v-else>Criar Troca</span>
-            </v-btn>
-          </div>
-        </div>
+        <v-btn @click="closeModal" variant="outlined" color="grey" class="footer-btn">
+          Cancelar
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, onUnmounted } from "vue";
 import { useCardsStore } from "../../../stores/cards";
 import { useTradesStore } from "../../../stores/trades";
 import { useLoadingStore } from "../../../stores/loading";
@@ -218,6 +208,8 @@ const receivingSearchQuery = ref("");
 const userCardsPagination = ref({ page: 1, rpp: 12, total: 0 });
 const allCardsPagination = ref({ page: 1, rpp: 12, total: 0 });
 
+const isMobile = ref(false);
+
 const isOpen = computed({
   get: () => props.modelValue,
   set: (value) => emit("update:modelValue", value),
@@ -269,10 +261,20 @@ const canCreateTrade = computed(() => {
   );
 });
 
+const checkMobile = () => {
+  isMobile.value = window.innerWidth <= 768;
+};
+
 onMounted(() => {
+  checkMobile();
+  window.addEventListener("resize", checkMobile);
   if (isOpen.value) {
     loadData();
   }
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", checkMobile);
 });
 
 watch(
@@ -434,40 +436,158 @@ async function createTrade() {
 </script>
 
 <style scoped>
-.max-height-80vh {
-  max-height: 80vh;
+.create-trade-modal {
+  border-radius: 16px;
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.step-progress {
-  border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 0 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.step-content-container {
-  flex-grow: 1;
+.modal-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.modal-content {
+  flex: 1;
   overflow: hidden;
 }
 
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: calc(100vh - 180px);
+}
+
+.step-progress {
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  background: #f9fafb;
+}
+
+.step-progress-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+}
+
 .step-indicator {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background: rgb(var(--v-theme-grey-lighten-2));
-  color: rgb(var(--v-theme-grey-darken-1));
+  background: #e5e7eb;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.3s ease;
 }
 
+.step-number {
+  font-size: 12px;
+  font-weight: 600;
+}
+
 .step-indicator.step-active {
-  background: rgb(var(--v-theme-primary));
+  background: #3b82f6;
   color: white;
 }
 
 .step-indicator.step-completed {
-  background: rgb(var(--v-theme-success));
+  background: #10b981;
   color: white;
 }
 
 .step-indicator.step-pending {
-  background: rgb(var(--v-theme-grey-lighten-2));
-  color: rgb(var(--v-theme-grey-darken-1));
+  background: #e5e7eb;
+  color: #6b7280;
+}
+
+.step-content-container {
+  flex: 1;
+  overflow: hidden;
+  padding: 20px;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  background: white;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.footer-btn {
+  min-width: 100px;
+}
+
+@media (max-width: 768px) {
+  .create-trade-modal {
+    border-radius: 0;
+    height: 100vh;
+    max-height: 100vh;
+  }
+
+  .modal-header {
+    padding: 16px 20px 0 20px;
+  }
+
+  .modal-title {
+    font-size: 16px;
+  }
+
+  .modal-body {
+    max-height: calc(100vh - 120px);
+  }
+
+  .step-progress {
+    padding: 12px 20px;
+  }
+
+  .step-progress-content {
+    gap: 12px;
+  }
+
+  .step-indicator {
+    width: 24px;
+    height: 24px;
+  }
+
+  .step-number {
+    font-size: 10px;
+  }
+
+  .step-content-container {
+    padding: 16px 20px;
+    overflow-y: auto;
+  }
+
+  .modal-footer {
+    padding: 12px 20px;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .footer-btn {
+    width: 100%;
+    min-width: auto;
+    height: 40px;
+  }
 }
 </style>

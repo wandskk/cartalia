@@ -12,7 +12,6 @@
       'sidebar-mobile-open': isMobileOpen,
     }"
   >
-    <!-- Header com logo e botão de colapso -->
     <div class="sidebar-header pa-4" v-if="!isMobileOpen">
       <div class="d-flex align-center justify-space-between">
         <div v-if="!isCollapsed" class="flex-grow-1">
@@ -28,7 +27,7 @@
             size="small"
             class="transition-all duration-300"
           >
-            <v-icon 
+            <v-icon
               :class="{ 'rotate-icon': isCollapsed }"
               class="transition-transform duration-300"
             >
@@ -39,33 +38,31 @@
       </div>
     </div>
 
-    <!-- Lista de navegação -->
     <v-list class="sidebar-nav pa-4">
       <v-list-item
         v-for="item in navigationItems"
         :key="item.path"
         :to="item.path"
         :prepend-icon="item.icon"
-        :title="isCollapsed ? '' : item.label"
+        :title="shouldShowTitle ? item.label : ''"
         class="nav-item ma-1 rounded-lg transition-all duration-200"
         :class="{ 'nav-item-active': isActiveRoute(item.path) }"
         @click="handleNavClick"
       />
-      
-      <!-- Item de autenticação -->
+
       <v-divider class="my-2" />
       <v-list-item
         v-if="isAuthenticated"
         @click="handleLogout"
         :prepend-icon="'mdi-logout'"
-        :title="isCollapsed ? '' : 'Sair'"
+        :title="shouldShowTitle ? 'Sair' : ''"
         class="nav-item nav-item-logout ma-1 rounded-lg transition-all duration-200"
       />
       <v-list-item
         v-else
         to="/login"
         :prepend-icon="'mdi-login'"
-        :title="isCollapsed ? '' : 'Entrar'"
+        :title="shouldShowTitle ? 'Entrar' : ''"
         class="nav-item nav-item-login ma-1 rounded-lg transition-all duration-200"
         @click="handleNavClick"
       />
@@ -74,12 +71,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useSidebarStore } from '../../stores/sidebar';
-import { useAuthStore } from '../../stores/auth';
-import { NAVIGATION_ITEMS } from '../../constants';
-import Logo from '../common/Logo.vue';
+import { computed, ref, onMounted, onUnmounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useSidebarStore } from "../../stores/sidebar";
+import { useAuthStore } from "../../stores/auth";
+import { NAVIGATION_ITEMS } from "../../constants";
+import Logo from "../common/Logo.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -93,25 +90,32 @@ const isMobileOpen = computed(() => sidebarStore.isMobileOpen);
 const isAuthenticated = computed(() => userStore.isAuthenticated);
 
 const drawer = computed({
-  get: () => isMobile.value ? isMobileOpen.value : true,
+  get: () => (isMobile.value ? isMobileOpen.value : true),
   set: (value) => {
     if (isMobile.value && !value) {
       sidebarStore.closeMobile();
     }
-  }
+  },
 });
 
 const navigationItems = computed(() => {
-  return NAVIGATION_ITEMS.filter(item => {
+  return NAVIGATION_ITEMS.filter((item) => {
     if (item.requiresAuth) {
       return isAuthenticated.value;
     }
     return true;
   });
 });
-const collapseButtonTitle = computed(() => 
-  isCollapsed.value ? 'Expandir menu' : 'Recolher menu'
+const collapseButtonTitle = computed(() =>
+  isCollapsed.value ? "Expandir menu" : "Recolher menu"
 );
+
+const shouldShowTitle = computed(() => {
+  if (isMobile.value && isMobileOpen.value) {
+    return true;
+  }
+  return !isCollapsed.value;
+});
 
 const checkMobile = () => {
   isMobile.value = window.innerWidth <= 768;
@@ -136,7 +140,7 @@ const isActiveRoute = (path: string) => {
 
 const handleLogout = async () => {
   await userStore.logout();
-  router.push('/login');
+  router.push("/login");
   if (isMobile.value) {
     sidebarStore.closeMobile();
   }
@@ -144,11 +148,11 @@ const handleLogout = async () => {
 
 onMounted(() => {
   checkMobile();
-  window.addEventListener('resize', checkMobile);
+  window.addEventListener("resize", checkMobile);
 });
 
 onUnmounted(() => {
-  window.removeEventListener('resize', checkMobile);
+  window.removeEventListener("resize", checkMobile);
 });
 </script>
 
@@ -194,7 +198,7 @@ onUnmounted(() => {
 
   &.nav-item-logout {
     color: $error;
-    
+
     &:hover {
       background: rgba($error, 0.1);
     }
@@ -202,7 +206,7 @@ onUnmounted(() => {
 
   &.nav-item-login {
     color: $primary;
-    
+
     &:hover {
       background: rgba($primary, 0.1);
     }

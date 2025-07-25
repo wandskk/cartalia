@@ -4,30 +4,26 @@
     class="header"
     elevation="2"
     color="rgba(255, 255, 255, 0.95)"
-    style="backdrop-filter: blur(20px);"
+    style="backdrop-filter: blur(20px)"
   >
     <v-app-bar-nav-icon
       @click="toggleMobile"
       :icon="isMobileOpen ? 'mdi-close' : 'mdi-menu'"
       variant="text"
     />
-    
+
     <v-app-bar-title class="header-center">
       <Logo />
     </v-app-bar-title>
-    
-    <template v-slot:append>
-      <div class="header-right">
-        <!-- Espaço para futuras ações -->
-      </div>
-    </template>
+
+    <template v-slot:append> </template>
   </v-app-bar>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue';
-import { useSidebarStore } from '../../stores/sidebar';
-import Logo from '../common/Logo.vue';
+import { computed, ref, onMounted, onUnmounted } from "vue";
+import { useSidebarStore } from "../../stores/sidebar";
+import Logo from "../common/Logo.vue";
 
 const sidebarStore = useSidebarStore();
 const isMobile = ref(false);
@@ -45,11 +41,11 @@ const toggleMobile = () => {
 
 onMounted(() => {
   checkMobile();
-  window.addEventListener('resize', checkMobile);
+  window.addEventListener("resize", checkMobile);
 });
 
 onUnmounted(() => {
-  window.removeEventListener('resize', checkMobile);
+  window.removeEventListener("resize", checkMobile);
 });
 </script>
 
@@ -66,7 +62,6 @@ onUnmounted(() => {
 
 .header-center {
   display: flex;
-  justify-content: center;
   align-items: center;
   flex: 1;
 }
@@ -82,4 +77,4 @@ onUnmounted(() => {
     display: none;
   }
 }
-</style> 
+</style>

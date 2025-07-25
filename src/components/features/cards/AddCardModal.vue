@@ -1,7 +1,7 @@
 <template>
   <BaseModal
     v-model="isOpen"
-    :title="initialLoading ? 'Carregando...' : 'Adicionar cartas à sua coleção'"
+    :title="initialLoading ? 'Carregando...' : 'Adicionar cartas'"
     size="lg"
     @update:model-value="$emit('update:modelValue', $event)"
   >
@@ -86,29 +86,25 @@
     </div>
 
     <template #footer>
-      <div class="w-100">
-        <div class="d-flex ga-3 justify-end mt-4">
-          <v-btn
-            @click="$emit('update:modelValue', false)"
-            variant="outlined"
-            color="grey"
-          >
-            Cancelar
-          </v-btn>
-          <v-btn
-            @click="handleAddCards"
-            color="primary"
-            :disabled="!cardSelection.hasSelection || loadingStore.isLoading"
-            :loading="loadingStore.isLoading"
-          >
-            <span v-if="loadingStore.isLoading">Adicionando...</span>
-            <span v-else
-              >Adicionar {{ cardSelection.selectedCount.value }} carta{{
-                cardSelection.selectedCount.value !== 1 ? "s" : ""
-              }}</span
-            >
-          </v-btn>
-        </div>
+      <div class="modal-footer-content">
+        <v-btn
+          @click="$emit('update:modelValue', false)"
+          variant="outlined"
+          color="grey"
+          class="footer-btn"
+        >
+          Cancelar
+        </v-btn>
+        <v-btn
+          @click="handleAddCards"
+          color="primary"
+          :disabled="!cardSelection.hasSelection || loadingStore.isLoading"
+          :loading="loadingStore.isLoading"
+          class="footer-btn"
+        >
+          <span v-if="loadingStore.isLoading">Adicionando...</span>
+          <span v-else>Adicionar {{ cardSelection.selectedCount.value }}</span>
+        </v-btn>
       </div>
     </template>
   </BaseModal>
@@ -260,10 +256,46 @@ async function handleAddCards() {
   padding: 4px;
 }
 
+.modal-footer-content {
+  width: 100%;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.footer-btn {
+  min-width: 120px;
+}
+
 @media (max-width: 768px) {
   .cards-grid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 12px;
+    max-height: 300px;
+    margin-bottom: 16px;
+  }
+  
+  .add-card-modal {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+  }
+  
+  .modal-footer-content {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .footer-btn {
+    width: 100%;
+    min-width: auto;
+    height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-btn {
+    height: 44px;
+    font-size: 14px;
   }
 }
 </style>

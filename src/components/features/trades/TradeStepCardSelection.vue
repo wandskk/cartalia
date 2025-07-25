@@ -1,5 +1,5 @@
 <template>
-  <div class="step-content flex-grow-1 d-flex flex-column overflow-hidden pa-6">
+  <div class="step-content flex-grow-1 d-flex flex-column overflow-hidden">
     <div class="step-header text-center mb-6">
       <h3 class="text-h5 mb-2">
         <v-icon color="primary" class="mr-2">{{ icon }}</v-icon>
