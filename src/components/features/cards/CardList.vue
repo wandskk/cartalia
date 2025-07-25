@@ -128,4 +128,17 @@ function loadMore() {
 .card-list {
   width: 100%;
 }
+
+.v-row {
+  align-items: stretch;
+}
+
+.v-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.v-col .card {
+  height: 100%;
+}
 </style> 

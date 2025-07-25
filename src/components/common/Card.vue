@@ -143,6 +143,9 @@ function handleImageError(event: Event) {
 .card {
   transition: all 0.3s ease;
   cursor: default;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .card-clickable {
@@ -175,6 +178,7 @@ function handleImageError(event: Event) {
 .card-image {
   position: relative;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .card-loading-overlay {
@@ -202,15 +206,59 @@ function handleImageError(event: Event) {
 /* Variant styles */
 .card-compact .v-card-text {
   padding: 12px !important;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .card-compact .text-subtitle-1 {
   font-size: 14px !important;
   margin-bottom: 8px !important;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  min-height: 2.4em;
 }
 
 .card-compact .text-body-2 {
   font-size: 12px !important;
   margin-bottom: 12px !important;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+/* Default variant styles */
+.card .v-card-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card .text-subtitle-1 {
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  min-height: 2.4em;
+}
+
+.card .text-body-2 {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
 }
 </style> 
