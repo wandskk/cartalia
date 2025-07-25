@@ -14,7 +14,7 @@
           <div class="step-progress">
             <div class="step-progress-content">
               <div
-                v-for="(step, index) in ['Oferecer', 'Receber', 'Revisar']"
+                v-for="(_, index) in ['Oferecer', 'Receber', 'Revisar']"
                 :key="index"
                 class="step-item"
               >
@@ -398,7 +398,7 @@ async function handleReceivingPageChange(page: number) {
   allCardsPagination.value.page = page;
 }
 
-function handleCardClick(card: Card) {
+function handleCardClick(_: Card) {
 }
 
 async function createTrade() {
