@@ -1,126 +1,168 @@
 <template>
-  <div class="trade-item">
-    <div class="trade-header">
-      <div class="trade-meta">
-        <div class="trade-date">
-          <span class="date-icon">📅</span>
-          {{ formattedDate }}
+  <v-card class="trade-item" elevation="2">
+    <v-card-text class="pa-6">
+      <div class="d-flex justify-space-between align-start mb-5">
+        <div class="trade-meta">
+          <div class="d-flex align-center mb-2">
+            <v-icon size="16" color="grey" class="mr-2">mdi-calendar</v-icon>
+            <span class="text-caption text-grey">{{ formattedDate }}</span>
+          </div>
+          <div class="d-flex align-center">
+            <v-icon size="16" color="grey" class="mr-2">mdi-identifier</v-icon>
+            <span class="text-caption text-grey">#{{ trade.id.slice(0, 8) }}</span>
+          </div>
         </div>
-        <div class="trade-id">
-          <span class="id-icon">🆔</span>
-          #{{ trade.id.slice(0, 8) }}
+        
+        <div v-if="showActions">
+          <v-menu v-model="menuOpen" location="bottom end">
+            <template v-slot:activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon
+                variant="text"
+                size="small"
+              >
+                <v-icon>mdi-dots-vertical</v-icon>
+              </v-btn>
+            </template>
+            <v-list density="compact" min-width="120">
+              <v-list-item
+                v-if="canEdit"
+                @click="handleEdit"
+                prepend-icon="mdi-pencil"
+                title="Editar"
+              />
+              <v-list-item
+                v-if="canDelete"
+                @click="handleDelete"
+                prepend-icon="mdi-delete"
+                title="Excluir"
+                class="text-error"
+              />
+            </v-list>
+          </v-menu>
+        </div>
+      </div>
+
+      <div class="trade-content">
+        <v-row class="align-start">
+          <v-col cols="12" md="5">
+            <div class="offering-section">
+              <h4 class="d-flex align-center mb-4 text-subtitle-1 font-weight-medium">
+                <v-icon color="primary" class="mr-2">mdi-export</v-icon>
+                Oferecendo
+              </h4>
+              <div class="cards-preview">
+                <v-card
+                  v-for="tradeCard in offeringCards" 
+                  :key="tradeCard.id"
+                  class="card-preview mb-3"
+                  variant="outlined"
+                  hover
+                >
+                  <div class="d-flex align-center pa-3">
+                    <div class="card-image mr-3">
+                      <v-img
+                        :src="tradeCard.card.imageUrl"
+                        :alt="tradeCard.card.name"
+                        width="48"
+                        height="68"
+                        class="rounded"
+                        cover
+                      />
+                    </div>
+                    <div class="flex-grow-1">
+                      <div class="text-subtitle-2 font-weight-medium mb-1">
+                        {{ tradeCard.card.name }}
+                      </div>
+                      <div class="text-caption text-grey line-clamp-2">
+                        {{ tradeCard.card.description }}
+                      </div>
+                    </div>
+                  </div>
+                </v-card>
+              </div>
+            </div>
+          </v-col>
+
+          <v-col cols="12" md="2" class="d-flex justify-center align-center">
+            <div class="trade-arrow">
+              <v-avatar color="primary" size="48">
+                <v-icon color="white" size="20">mdi-swap-horizontal</v-icon>
+              </v-avatar>
+            </div>
+          </v-col>
+
+          <v-col cols="12" md="5">
+            <div class="receiving-section">
+              <h4 class="d-flex align-center mb-4 text-subtitle-1 font-weight-medium">
+                <v-icon color="primary" class="mr-2">mdi-import</v-icon>
+                Recebendo
+              </h4>
+              <div class="cards-preview">
+                <v-card
+                  v-for="tradeCard in receivingCards" 
+                  :key="tradeCard.id"
+                  class="card-preview mb-3"
+                  variant="outlined"
+                  hover
+                >
+                  <div class="d-flex align-center pa-3">
+                    <div class="card-image mr-3">
+                      <v-img
+                        :src="tradeCard.card.imageUrl"
+                        :alt="tradeCard.card.name"
+                        width="48"
+                        height="68"
+                        class="rounded"
+                        cover
+                      />
+                    </div>
+                    <div class="flex-grow-1">
+                      <div class="text-subtitle-2 font-weight-medium mb-1">
+                        {{ tradeCard.card.name }}
+                      </div>
+                      <div class="text-caption text-grey line-clamp-2">
+                        {{ tradeCard.card.description }}
+                      </div>
+                    </div>
+                  </div>
+                </v-card>
+              </div>
+            </div>
+          </v-col>
+        </v-row>
+      </div>
+    </v-card-text>
+
+    <v-divider />
+
+    <v-card-actions class="px-6 py-4">
+      <div class="d-flex align-center">
+        <div class="d-flex align-center mr-4">
+          <v-icon size="16" color="grey" class="mr-1">mdi-cards</v-icon>
+          <span class="text-caption text-grey">{{ trade.tradeCards.length }} cartas</span>
+        </div>
+        <div class="d-flex align-center">
+          <v-icon size="16" color="grey" class="mr-1">mdi-account</v-icon>
+          <span class="text-caption text-grey">{{ trade.user.name }}</span>
         </div>
       </div>
       
-      <div v-if="showActions" class="trade-actions">
-        <div class="actions-menu">
-          <button 
-            class="menu-trigger" 
-            type="button" 
-            aria-expanded="false"
-            @click="toggleMenu"
-          >
-            <span class="dots">•••</span>
-          </button>
-          
-          <div v-if="menuOpen" class="menu-dropdown">
-            <button 
-              v-if="canEdit"
-              @click="handleEdit"
-              class="menu-item"
-            >
-              <span class="menu-icon">✏️</span>
-              Editar
-            </button>
-            <button 
-              v-if="canDelete"
-              @click="handleDelete"
-              class="menu-item delete"
-            >
-              <span class="menu-icon">🗑️</span>
-              Excluir
-            </button>
-          </div>
-        </div>
+      <v-spacer />
+      
+      <div v-if="showStatus">
+        <v-chip
+          :color="statusColor"
+          variant="tonal"
+          size="small"
+          class="text-uppercase"
+        >
+          {{ statusText }}
+        </v-chip>
       </div>
-    </div>
-
-    <div class="trade-content">
-      <div class="cards-section">
-        <div class="offering-section">
-          <h4>
-            <span class="section-icon">📤</span>
-            Oferecendo
-          </h4>
-          <div class="cards-preview">
-            <div 
-              v-for="tradeCard in offeringCards" 
-              :key="tradeCard.id"
-              class="card-preview"
-            >
-              <div class="card-image">
-                <img :src="tradeCard.card.imageUrl" :alt="tradeCard.card.name" />
-                <div class="card-overlay">
-                  <span class="card-name">{{ tradeCard.card.name }}</span>
-                </div>
-              </div>
-              <div class="card-info">
-                <span class="card-name">{{ tradeCard.card.name }}</span>
-                <span class="card-description">{{ tradeCard.card.description }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="trade-arrow">
-          <div class="arrow-container">
-            <span class="arrow-icon">⇄</span>
-          </div>
-        </div>
-
-        <div class="receiving-section">
-          <h4>
-            <span class="section-icon">📥</span>
-            Recebendo
-          </h4>
-          <div class="cards-preview">
-            <div 
-              v-for="tradeCard in receivingCards" 
-              :key="tradeCard.id"
-              class="card-preview"
-            >
-              <div class="card-image">
-                <img :src="tradeCard.card.imageUrl" :alt="tradeCard.card.name" />
-                <div class="card-overlay">
-                  <span class="card-name">{{ tradeCard.card.name }}</span>
-                </div>
-              </div>
-              <div class="card-info">
-                <span class="card-name">{{ tradeCard.card.name }}</span>
-                <span class="card-description">{{ tradeCard.card.description }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="trade-footer">
-      <div class="trade-stats">
-        <span class="stat-item">
-          <span class="stat-icon">🃏</span>
-          {{ trade.tradeCards.length }} cartas
-        </span>
-        <span class="stat-item">
-          <span class="stat-icon">👤</span>
-          {{ trade.user.name }}
-        </span>
-      </div>
-      <div v-if="showStatus" class="trade-status">
-        <span :class="['status-badge', statusClass]">{{ statusText }}</span>
-      </div>
-    </div>
-  </div>
+    </v-card-actions>
+  </v-card>
 </template>
 
 <script setup lang="ts">
@@ -191,19 +233,15 @@ const statusText = computed(() => {
   }
 });
 
-const statusClass = computed(() => {
+const statusColor = computed(() => {
   switch (props.status) {
-    case 'active': return 'active';
-    case 'completed': return 'completed';
-    case 'expired': return 'expired';
-    case 'pending': return 'pending';
-    default: return 'active';
+    case 'active': return 'success';
+    case 'completed': return 'primary';
+    case 'expired': return 'error';
+    case 'pending': return 'warning';
+    default: return 'success';
   }
 });
-
-function toggleMenu() {
-  menuOpen.value = !menuOpen.value;
-}
 
 function handleEdit() {
   menuOpen.value = false;
@@ -214,429 +252,40 @@ function handleDelete() {
   menuOpen.value = false;
   emit('delete', props.trade);
 }
-
-// Close menu when clicking outside
-function handleClickOutside(event: Event) {
-  const target = event.target as HTMLElement;
-  if (!target.closest('.actions-menu')) {
-    menuOpen.value = false;
-  }
-}
-
-// Add click outside listener
-if (typeof window !== 'undefined') {
-  document.addEventListener('click', handleClickOutside);
-}
 </script>
 
-<style scoped lang="scss">
-@use '../../../styles/_variables.scss' as *;
-
+<style scoped>
 .trade-item {
-  background: $white;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba($primary, 0.1);
-  transition: all 0.3s ease;
-  position: relative;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-  }
-
-  .trade-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 20px;
-
-    .trade-meta {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-
-      .trade-date,
-      .trade-id {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 12px;
-        color: $gray-600;
-
-        .date-icon,
-        .id-icon {
-          font-size: 14px;
-        }
-      }
-    }
-
-    .trade-actions {
-      position: relative;
-
-      .actions-menu {
-        .menu-trigger {
-          background: none;
-          border: none;
-          padding: 8px;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-
-          &:hover {
-            background: $gray-100;
-          }
-
-          .dots {
-            font-size: 16px;
-            color: $gray-600;
-            font-weight: bold;
-          }
-        }
-
-        .menu-dropdown {
-          position: absolute;
-          top: 100%;
-          right: 0;
-          background: $white;
-          border: 1px solid $gray-200;
-          border-radius: 12px;
-          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-          z-index: 1000;
-          min-width: 120px;
-          overflow: hidden;
-
-          .menu-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 16px;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 14px;
-
-            &:hover {
-              background: $gray-50;
-            }
-
-            &.delete {
-              color: $error;
-
-              &:hover {
-                background: rgba($error, 0.1);
-              }
-            }
-
-            .menu-icon {
-              font-size: 16px;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  .trade-content {
-    .cards-section {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      gap: 24px;
-      align-items: start;
-
-      @media (max-width: 768px) {
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
-
-      .offering-section,
-      .receiving-section {
-        h4 {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          margin: 0 0 16px 0;
-          font-size: 16px;
-          font-weight: 600;
-          color: $black;
-
-          .section-icon {
-            font-size: 18px;
-          }
-        }
-
-        .cards-preview {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-
-          .card-preview {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            background: $gray-50;
-            border-radius: 12px;
-            border: 2px solid $gray-200;
-            transition: all 0.2s ease;
-            position: relative;
-
-            &:hover {
-              border-color: $primary;
-              background: rgba($primary, 0.05);
-
-              .card-overlay {
-                opacity: 1;
-              }
-            }
-
-            .card-image {
-              width: 48px;
-              height: 68px;
-              border-radius: 8px;
-              overflow: hidden;
-              flex-shrink: 0;
-              position: relative;
-
-              img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-              }
-
-              .card-overlay {
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0, 0, 0, 0.8);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                opacity: 0;
-                transition: opacity 0.2s ease;
-
-                .card-name {
-                  color: $white;
-                  font-size: 10px;
-                  font-weight: 600;
-                  text-align: center;
-                  padding: 4px;
-                  line-height: 1.2;
-                }
-              }
-            }
-
-            .card-info {
-              flex: 1;
-              display: flex;
-              flex-direction: column;
-              gap: 4px;
-
-              .card-name {
-                font-size: 14px;
-                font-weight: 600;
-                color: $black;
-                line-height: 1.2;
-              }
-
-              .card-description {
-                font-size: 12px;
-                color: $gray-600;
-                line-height: 1.3;
-                display: -webkit-box;
-                -webkit-line-clamp: 2;
-                -webkit-box-orient: vertical;
-                overflow: hidden;
-              }
-            }
-          }
-        }
-      }
-
-      .trade-arrow {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 16px 0;
-
-        .arrow-container {
-          width: 48px;
-          height: 48px;
-          background: $primary;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          box-shadow: 0 4px 12px rgba($primary, 0.3);
-
-          .arrow-icon {
-            font-size: 20px;
-            color: $white;
-            font-weight: bold;
-          }
-        }
-
-        @media (max-width: 768px) {
-          .arrow-container {
-            transform: rotate(90deg);
-          }
-        }
-      }
-    }
-  }
-
-  .trade-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 20px;
-    padding-top: 16px;
-    border-top: 1px solid $gray-200;
-
-    .trade-stats {
-      display: flex;
-      gap: 16px;
-
-      .stat-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 12px;
-        color: $gray-600;
-
-        .stat-icon {
-          font-size: 14px;
-        }
-      }
-    }
-
-    .trade-status {
-      .status-badge {
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
-        text-transform: uppercase;
-
-        &.active {
-          background: rgba($success, 0.1);
-          color: $success;
-        }
-
-        &.completed {
-          background: rgba($primary, 0.1);
-          color: $primary;
-        }
-
-        &.expired {
-          background: rgba($error, 0.1);
-          color: $error;
-        }
-
-        &.pending {
-          background: rgba($warning, 0.1);
-          color: $warning;
-        }
-      }
-    }
-  }
+  transition: transform 0.2s ease;
 }
 
-@media (max-width: 768px) {
-  .trade-item {
-    padding: 16px;
-
-    .trade-header {
-      .trade-meta {
-        .trade-date,
-        .trade-id {
-          font-size: 11px;
-        }
-      }
-    }
-
-    .trade-content {
-      .cards-section {
-        .offering-section,
-        .receiving-section {
-          .cards-preview {
-            .card-preview {
-              .card-image {
-                width: 40px;
-                height: 56px;
-              }
-
-              .card-info {
-                .card-name {
-                  font-size: 13px;
-                }
-
-                .card-description {
-                  font-size: 11px;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    .trade-footer {
-      flex-direction: column;
-      gap: 12px;
-      align-items: stretch;
-
-      .trade-stats {
-        justify-content: center;
-        flex-wrap: wrap;
-      }
-
-      .trade-status {
-        text-align: center;
-      }
-    }
-  }
+.trade-item:hover {
+  transform: translateY(-2px);
 }
 
-@media (max-width: 480px) {
-  .trade-item {
-    padding: 12px;
+.card-preview {
+  transition: border-color 0.2s ease;
+}
 
-    .trade-content {
-      .cards-section {
-        .offering-section,
-        .receiving-section {
-          .cards-preview {
-            .card-preview {
-              flex-direction: column;
-              text-align: center;
-              gap: 8px;
+.card-preview:hover {
+  border-color: rgb(var(--v-theme-primary)) !important;
+}
 
-              .card-image {
-                width: 60px;
-                height: 84px;
-              }
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.3;
+}
 
-              .card-info {
-                .card-name {
-                  font-size: 14px;
-                }
+.trade-arrow {
+  padding: 16px 0;
+}
 
-                .card-description {
-                  font-size: 12px;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+@media (max-width: 960px) {
+  .trade-arrow .v-avatar {
+    transform: rotate(90deg);
   }
 }
 </style> 
