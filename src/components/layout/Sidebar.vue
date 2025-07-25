@@ -46,7 +46,10 @@
         :prepend-icon="item.icon"
         :title="shouldShowTitle ? item.label : ''"
         class="nav-item ma-1 rounded-lg transition-all duration-200"
-        :class="{ 'nav-item-active': isActiveRoute(item.path) }"
+        :class="{
+          'nav-item-active': isActiveRoute(item.path),
+          'nav-item-collapsed': isCollapsed && !isMobileOpen,
+        }"
         @click="handleNavClick"
       />
 
@@ -56,6 +59,7 @@
         @click="handleLogout"
         :prepend-icon="'mdi-logout'"
         :title="shouldShowTitle ? 'Sair' : ''"
+        :class="{ 'nav-item-collapsed': isCollapsed && !isMobileOpen }"
         class="nav-item nav-item-logout ma-1 rounded-lg transition-all duration-200"
       />
       <v-list-item
@@ -63,6 +67,7 @@
         to="/login"
         :prepend-icon="'mdi-login'"
         :title="shouldShowTitle ? 'Entrar' : ''"
+        :class="{ 'nav-item-collapsed': isCollapsed && !isMobileOpen }"
         class="nav-item nav-item-login ma-1 rounded-lg transition-all duration-200"
         @click="handleNavClick"
       />
@@ -211,6 +216,11 @@ onUnmounted(() => {
       background: rgba($primary, 0.1);
     }
   }
+}
+
+.nav-item-collapsed {
+  padding: 0 !important;
+  padding-left: 8px !important;
 }
 
 @media (max-width: 768px) {
