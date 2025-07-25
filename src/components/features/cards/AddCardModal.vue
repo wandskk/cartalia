@@ -6,11 +6,25 @@
     @update:model-value="$emit('update:modelValue', $event)"
   >
     <div class="add-card-modal">
-      <div class="search-section mb-6">
+      <div class="d-flex align-center justify-center ga-4 flex-wrap search-section mb-6">
         <SearchInput
           v-model="searchQuery"
           placeholder="Buscar cartas..."
           :disabled="initialLoading"
+        />
+
+        <SimplePagination
+          v-if="
+            filteredCards.length > 0 &&
+            !initialLoading &&
+            !searchLoading &&
+            !loadingStore.isLoading
+          "
+          :total-items="cardsStore.pagination.total || filteredCards.length"
+          :items-per-page="itemsPerPage"
+          :current-page="currentPage"
+          :loading="loading"
+          @page-change="handlePageChange"
         />
       </div>
 
@@ -18,13 +32,20 @@
         v-if="initialLoading || searchLoading || loading"
         class="d-flex flex-column align-center justify-center py-15"
       >
-        <v-progress-circular indeterminate color="primary" size="48" class="mb-4" />
+        <v-progress-circular
+          indeterminate
+          color="primary"
+          size="48"
+          class="mb-4"
+        />
         <p class="text-grey text-center">
-          {{ initialLoading
-            ? 'Carregando cartas disponíveis...'
-            : searchLoading
-            ? 'Buscando cartas...'
-            : 'Carregando página...' }}
+          {{
+            initialLoading
+              ? "Carregando cartas disponíveis..."
+              : searchLoading
+              ? "Buscando cartas..."
+              : "Carregando página..."
+          }}
         </p>
       </div>
 
@@ -59,8 +80,16 @@
         </Card>
       </div>
 
-      <div v-else-if="loadingStore.isLoading" class="d-flex flex-column align-center justify-center py-15">
-        <v-progress-circular indeterminate color="primary" size="48" class="mb-4" />
+      <div
+        v-else-if="loadingStore.isLoading"
+        class="d-flex flex-column align-center justify-center py-15"
+      >
+        <v-progress-circular
+          indeterminate
+          color="primary"
+          size="48"
+          class="mb-4"
+        />
         <p class="text-grey text-center">Adicionando cartas à sua coleção...</p>
       </div>
 
@@ -73,7 +102,9 @@
         "
         class="d-flex flex-column align-center justify-center py-15 text-center"
       >
-        <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-magnify</v-icon>
+        <v-icon size="64" color="grey-lighten-1" class="mb-4"
+          >mdi-magnify</v-icon
+        >
         <h3 class="text-h6 mb-2 text-grey">Nenhuma carta encontrada</h3>
         <p class="text-body-2 text-grey">Nenhuma carta disponível no sistema</p>
       </div>
@@ -87,7 +118,9 @@
         "
         class="d-flex flex-column align-center justify-center py-15 text-center"
       >
-        <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-magnify</v-icon>
+        <v-icon size="64" color="grey-lighten-1" class="mb-4"
+          >mdi-magnify</v-icon
+        >
         <h3 class="text-h6 mb-2 text-grey">Nenhuma carta encontrada</h3>
         <p class="text-body-2 text-grey">Tente ajustar sua busca</p>
       </div>
@@ -95,21 +128,7 @@
 
     <template #footer>
       <div class="w-100">
-        <SimplePagination
-          v-if="
-            filteredCards.length > 0 &&
-            !initialLoading &&
-            !searchLoading &&
-            !loadingStore.isLoading
-          "
-          :total-items="cardsStore.pagination.total || filteredCards.length"
-          :items-per-page="itemsPerPage"
-          :current-page="currentPage"
-          :loading="loading"
-          @page-change="handlePageChange"
-        />
-
-        <div class="d-flex gap-3 justify-end mt-4">
+        <div class="d-flex ga-3 justify-end mt-4">
           <v-btn
             @click="$emit('update:modelValue', false)"
             variant="outlined"
@@ -300,23 +319,25 @@ async function handleAddCards() {
   if (selectedCards.value.length === 0) return;
 
   loadingStore.startLoading();
-  
+
   try {
     await cardsStore.addCardsToUser(selectedCards.value);
-    
+
     notificationStore.show(
-      `${selectedCards.value.length} carta${selectedCards.value.length !== 1 ? 's' : ''} adicionada${selectedCards.value.length !== 1 ? 's' : ''} com sucesso!`,
-      'success'
+      `${selectedCards.value.length} carta${
+        selectedCards.value.length !== 1 ? "s" : ""
+      } adicionada${selectedCards.value.length !== 1 ? "s" : ""} com sucesso!`,
+      "success"
     );
-    
+
     selectedCards.value = [];
     emit("cards-added");
     emit("update:modelValue", false);
   } catch (error: any) {
     console.error("Erro ao adicionar cartas:", error);
     notificationStore.show(
-      error.message || 'Erro ao adicionar cartas à sua coleção',
-      'error'
+      error.message || "Erro ao adicionar cartas à sua coleção",
+      "error"
     );
   } finally {
     loadingStore.stopLoading();

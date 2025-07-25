@@ -5,46 +5,32 @@
     size="xl"
     @update:model-value="$emit('update:modelValue', $event)"
   >
-    <div class="create-trade-modal">
-      <!-- Progress Steps -->
-      <div class="progress-steps mb-8">
-        <v-stepper v-model="currentStep" class="elevation-0">
-          <v-stepper-header class="elevation-0">
-            <template v-for="(step, index) in steps" :key="step.id">
-              <v-stepper-item
-                :value="index"
-                :complete="currentStep > index"
-                :rules="index === 0 ? [() => selectedOfferingCards.length > 0] : 
-                        index === 1 ? [() => selectedReceivingCards.length > 0] : []"
-              >
-                {{ step.label }}
-              </v-stepper-item>
-              <v-divider v-if="index < steps.length - 1" />
-            </template>
-          </v-stepper-header>
-        </v-stepper>
-      </div>
-
+    <div class="create-trade-modal d-flex flex-column" style="max-height: 80vh">
       <!-- Step 1: Select Offering Cards -->
-      <div v-if="currentStep === 0" class="step-content">
+      <div
+        v-if="currentStep === 0"
+        class="step-content flex-grow-1 d-flex flex-column overflow-hidden"
+      >
         <div class="step-header text-center mb-6">
           <h3 class="text-h5 mb-2">
             <v-icon color="primary" class="mr-2">mdi-export</v-icon>
             Cartas que você oferece
           </h3>
-          <p class="text-body-2 text-grey">Selecione as cartas da sua coleção que deseja trocar</p>
+          <p class="text-body-2 text-grey">
+            Selecione as cartas da sua coleção que deseja trocar
+          </p>
         </div>
 
         <div class="search-section mb-4">
-          <div class="d-flex align-center gap-4 flex-wrap">
-            <div class="flex-grow-1" style="min-width: 250px;">
+          <div class="d-flex align-center ga-4 flex-wrap">
+            <div class="flex-grow-1" style="min-width: 250px">
               <SearchInput
                 v-model="offeringSearchQuery"
                 placeholder="Buscar suas cartas..."
                 :disabled="cardsStore.loading"
               />
             </div>
-            
+
             <SimplePagination
               v-if="totalFilteredOfferingCards > userCardsPagination.rpp"
               :total-items="totalFilteredOfferingCards"
@@ -56,12 +42,20 @@
           </div>
         </div>
 
-        <div v-if="cardsStore.loading" class="d-flex flex-column align-center justify-center py-15">
-          <v-progress-circular indeterminate color="primary" size="48" class="mb-4" />
+        <div
+          v-if="cardsStore.loading"
+          class="d-flex flex-column align-center justify-center py-15"
+        >
+          <v-progress-circular
+            indeterminate
+            color="primary"
+            size="48"
+            class="mb-4"
+          />
           <p class="text-grey text-center">Carregando suas cartas...</p>
         </div>
 
-        <div v-else class="cards-grid">
+        <div v-else class="cards-grid flex-grow-1">
           <Card
             v-for="card in filteredOfferingCards"
             :key="card.id"
@@ -78,34 +72,48 @@
           />
         </div>
 
-        <div v-if="filteredOfferingCards.length === 0 && !cardsStore.loading" class="d-flex flex-column align-center justify-center py-15 text-center">
-          <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-cards</v-icon>
+        <div
+          v-if="filteredOfferingCards.length === 0 && !cardsStore.loading"
+          class="d-flex flex-column align-center justify-center py-15 text-center"
+        >
+          <v-icon size="64" color="grey-lighten-1" class="mb-4"
+            >mdi-cards</v-icon
+          >
           <h3 class="text-h6 mb-2 text-grey">Nenhuma carta encontrada</h3>
-          <p class="text-body-2 text-grey" v-if="offeringSearchQuery">Tente ajustar sua busca</p>
-          <p class="text-body-2 text-grey" v-else>Você precisa ter cartas na sua coleção para criar uma troca</p>
+          <p class="text-body-2 text-grey" v-if="offeringSearchQuery">
+            Tente ajustar sua busca
+          </p>
+          <p class="text-body-2 text-grey" v-else>
+            Você precisa ter cartas na sua coleção para criar uma troca
+          </p>
         </div>
       </div>
 
       <!-- Step 2: Select Receiving Cards -->
-      <div v-if="currentStep === 1" class="step-content">
+      <div
+        v-if="currentStep === 1"
+        class="step-content flex-grow-1 d-flex flex-column overflow-hidden"
+      >
         <div class="step-header text-center mb-6">
           <h3 class="text-h5 mb-2">
             <v-icon color="primary" class="mr-2">mdi-import</v-icon>
             Cartas que você quer receber
           </h3>
-          <p class="text-body-2 text-grey">Selecione as cartas que deseja receber em troca</p>
+          <p class="text-body-2 text-grey">
+            Selecione as cartas que deseja receber em troca
+          </p>
         </div>
 
         <div class="search-section mb-4">
-          <div class="d-flex align-center gap-4 flex-wrap">
-            <div class="flex-grow-1" style="min-width: 250px;">
+          <div class="d-flex align-center ga-4 flex-wrap">
+            <div class="flex-grow-1" style="min-width: 250px">
               <SearchInput
                 v-model="receivingSearchQuery"
                 placeholder="Buscar cartas disponíveis..."
                 :disabled="cardsStore.loading"
               />
             </div>
-            
+
             <SimplePagination
               v-if="allCardsPagination.total > allCardsPagination.rpp"
               :total-items="allCardsPagination.total"
@@ -117,14 +125,22 @@
           </div>
         </div>
 
-        <div v-if="cardsStore.loading" class="d-flex flex-column align-center justify-center py-15">
-          <v-progress-circular indeterminate color="primary" size="48" class="mb-4" />
+        <div
+          v-if="cardsStore.loading"
+          class="d-flex flex-column align-center justify-center py-15"
+        >
+          <v-progress-circular
+            indeterminate
+            color="primary"
+            size="48"
+            class="mb-4"
+          />
           <p class="text-grey text-center">Carregando cartas disponíveis...</p>
         </div>
 
-        <div v-else class="cards-grid">
-          <div 
-            v-for="card in filteredReceivingCards" 
+        <div v-else class="cards-grid flex-grow-1">
+          <div
+            v-for="card in filteredReceivingCards"
             :key="card.id"
             class="card-wrapper"
           >
@@ -153,33 +169,49 @@
           </div>
         </div>
 
-        <div v-if="filteredReceivingCards.length === 0 && !cardsStore.loading" class="d-flex flex-column align-center justify-center py-15 text-center">
-          <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-magnify</v-icon>
+        <div
+          v-if="filteredReceivingCards.length === 0 && !cardsStore.loading"
+          class="d-flex flex-column align-center justify-center py-15 text-center"
+        >
+          <v-icon size="64" color="grey-lighten-1" class="mb-4"
+            >mdi-magnify</v-icon
+          >
           <h3 class="text-h6 mb-2 text-grey">Nenhuma carta encontrada</h3>
-          <p class="text-body-2 text-grey" v-if="receivingSearchQuery">Tente ajustar sua busca</p>
-          <p class="text-body-2 text-grey" v-else>Nenhuma carta disponível no sistema</p>
+          <p class="text-body-2 text-grey" v-if="receivingSearchQuery">
+            Tente ajustar sua busca
+          </p>
+          <p class="text-body-2 text-grey" v-else>
+            Nenhuma carta disponível no sistema
+          </p>
         </div>
       </div>
 
       <!-- Step 3: Review and Confirm -->
-      <div v-if="currentStep === 2" class="step-content">
+      <div
+        v-if="currentStep === 2"
+        class="step-content flex-grow-1 d-flex flex-column overflow-hidden"
+      >
         <div class="step-header text-center mb-6">
           <h3 class="text-h5 mb-2">
             <v-icon color="success" class="mr-2">mdi-check-circle</v-icon>
             Revisar Troca
           </h3>
-          <p class="text-body-2 text-grey">Confirme os detalhes da sua troca antes de criar</p>
+          <p class="text-body-2 text-grey">
+            Confirme os detalhes da sua troca antes de criar
+          </p>
         </div>
 
         <div class="trade-summary">
           <div class="summary-section">
-            <h4 class="d-flex align-center mb-4 text-subtitle-1 font-weight-medium">
+            <h4
+              class="d-flex align-center mb-4 text-subtitle-1 font-weight-medium"
+            >
               <v-icon color="primary" class="mr-2">mdi-export</v-icon>
               Você oferece ({{ selectedOfferingCards.length }})
             </h4>
             <div class="selected-cards">
               <v-card
-                v-for="cardId in selectedOfferingCards" 
+                v-for="cardId in selectedOfferingCards"
                 :key="cardId"
                 class="selected-card mb-3"
                 variant="outlined"
@@ -218,13 +250,15 @@
           </div>
 
           <div class="summary-section">
-            <h4 class="d-flex align-center mb-4 text-subtitle-1 font-weight-medium">
+            <h4
+              class="d-flex align-center mb-4 text-subtitle-1 font-weight-medium"
+            >
               <v-icon color="primary" class="mr-2">mdi-import</v-icon>
               Você recebe ({{ selectedReceivingCards.length }})
             </h4>
             <div class="selected-cards">
               <v-card
-                v-for="cardId in selectedReceivingCards" 
+                v-for="cardId in selectedReceivingCards"
                 :key="cardId"
                 class="selected-card mb-3"
                 variant="outlined"
@@ -275,15 +309,18 @@
       <div class="modal-footer">
         <div class="footer-content">
           <div class="step-indicator">
-            <div class="d-flex align-center gap-3">
-              <div class="d-flex gap-2">
-                <div 
-                  v-for="(step, index) in steps" 
+            <div class="d-flex align-center ga-3">
+              <div class="d-flex ga-2">
+                <div
+                  v-for="(step, index) in steps"
                   :key="step.id"
-                  :class="['step-dot', { 
-                    'active': currentStep === index,
-                    'completed': currentStep > index
-                  }]"
+                  :class="[
+                    'step-dot',
+                    {
+                      active: currentStep === index,
+                      completed: currentStep > index,
+                    },
+                  ]"
                 />
               </div>
               <span class="text-caption text-grey font-weight-medium">
@@ -291,7 +328,7 @@
               </span>
             </div>
           </div>
-          
+
           <div class="footer-actions">
             <v-btn
               @click="$emit('update:modelValue', false)"
@@ -300,7 +337,7 @@
             >
               Cancelar
             </v-btn>
-            
+
             <v-btn
               v-if="currentStep > 0"
               @click="previousStep"
@@ -310,7 +347,7 @@
               <v-icon class="mr-1">mdi-arrow-left</v-icon>
               Voltar
             </v-btn>
-            
+
             <v-btn
               v-if="currentStep < steps.length - 1"
               @click="nextStep"
@@ -320,7 +357,7 @@
               Continuar
               <v-icon class="ml-1">mdi-arrow-right</v-icon>
             </v-btn>
-            
+
             <v-btn
               v-if="currentStep === steps.length - 1"
               @click="createTrade"
@@ -339,24 +376,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
-import { useCardsStore } from '../../../stores/cards';
-import { useTradesStore } from '../../../stores/trades';
-import { useNotificationStore } from '../../../stores/notification';
+import { ref, computed, onMounted, watch } from "vue";
+import { useCardsStore } from "../../../stores/cards";
+import { useTradesStore } from "../../../stores/trades";
+import { useNotificationStore } from "../../../stores/notification";
 
-import BaseModal from '../../common/BaseModal.vue';
-import Card from '../../common/Card.vue';
-import SearchInput from '../../common/SearchInput.vue';
-import SimplePagination from '../../common/SimplePagination.vue';
-import type { Card as CardType } from '../../../types';
+import BaseModal from "../../common/BaseModal.vue";
+import Card from "../../common/Card.vue";
+import SearchInput from "../../common/SearchInput.vue";
+import SimplePagination from "../../common/SimplePagination.vue";
+import type { Card as CardType } from "../../../types";
 
 interface Props {
   modelValue: boolean;
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: boolean): void;
-  (e: 'trade-created'): void;
+  (e: "update:modelValue", value: boolean): void;
+  (e: "trade-created"): void;
 }
 
 const props = defineProps<Props>();
@@ -369,14 +406,14 @@ const notification = useNotificationStore();
 // Step management
 const currentStep = ref(0);
 const steps = [
-  { id: 'offering', label: 'Cartas que oferece' },
-  { id: 'receiving', label: 'Cartas que recebe' },
-  { id: 'review', label: 'Revisar troca' }
+  { id: "offering", label: "Cartas que oferece" },
+  { id: "receiving", label: "Cartas que recebe" },
+  { id: "review", label: "Revisar troca" },
 ];
 
 // Search queries
-const offeringSearchQuery = ref('');
-const receivingSearchQuery = ref('');
+const offeringSearchQuery = ref("");
+const receivingSearchQuery = ref("");
 
 // Selected cards
 const selectedOfferingCards = ref<string[]>([]);
@@ -389,18 +426,18 @@ const creating = ref(false);
 const userCardsPagination = ref({
   page: 1,
   rpp: 12,
-  total: 0
+  total: 0,
 });
 
 const allCardsPagination = ref({
   page: 1,
   rpp: 12,
-  total: 0
+  total: 0,
 });
 
 const isOpen = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value),
+  set: (value) => emit("update:modelValue", value),
 });
 
 // Computed properties
@@ -409,62 +446,66 @@ const allCards = computed(() => cardsStore.allCards);
 
 const filteredOfferingCards = computed(() => {
   let filtered = userCards.value;
-  
+
   if (offeringSearchQuery.value) {
     const query = offeringSearchQuery.value.toLowerCase();
-    filtered = filtered.filter(card => 
-      card.name.toLowerCase().includes(query) ||
-      card.description.toLowerCase().includes(query)
+    filtered = filtered.filter(
+      (card) =>
+        card.name.toLowerCase().includes(query) ||
+        card.description.toLowerCase().includes(query)
     );
   }
-  
-  const startIndex = (userCardsPagination.value.page - 1) * userCardsPagination.value.rpp;
+
+  const startIndex =
+    (userCardsPagination.value.page - 1) * userCardsPagination.value.rpp;
   const endIndex = startIndex + userCardsPagination.value.rpp;
-  
+
   return filtered.slice(startIndex, endIndex);
 });
 
 const filteredReceivingCards = computed(() => {
   let filtered = allCards.value;
-  
+
   if (receivingSearchQuery.value) {
     const query = receivingSearchQuery.value.toLowerCase();
-    filtered = filtered.filter(card => 
-      card.name.toLowerCase().includes(query) ||
-      card.description.toLowerCase().includes(query)
+    filtered = filtered.filter(
+      (card) =>
+        card.name.toLowerCase().includes(query) ||
+        card.description.toLowerCase().includes(query)
     );
   }
-  
+
   return filtered;
 });
 
 const totalFilteredOfferingCards = computed(() => {
   let filtered = userCards.value;
-  
+
   if (offeringSearchQuery.value) {
     const query = offeringSearchQuery.value.toLowerCase();
-    filtered = filtered.filter(card => 
-      card.name.toLowerCase().includes(query) ||
-      card.description.toLowerCase().includes(query)
+    filtered = filtered.filter(
+      (card) =>
+        card.name.toLowerCase().includes(query) ||
+        card.description.toLowerCase().includes(query)
     );
   }
-  
+
   return filtered.length;
 });
 
 const disabledReceivingCards = computed(() => {
   const disabledIds = new Set<string>();
-  
+
   // Adiciona IDs das cartas que o usuário já tem
-  userCards.value.forEach(card => {
+  userCards.value.forEach((card) => {
     disabledIds.add(card.id);
   });
-  
+
   // Adiciona IDs das cartas que o usuário está oferecendo
-  selectedOfferingCards.value.forEach(cardId => {
+  selectedOfferingCards.value.forEach((cardId) => {
     disabledIds.add(cardId);
   });
-  
+
   return disabledIds;
 });
 
@@ -483,18 +524,20 @@ const canProceedToNextStep = computed(() => {
 });
 
 const isTradeValid = computed(() => {
-  return selectedOfferingCards.value.length > 0 && 
-         selectedReceivingCards.value.length > 0;
+  return (
+    selectedOfferingCards.value.length > 0 &&
+    selectedReceivingCards.value.length > 0
+  );
 });
 
 const validationMessage = computed(() => {
   if (selectedOfferingCards.value.length === 0) {
-    return 'Selecione pelo menos uma carta para oferecer';
+    return "Selecione pelo menos uma carta para oferecer";
   }
   if (selectedReceivingCards.value.length === 0) {
-    return 'Selecione pelo menos uma carta para receber';
+    return "Selecione pelo menos uma carta para receber";
   }
-  return '';
+  return "";
 });
 
 // Lifecycle
@@ -504,13 +547,16 @@ onMounted(() => {
   }
 });
 
-watch(() => isOpen.value, (isOpen) => {
-  if (isOpen) {
-    loadData();
-  } else {
-    resetForm();
+watch(
+  () => isOpen.value,
+  (isOpen) => {
+    if (isOpen) {
+      loadData();
+    } else {
+      resetForm();
+    }
   }
-});
+);
 
 watch(offeringSearchQuery, () => {
   userCardsPagination.value.page = 1;
@@ -520,12 +566,9 @@ watch(offeringSearchQuery, () => {
 // Methods
 async function loadData() {
   try {
-    await Promise.all([
-      loadUserCards(),
-      loadAllCards()
-    ]);
+    await Promise.all([loadUserCards(), loadAllCards()]);
   } catch (error) {
-    console.error('Erro ao carregar dados:', error);
+    console.error("Erro ao carregar dados:", error);
   }
 }
 
@@ -534,16 +577,19 @@ async function loadUserCards() {
     await cardsStore.fetchUserCards();
     userCardsPagination.value.total = totalFilteredOfferingCards.value;
   } catch (error) {
-    console.error('Erro ao carregar cartas do usuário:', error);
+    console.error("Erro ao carregar cartas do usuário:", error);
   }
 }
 
 async function loadAllCards() {
   try {
-    await cardsStore.fetchAllCards(allCardsPagination.value.page, allCardsPagination.value.rpp);
+    await cardsStore.fetchAllCards(
+      allCardsPagination.value.page,
+      allCardsPagination.value.rpp
+    );
     allCardsPagination.value.total = cardsStore.pagination.total;
   } catch (error) {
-    console.error('Erro ao carregar todas as cartas:', error);
+    console.error("Erro ao carregar todas as cartas:", error);
   }
 }
 
@@ -561,8 +607,8 @@ function resetForm() {
   currentStep.value = 0;
   selectedOfferingCards.value = [];
   selectedReceivingCards.value = [];
-  offeringSearchQuery.value = '';
-  receivingSearchQuery.value = '';
+  offeringSearchQuery.value = "";
+  receivingSearchQuery.value = "";
   userCardsPagination.value.page = 1;
   allCardsPagination.value.page = 1;
 }
@@ -590,7 +636,7 @@ function toggleOfferingCard(cardId: string) {
 
 function toggleReceivingCard(cardId: string) {
   if (isCardDisabled(cardId)) return;
-  
+
   const index = selectedReceivingCards.value.indexOf(cardId);
   if (index > -1) {
     selectedReceivingCards.value.splice(index, 1);
@@ -614,7 +660,7 @@ function handleOfferingCardSelect(card: CardType, selected: boolean) {
 
 function handleReceivingCardSelect(card: CardType, selected: boolean) {
   if (isCardDisabled(card.id)) return;
-  
+
   if (selected) {
     if (!selectedReceivingCards.value.includes(card.id)) {
       selectedReceivingCards.value.push(card.id);
@@ -642,7 +688,9 @@ function removeReceivingCard(cardId: string) {
 }
 
 function getCardById(cardId: string): CardType | undefined {
-  return [...userCards.value, ...allCards.value].find(card => card.id === cardId);
+  return [...userCards.value, ...allCards.value].find(
+    (card) => card.id === cardId
+  );
 }
 
 async function createTrade() {
@@ -651,33 +699,29 @@ async function createTrade() {
   }
 
   creating.value = true;
-  
+
   try {
     const tradeData = {
       cards: [
-        ...selectedOfferingCards.value.map(cardId => ({
+        ...selectedOfferingCards.value.map((cardId) => ({
           cardId,
-          type: 'OFFERING' as const
+          type: "OFFERING" as const,
         })),
-        ...selectedReceivingCards.value.map(cardId => ({
+        ...selectedReceivingCards.value.map((cardId) => ({
           cardId,
-          type: 'RECEIVING' as const
-        }))
-      ]
+          type: "RECEIVING" as const,
+        })),
+      ],
     };
 
     await tradesStore.createTrade(tradeData);
-    
-    notification.show('Troca criada com sucesso!', 'success');
-    emit('trade-created');
-    emit('update:modelValue', false);
-    
+
+    notification.show("Troca criada com sucesso!", "success");
+    emit("trade-created");
+    emit("update:modelValue", false);
   } catch (error: any) {
-    console.error('Erro ao criar troca:', error);
-    notification.show(
-      error.message || 'Erro ao criar troca',
-      'error'
-    );
+    console.error("Erro ao criar troca:", error);
+    notification.show(error.message || "Erro ao criar troca", "error");
   } finally {
     creating.value = false;
   }
@@ -692,6 +736,26 @@ async function createTrade() {
   max-height: 400px;
   overflow-y: auto;
   padding: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(var(--v-theme-primary), 0.3) transparent;
+  min-height: 0;
+}
+
+.cards-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cards-grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cards-grid::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--v-theme-primary), 0.3);
+  border-radius: 3px;
+}
+
+.cards-grid::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(var(--v-theme-primary), 0.5);
 }
 
 .card-wrapper {
@@ -743,11 +807,13 @@ async function createTrade() {
   border-radius: 50%;
   background: rgb(var(--v-theme-grey-lighten-2));
   transition: all 0.3s ease;
+  border: 1px solid #00000052;
+  transform: scale(1.2);
 }
 
 .step-dot.active {
   background: rgb(var(--v-theme-primary));
-  transform: scale(1.2);
+  border: none;
 }
 
 .step-dot.completed {
@@ -787,6 +853,8 @@ async function createTrade() {
   .cards-grid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 12px;
+    max-height: 300px;
+    margin-bottom: 16px;
   }
 
   .card-wrapper .disabled-label {
@@ -809,6 +877,10 @@ async function createTrade() {
   .modal-footer {
     margin: 0 -16px -16px -16px;
     padding: 16px;
+    position: sticky;
+    bottom: 0;
+    background: rgb(var(--v-theme-grey-lighten-5));
+    z-index: 10;
   }
 
   .footer-content {
@@ -826,4 +898,4 @@ async function createTrade() {
     gap: 12px;
   }
 }
-</style> 
+</style>
