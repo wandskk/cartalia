@@ -1,5 +1,5 @@
 <template>
-  <div 
+  <v-card 
     class="card" 
     :class="[
       `card-${size}`,
@@ -8,50 +8,59 @@
         'card-selectable': selectable,
         'card-selected': selected,
         'card-clickable': clickable,
-        'card-loading': loading,
         'card-disabled': disabled
       }
     ]"
     @click="handleClick"
+    :elevation="selected ? 8 : 2"
   >
-    <div class="card-image">
-      <img 
+    <div class="card-image position-relative">
+      <v-img 
         :src="card.imageUrl" 
         :alt="card.name" 
         @error="handleImageError"
-        :class="{ 'card-image-loading': loading }"
-      />
+        :height="imageHeight"
+        cover
+        class="card-image-content"
+      >
+        <template v-slot:placeholder>
+          <div class="d-flex align-center justify-center fill-height">
+            <v-progress-circular indeterminate color="primary"></v-progress-circular>
+          </div>
+        </template>
+      </v-img>
       
-      <div v-if="selectable" class="card-selection">
-        <input 
-          type="checkbox" 
-          :checked="selected" 
-          @change="handleSelection"
+      <div v-if="selectable" class="card-selection position-absolute top-2 left-2">
+        <v-checkbox 
+          :model-value="selected" 
+          @update:model-value="handleSelection"
           @click.stop
+          color="primary"
+          hide-details
         />
       </div>
 
-      <div v-if="loading" class="card-loading-overlay d-flex align-center justify-center">
+      <div v-if="loading" class="card-loading-overlay position-absolute top-0 left-0 right-0 bottom-0 d-flex align-center justify-center">
         <LoadingSpinner size="32" />
       </div>
     </div>
 
-    <div class="card-content">
-                  <div class="card-header">
-              <h3 class="card-name">{{ card.name }}</h3>
-            </div>
+    <v-card-text class="pa-3">
+      <div class="card-header">
+        <h3 class="text-subtitle-1 font-weight-bold mb-2">{{ card.name }}</h3>
+      </div>
       
-      <p v-if="showDescription" class="card-description">
+      <p v-if="showDescription" class="text-body-2 text-grey mb-3">
         {{ truncatedDescription }}
       </p>
 
       <div v-if="showActions && $slots.actions" class="card-actions">
         <slot name="actions" :card="card" />
       </div>
-    </div>
+    </v-card-text>
 
     <slot name="overlay" :card="card" />
-  </div>
+  </v-card>
 </template>
 
 <script setup lang="ts">
@@ -93,7 +102,13 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>();
 
-
+const imageHeight = computed(() => {
+  switch (props.size) {
+    case 'sm': return 120;
+    case 'lg': return 300;
+    default: return 200;
+  }
+});
 
 const truncatedDescription = computed(() => {
   if (!props.showDescription) return '';
@@ -102,18 +117,20 @@ const truncatedDescription = computed(() => {
   if (description.length <= props.maxDescriptionLength) {
     return description;
   }
+  
   return description.substring(0, props.maxDescriptionLength) + '...';
 });
 
 function handleClick() {
-  if (props.clickable && !props.loading && !props.disabled) {
+  if (props.disabled || props.loading) return;
+  
+  if (props.clickable) {
     emit('click', props.card);
   }
 }
 
-function handleSelection(event: Event) {
-  const target = event.target as HTMLInputElement;
-  emit('select', props.card, target.checked);
+function handleSelection(selected: boolean) {
+  emit('select', props.card, selected);
 }
 
 function handleImageError(event: Event) {
@@ -122,262 +139,78 @@ function handleImageError(event: Event) {
 }
 </script>
 
-<style scoped lang="scss">
-@use '../../styles/_variables.scss' as *;
-
+<style scoped>
 .card {
-  background: $white;
-  border-radius: 12px;
-  overflow: hidden;
   transition: all 0.3s ease;
+  cursor: default;
+}
+
+.card-clickable {
+  cursor: pointer;
+}
+
+.card-clickable:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
+}
+
+.card-selectable {
+  cursor: pointer;
+}
+
+.card-selected {
+  border: 2px solid rgb(var(--v-theme-primary)) !important;
+  background: rgba(var(--v-theme-primary), 0.05) !important;
+}
+
+.card-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.card-disabled:hover {
+  transform: none !important;
+}
+
+.card-image {
   position: relative;
-  border: 1px solid $gray-200;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  }
-
-  &.card-clickable {
-    cursor: pointer;
-
-    &:hover {
-      border-color: $primary;
-    }
-  }
-
-  &.card-selectable {
-    cursor: pointer;
-
-    &:hover {
-      border-color: $primary;
-    }
-  }
-
-  &.card-selected {
-    border-color: $primary;
-    background: rgba($primary, 0.05);
-    box-shadow: 0 0 0 2px rgba($primary, 0.2);
-  }
-
-  &.card-loading {
-    pointer-events: none;
-    opacity: 0.7;
-  }
-
-  &.card-disabled {
-    pointer-events: none;
-    opacity: 0.5;
-    cursor: not-allowed;
-    
-    &:hover {
-      transform: none;
-      box-shadow: none;
-      border-color: $gray-200;
-    }
-    
-    .card-image img {
-      filter: grayscale(100%);
-    }
-    
-    .card-content {
-      opacity: 0.7;
-    }
-  }
-
-  .card-image {
-    position: relative;
-    width: 100%;
-    overflow: hidden;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      transition: transform 0.3s ease;
-
-      &.card-image-loading {
-        opacity: 0.5;
-      }
-    }
-
-    .card-selection {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      z-index: 2;
-
-      input[type="checkbox"] {
-        width: 20px;
-        height: 20px;
-        accent-color: $primary;
-        cursor: pointer;
-      }
-    }
-
-    .card-loading-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba($white, 0.8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      .loading-spinner {
-        width: 24px;
-        height: 24px;
-        border: 2px solid $gray-200;
-        border-top: 2px solid $primary;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      }
-    }
-  }
-
-  .card-content {
-    padding: 16px;
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 8px;
-
-      .card-name {
-        margin: 0;
-        font-size: 16px;
-        font-weight: 600;
-        color: $black;
-        line-height: 1.3;
-        flex: 1;
-        min-width: 0;
-      }
-
-
-    }
-
-    .card-description {
-      margin: 0;
-      font-size: 14px;
-      color: $gray-600;
-      line-height: 1.4;
-    }
-
-    .card-actions {
-      margin-top: 12px;
-      display: flex;
-      gap: 8px;
-    }
-  }
-
-  // Tamanhos
-  &.card-sm {
-    .card-image {
-      height: 120px;
-    }
-
-    .card-content {
-      padding: 12px;
-
-      .card-header .card-name {
-        font-size: 14px;
-      }
-
-      .card-description {
-        font-size: 12px;
-      }
-    }
-  }
-
-  &.card-md {
-    .card-image {
-      height: 200px;
-    }
-  }
-
-  &.card-lg {
-    .card-image {
-      height: 280px;
-    }
-
-    .card-content {
-      padding: 20px;
-
-      .card-header .card-name {
-        font-size: 18px;
-      }
-
-      .card-description {
-        font-size: 15px;
-      }
-    }
-  }
-
-  // Variantes
-  &.card-compact {
-    .card-content {
-      padding: 12px;
-
-      .card-header {
-        margin-bottom: 4px;
-
-        .card-name {
-          font-size: 14px;
-        }
-
-
-      }
-
-      .card-description {
-        font-size: 12px;
-      }
-    }
-  }
-
-  &.card-detailed {
-    .card-content {
-      padding: 20px;
-
-      .card-header {
-        margin-bottom: 12px;
-
-        .card-name {
-          font-size: 18px;
-        }
-
-
-      }
-
-      .card-description {
-        font-size: 15px;
-        line-height: 1.5;
-      }
-    }
-  }
+  overflow: hidden;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.card-loading-overlay {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(4px);
 }
 
-@media (max-width: 768px) {
-  .card {
-    &.card-md {
-      .card-image {
-        height: 160px;
-      }
-    }
+.card-selection {
+  z-index: 2;
+}
 
-    &.card-lg {
-      .card-image {
-        height: 220px;
-      }
-    }
-  }
+/* Size variants */
+.card-sm .card-image-content {
+  height: 120px !important;
+}
+
+.card-md .card-image-content {
+  height: 200px !important;
+}
+
+.card-lg .card-image-content {
+  height: 300px !important;
+}
+
+/* Variant styles */
+.card-compact .v-card-text {
+  padding: 12px !important;
+}
+
+.card-compact .text-subtitle-1 {
+  font-size: 14px !important;
+  margin-bottom: 8px !important;
+}
+
+.card-compact .text-body-2 {
+  font-size: 12px !important;
+  margin-bottom: 12px !important;
 }
 </style> 
