@@ -9,7 +9,7 @@
       </v-card-title>
       
       <v-card-text class="pa-0">
-        <div class="d-flex flex-column" style="max-height: 80vh">
+        <div class="d-flex flex-column max-height-80vh">
           <!-- Step 1: Select Offering Cards -->
           <div
             v-if="currentStep === 0"
@@ -27,7 +27,7 @@
 
             <div class="search-section mb-4">
               <div class="d-flex align-center ga-4 flex-wrap">
-                <div class="flex-grow-1" style="min-width: 250px">
+                <div class="flex-grow-1 min-width-250">
                   <SearchInput
                     v-model="offeringSearchQuery"
                     placeholder="Buscar suas cartas..."
@@ -110,7 +110,7 @@
 
             <div class="search-section mb-4">
               <div class="d-flex align-center ga-4 flex-wrap">
-                <div class="flex-grow-1" style="min-width: 250px">
+                <div class="flex-grow-1 min-width-250">
                                       <SearchInput
                       v-model="receivingSearchQuery"
                       placeholder="Buscar cartas disponíveis..."

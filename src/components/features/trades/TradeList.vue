@@ -10,8 +10,10 @@
     </div>
 
     <div v-else-if="trades.length === 0" class="d-flex align-center justify-center py-10">
-      <div class="text-center" style="max-width: 400px;">
-        <div class="mb-4" style="font-size: 48px; opacity: 0.5;">🃏</div>
+      <div class="text-center max-width-400">
+        <div class="mb-4 text-h1 opacity-50">
+          <v-icon size="64" color="grey">mdi-cards</v-icon>
+        </div>
         <h3 class="mb-2 font-weight-bold">Nenhuma troca disponível</h3>
         <p class="mb-4 text-grey">Seja o primeiro a criar uma troca no marketplace!</p>
         <v-btn v-if="isAuthenticated" @click="goToCreateTrade" color="primary" variant="elevated" class="mb-2">

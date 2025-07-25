@@ -43,25 +43,25 @@ const tradeStats = computed(() => [
   {
     number: totalTrades.value,
     label: 'Total de Trocas',
-    icon: '📊',
+    icon: 'mdi-chart-line',
     variant: 'default' as const
   },
   {
     number: activeTrades.value,
     label: 'Trocas Ativas',
-    icon: '🔄',
+    icon: 'mdi-sync',
     variant: 'default' as const
   },
   {
     number: thisMonthTrades.value,
     label: 'Este Mês',
-    icon: '📈',
+    icon: 'mdi-trending-up',
     variant: 'default' as const
   },
   {
     number: `${successRate.value}%`,
     label: 'Taxa de Sucesso',
-    icon: '🎯',
+    icon: 'mdi-target',
     variant: 'default' as const
   }
 ]);

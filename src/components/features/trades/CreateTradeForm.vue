@@ -3,15 +3,9 @@
     <div class="form-sections">
       <v-card class="section offering-section mb-6" elevation="2">
         <v-card-text class="pa-6">
-          <div class="d-flex justify-space-between align-center mb-4">
-            <h3 class="text-h6 font-weight-bold d-flex align-center ga-2">
-              <span style="font-size: 24px;">📤</span>
-              Cartas que você oferece
-            </h3>
-            <v-btn @click="showCardSelector = 'offering'" color="primary" size="small" variant="elevated">
-              <v-icon>mdi-plus</v-icon>
-              Adicionar Carta
-            </v-btn>
+          <div class="d-flex align-center ga-2 mb-4">
+            <v-icon size="24" color="primary">mdi-upload</v-icon>
+            <h3 class="text-h6 font-weight-bold">Cartas que você oferece</h3>
           </div>
 
           <div class="selected-cards">
@@ -30,9 +24,11 @@
               </v-btn>
             </div>
 
-            <div v-if="selectedOfferingCards.length === 0" class="d-flex flex-column align-center justify-center py-8 text-center">
-              <span style="font-size: 48px;" class="mb-3">🃏</span>
-              <p class="text-body-2 text-grey">Nenhuma carta selecionada</p>
+            <div v-if="selectedOfferingCards.length === 0" class="d-flex align-center justify-center py-8">
+              <div class="text-center">
+                <v-icon size="48" color="grey" class="mb-3">mdi-cards</v-icon>
+                <p class="text-body-1 text-grey">Nenhuma carta selecionada</p>
+              </div>
             </div>
           </div>
         </v-card-text>
@@ -40,15 +36,9 @@
 
       <v-card class="section receiving-section mb-6" elevation="2">
         <v-card-text class="pa-6">
-          <div class="d-flex justify-space-between align-center mb-4">
-            <h3 class="text-h6 font-weight-bold d-flex align-center ga-2">
-              <span style="font-size: 24px;">📥</span>
-              Cartas que você quer receber
-            </h3>
-            <v-btn @click="showCardSelector = 'receiving'" color="primary" size="small" variant="elevated">
-              <v-icon>mdi-plus</v-icon>
-              Adicionar Carta
-            </v-btn>
+          <div class="d-flex align-center ga-2 mb-4">
+            <v-icon size="24" color="secondary">mdi-download</v-icon>
+            <h3 class="text-h6 font-weight-bold">Cartas que você quer receber</h3>
           </div>
           
           <div class="selected-cards">
@@ -67,9 +57,11 @@
               </v-btn>
             </div>
             
-            <div v-if="selectedReceivingCards.length === 0" class="d-flex flex-column align-center justify-center py-8 text-center">
-              <span style="font-size: 48px;" class="mb-3">🃏</span>
-              <p class="text-body-2 text-grey">Nenhuma carta selecionada</p>
+            <div v-if="selectedReceivingCards.length === 0" class="d-flex align-center justify-center py-8">
+              <div class="text-center">
+                <v-icon size="48" color="grey" class="mb-3">mdi-cards</v-icon>
+                <p class="text-body-1 text-grey">Nenhuma carta selecionada</p>
+              </div>
             </div>
           </div>
         </v-card-text>

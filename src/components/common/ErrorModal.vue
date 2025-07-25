@@ -8,7 +8,7 @@
   >
     <div class="d-flex flex-column align-center text-center pa-6">
       <v-icon size="48" color="error" class="mb-4">mdi-alert-circle</v-icon>
-      <div class="text-center" style="max-width: 400px;">
+      <div class="text-center max-width-400">
         <h3 class="text-h6 font-weight-bold mb-3">{{ errorStore.currentError?.message || 'Ocorreu um erro' }}</h3>
         <p class="text-body-1 text-grey">
           {{ errorStore.currentError?.details || 'Algo deu errado. Tente novamente.' }}

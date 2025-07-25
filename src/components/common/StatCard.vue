@@ -14,7 +14,7 @@
       color="primary" 
       class="flex-shrink-0"
     >
-      <span style="font-size: 24px;">{{ icon }}</span>
+      <v-icon :icon="icon" size="24"></v-icon>
     </v-avatar>
     
     <div class="flex-grow-1">

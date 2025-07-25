@@ -10,7 +10,7 @@
       Anterior
     </v-btn>
 
-    <div class="text-body-2 text-grey font-weight-medium" style="min-width: 100px; text-align: center;">
+    <div class="text-body-2 text-grey font-weight-medium min-width-100 text-center">
       Página {{ currentPage }}
     </div>
 

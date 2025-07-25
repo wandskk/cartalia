@@ -22,8 +22,10 @@
       v-else-if="trades.length === 0"
       class="d-flex align-center justify-center py-10"
     >
-      <div class="text-center" style="max-width: 400px">
-        <div class="mb-4" style="font-size: 64px">🃏</div>
+      <div class="text-center max-width-400">
+        <div class="mb-4 text-h1">
+          <v-icon size="64" color="grey">mdi-cards</v-icon>
+        </div>
         <h3 class="text-h5 font-weight-bold mb-4">Você ainda não tem trocas</h3>
         <p class="text-body-1 text-grey mb-6">
           Crie sua primeira troca para começar a negociar!

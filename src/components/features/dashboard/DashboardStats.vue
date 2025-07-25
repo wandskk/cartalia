@@ -24,25 +24,25 @@ const dashboardStats = computed(() => [
   {
     number: props.totalCards,
     label: 'Total de Cartas',
-    icon: '🃏',
+    icon: 'mdi-cards',
     variant: 'default' as const
   },
   {
     number: props.totalTrades,
     label: 'Trocas Criadas',
-    icon: '📊',
+    icon: 'mdi-chart-line',
     variant: 'default' as const
   },
   {
     number: props.activeTrades,
     label: 'Trocas Ativas',
-    icon: '🔄',
+    icon: 'mdi-sync',
     variant: 'default' as const
   },
   {
     number: props.uniqueCards,
     label: 'Cartas Únicas',
-    icon: '⭐',
+    icon: 'mdi-star',
     variant: 'default' as const
   }
 ]);

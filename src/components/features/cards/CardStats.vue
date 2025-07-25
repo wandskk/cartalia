@@ -1,14 +1,10 @@
 <template>
-  <StatsGrid 
-    :stats="cardStats"
-    min-column-width="200px"
-    gap="ga-5"
-  />
+  <StatsGrid :stats="cardStats" min-column-width="200px" gap="ga-5" />
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import StatsGrid from '../../common/StatsGrid.vue';
+import { computed } from "vue";
+import StatsGrid from "../../common/StatsGrid.vue";
 
 interface Props {
   totalCards: number;
@@ -20,15 +16,15 @@ const props = defineProps<Props>();
 const cardStats = computed(() => [
   {
     number: props.totalCards,
-    label: 'Total de Cartas',
-    icon: '📊',
-    variant: 'primary' as const
+    label: "Total de Cartas",
+    icon: "mdi-cards",
+    variant: "primary" as const,
   },
   {
     number: props.recentCards,
-    label: 'Adicionadas este mês',
-    icon: '🔄',
-    variant: 'secondary' as const
-  }
+    label: "Adicionadas este mês",
+    icon: "mdi-sync",
+    variant: "secondary" as const,
+  },
 ]);
-</script> 
+</script>

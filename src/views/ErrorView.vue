@@ -1,7 +1,7 @@
 <template>
   <div class="error-view">
     <Container>
-      <div class="d-flex flex-column align-center justify-center text-center" style="max-width: 600px; margin: 0 auto;">
+      <div class="d-flex flex-column align-center justify-center text-center max-width-600 mx-auto">
         <div class="mb-6">
           <v-icon 
             size="80" 

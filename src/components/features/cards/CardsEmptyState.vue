@@ -1,34 +1,17 @@
 <template>
-  <div class="d-flex align-center justify-center py-10">
-    <div class="text-center" style="max-width: 400px;">
-      <div class="mb-4" style="font-size: 64px;">🃏</div>
-      <h3 class="text-h5 font-weight-bold mb-4">{{ title }}</h3>
-      <p class="text-body-1 text-grey mb-6">{{ description }}</p>
-      <v-btn @click="$emit('add-cards')" color="primary" variant="elevated">
-        {{ buttonText }}
-      </v-btn>
+  <div class="text-center max-width-400">
+    <div class="mb-4 text-h1">
+      <v-icon size="64" color="grey">mdi-cards</v-icon>
     </div>
+    <h3 class="text-h5 font-weight-bold mb-4">Nenhuma carta encontrada</h3>
+    <p class="text-body-1 text-grey mb-6">
+      Parece que não há cartas disponíveis no momento. Tente ajustar os filtros ou volte mais tarde.
+    </p>
   </div>
 </template>
 
 <script setup lang="ts">
-interface Props {
-  title?: string;
-  description?: string;
-  buttonText?: string;
-}
-
-interface Emits {
-  (e: 'add-cards'): void;
-}
-
-withDefaults(defineProps<Props>(), {
-  title: 'Você ainda não tem cartas',
-  description: 'Adicione cartas à sua coleção para começar a fazer trocas!',
-  buttonText: 'Adicionar Primeira Carta'
-});
-
-defineEmits<Emits>();
+// Componente simples, sem lógica adicional
 </script>
 
 <style scoped lang="scss">
