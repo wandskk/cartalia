@@ -362,6 +362,294 @@ const validateCard = (data: unknown): Card => {
 - ✅ **Cache de cartas** - TTL configurável
 - ✅ **Service Worker** - Para PWA
 
+## 🗄️ Estratégias de Cacheamento
+
+### **Cache Implementado**
+
+#### **1. Cache Store (Pinia)**
+Sistema de cache centralizado com TTL (Time To Live) configurável e persistência no localStorage.
+
+```typescript
+// stores/cache.ts
+export const useCacheStore = defineStore('cache', () => {
+  const cache = ref<Map<string, CacheItem<any>>>(new Map());
+  const config = ref<CacheConfig>({
+    ttl: 5 * 60 * 1000, // 5 minutos padrão
+    maxSize: 100 // Máximo 100 itens
+  });
+
+  // Funções principais
+  function set<T>(key: string, data: T, ttl?: number): void
+  function get<T>(key: string): T | null
+  function has(key: string): boolean
+  function remove(key: string): boolean
+  function clear(): void
+});
+```
+
+**Características:**
+- **TTL Configurável**: Cada item pode ter seu próprio tempo de vida
+- **Limpeza Automática**: Remove itens expirados automaticamente
+- **Persistência**: Salva no localStorage para sobreviver a recarregamentos
+- **LRU (Least Recently Used)**: Remove itens mais antigos quando o cache está cheio
+- **Limpeza de Memória**: Remove 10% dos itens mais antigos quando necessário
+
+#### **2. Cache de Dados da API**
+Implementado nos serviços para reduzir requisições desnecessárias.
+
+```typescript
+// services/modules/cards.ts
+export const CardServices = {
+  async getCardById(id: string): Promise<Card> {
+    const cacheStore = useCacheStore();
+    const cacheKey = cacheStore.CACHE_KEYS.CARD_DETAIL(id);
+    
+    // Verifica cache primeiro
+    const cached = cacheStore.get<Card>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+    
+    // Faz requisição se não estiver em cache
+    const response = await api.get(`/cards/${id}`);
+    
+    // Salva no cache por 5 minutos
+    cacheStore.set(cacheKey, response.data, 5 * 60 * 1000);
+    
+    return response.data;
+  },
+
+  async getUserCards(): Promise<Card[]> {
+    const cacheStore = useCacheStore();
+    const cacheKey = cacheStore.CACHE_KEYS.USER_CARDS;
+    
+    const cached = cacheStore.get<Card[]>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+    
+    const response = await api.get('/me/cards');
+    
+    // Cache por 1 minuto (dados mais voláteis)
+    cacheStore.set(cacheKey, response.data, 60 * 1000);
+    
+    return response.data;
+  }
+};
+```
+
+**Estratégias de TTL:**
+- **Cartas individuais**: 5 minutos (dados estáticos)
+- **Cartas do usuário**: 1 minuto (dados que podem mudar)
+- **Lista de trocas**: 2 minutos (dados semi-dinâmicos)
+- **Perfil do usuário**: 10 minutos (dados relativamente estáticos)
+
+#### **3. Cache de Estado da UI**
+Persistência de preferências do usuário no localStorage.
+
+```typescript
+// stores/sidebar.ts - Estado do sidebar
+const stored = localStorage.getItem(SIDEBAR.STORAGE_KEY);
+if (stored) {
+  isCollapsedValue = JSON.parse(stored);
+}
+
+// stores/auth.ts - Dados de autenticação
+const token = ref<string | null>(localStorage.getItem("tokenCartalia"));
+const storedUser = localStorage.getItem("userCartalia");
+```
+
+#### **4. Service Worker (PWA)**
+Cache de recursos estáticos para funcionamento offline.
+
+```javascript
+// public/sw.js
+const CACHE_NAME = 'cartalia-v1';
+const urlsToCache = [
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/assets/index.css',
+  '/assets/index.js'
+];
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(urlsToCache))
+  );
+});
+```
+
+### **Oportunidades de Melhoria**
+
+#### **1. Cache Inteligente por Contexto**
+Implementar cache baseado no contexto de uso do usuário.
+
+```typescript
+// Oportunidade: Cache contextual
+const CACHE_STRATEGIES = {
+  MARKETPLACE: {
+    ttl: 3 * 60 * 1000, // 3 minutos
+    maxItems: 50
+  },
+  USER_COLLECTION: {
+    ttl: 1 * 60 * 1000, // 1 minuto
+    maxItems: 20
+  },
+  SEARCH_RESULTS: {
+    ttl: 5 * 60 * 1000, // 5 minutos
+    maxItems: 30
+  }
+};
+```
+
+#### **2. Cache de Imagens**
+Implementar cache específico para imagens das cartas.
+
+```typescript
+// Oportunidade: Cache de imagens
+const imageCache = {
+  async preloadImages(cards: Card[]) {
+    const imagePromises = cards.map(card => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(card.id);
+        img.onerror = reject;
+        img.src = card.imageUrl;
+      });
+    });
+    
+    await Promise.allSettled(imagePromises);
+  }
+};
+```
+
+#### **3. Cache de Busca**
+Cachear resultados de busca para consultas repetidas.
+
+```typescript
+// Oportunidade: Cache de busca
+const searchCache = {
+  generateKey(query: string, filters: any): string {
+    return `search:${query}:${JSON.stringify(filters)}`;
+  },
+  
+  async getCachedResults(query: string, filters: any) {
+    const key = this.generateKey(query, filters);
+    return cacheStore.get(key);
+  }
+};
+```
+
+#### **4. Cache de Paginação**
+Cachear páginas específicas para navegação mais fluida.
+
+```typescript
+// Oportunidade: Cache de paginação
+const paginationCache = {
+  generateKey(endpoint: string, page: number, rpp: number): string {
+    return `page:${endpoint}:${page}:${rpp}`;
+  },
+  
+  async preloadNextPage(endpoint: string, currentPage: number) {
+    const nextPageKey = this.generateKey(endpoint, currentPage + 1, 12);
+    if (!cacheStore.has(nextPageKey)) {
+      // Pré-carrega próxima página
+      const nextPageData = await api.get(`${endpoint}?page=${currentPage + 1}&rpp=12`);
+      cacheStore.set(nextPageKey, nextPageData, 2 * 60 * 1000);
+    }
+  }
+};
+```
+
+#### **5. Cache de Filtros**
+Cachear configurações de filtros do usuário.
+
+```typescript
+// Oportunidade: Cache de filtros
+const filterCache = {
+  saveUserFilters(userId: string, filters: any) {
+    const key = `filters:${userId}`;
+    cacheStore.set(key, filters, 24 * 60 * 60 * 1000); // 24 horas
+  },
+  
+  getUserFilters(userId: string) {
+    const key = `filters:${userId}`;
+    return cacheStore.get(key);
+  }
+};
+```
+
+#### **6. Cache de Validação**
+Cachear resultados de validação para formulários complexos.
+
+```typescript
+// Oportunidade: Cache de validação
+const validationCache = {
+  async validateCardName(name: string): Promise<boolean> {
+    const key = `validation:card:${name}`;
+    const cached = cacheStore.get(key);
+    
+    if (cached !== null) {
+      return cached;
+    }
+    
+    const isValid = await api.post('/validate/card-name', { name });
+    cacheStore.set(key, isValid, 60 * 60 * 1000); // 1 hora
+    
+    return isValid;
+  }
+};
+```
+
+### **Benefícios das Estratégias de Cache**
+
+#### **1. Performance**
+- **Redução de requisições**: Menos chamadas à API
+- **Carregamento mais rápido**: Dados disponíveis instantaneamente
+- **Melhor UX**: Interface mais responsiva
+
+#### **2. Economia de Recursos**
+- **Menor uso de banda**: Dados reutilizados
+- **Redução de carga no servidor**: Menos requisições simultâneas
+- **Economia de bateria**: Menos processamento no dispositivo
+
+#### **3. Experiência Offline**
+- **Funcionalidade básica**: App funciona sem conexão
+- **Sincronização**: Dados sincronizados quando online
+- **PWA**: Instalação como app nativo
+
+#### **4. Escalabilidade**
+- **Cache distribuído**: Cada usuário tem seu cache
+- **Configuração flexível**: TTLs diferentes por tipo de dado
+- **Limpeza automática**: Gerenciamento de memória
+
+### **Monitoramento de Cache**
+
+```typescript
+// Oportunidade: Monitoramento
+const cacheMetrics = {
+  hitRate: 0,
+  missRate: 0,
+  totalRequests: 0,
+  
+  recordHit() {
+    this.hitRate++;
+    this.totalRequests++;
+  },
+  
+  recordMiss() {
+    this.missRate++;
+    this.totalRequests++;
+  },
+  
+  getHitRatePercentage() {
+    return (this.hitRate / this.totalRequests) * 100;
+  }
+};
+```
+
 ## 🔧 Escolhas Técnicas
 
 ### **Framework e Bibliotecas**

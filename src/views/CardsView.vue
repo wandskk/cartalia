@@ -16,6 +16,7 @@
         <CardsErrorState v-if="cardsStore.error" :error="cardsStore.error" />
         <CardsEmptyState
           v-else-if="!cardsStore.loading && filteredCards.length === 0"
+          @clear-filters="clearAllFilters"
         />
         <CardList v-else :cards="paginatedCards" :view-mode="viewMode" />
       </div>
@@ -37,12 +38,15 @@
       v-model="showAddCardModal"
       @cards-added="cardsStore.fetchUserCards()"
     />
+
+    <!-- Back to Top Button -->
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, computed } from "vue";
 import { useCardsStore } from "../stores/cards";
+import { useLoadingStore } from "../stores/loading";
 import { useCardFilters } from "../composables/useCardFilters";
 import { usePagination } from "../composables/usePagination";
 import Container from "../components/common/Container.vue";
@@ -54,7 +58,9 @@ import CardList from "../components/features/cards/CardList.vue";
 import SimplePagination from "../components/common/SimplePagination.vue";
 import AddCardModal from "../components/features/cards/AddCardModal.vue";
 
+
 const cardsStore = useCardsStore();
+const loadingStore = useLoadingStore();
 const showAddCardModal = ref(false);
 
 // Filtros
@@ -102,8 +108,16 @@ function handlePageChange(page: number) {
   setPage(page);
 }
 
-onMounted(() => {
-  cardsStore.fetchUserCards();
+function clearAllFilters() {
+  searchQuery.value = '';
+  currentFilter.value = 'all';
+  setPage(1);
+}
+
+onMounted(async () => {
+  loadingStore.startLoading();
+  await cardsStore.fetchUserCards();
+  loadingStore.stopLoading();
 });
 </script>
 
@@ -121,15 +135,39 @@ onMounted(() => {
   height: 100%;
 }
 
+/* Mobile optimizations */
 @media (max-width: 768px) {
   .cards-view {
-    padding: 1.5rem 0;
+    padding: 1rem 0;
+  }
+  
+  .cards-content {
+    gap: 0.75rem;
   }
 }
 
 @media (max-width: 480px) {
   .cards-view {
-    padding: 1rem 0;
+    padding: 0.75rem 0;
+  }
+  
+  .cards-content {
+    gap: 0.5rem;
+  }
+}
+
+/* Ensure proper spacing for mobile */
+@media (max-width: 768px) {
+  :deep(.container) {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  :deep(.container) {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
   }
 }
 </style>
