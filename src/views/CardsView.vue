@@ -57,7 +57,7 @@ import CardsEmptyState from "../components/features/cards/CardsEmptyState.vue";
 import CardList from "../components/features/cards/CardList.vue";
 import SimplePagination from "../components/common/SimplePagination.vue";
 import AddCardModal from "../components/features/cards/AddCardModal.vue";
-import BackToTop from "../components/common/BackToTop.vue";
+
 
 const cardsStore = useCardsStore();
 const loadingStore = useLoadingStore();
